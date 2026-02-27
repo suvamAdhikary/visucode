@@ -4,6 +4,8 @@
 // Phase 1: Reads from local JSON files
 // Phase 2: Swap to GraphQL call — ZERO component changes needed
 
+import { readFile } from 'fs/promises';
+import path from 'path';
 import type { Problem, Difficulty, PatternSlug, Category } from '@visucode/shared-types';
 
 // Static import of problem index for listing
@@ -36,10 +38,24 @@ const PROBLEM_INDEX: Array<{
  */
 export async function getProblem(slug: string): Promise<Problem | null> {
   try {
-    const data = await import(`../../../../content/problems/${slug}.json`);
-    return data.default as Problem;
-  } catch {
+    // Try both possible cwd locations (Nx may run from monorepo root or apps/web)
+    const possiblePaths = [
+      path.join(process.cwd(), 'apps', 'web', 'content', 'problems', `${slug}.json`),
+      path.join(process.cwd(), 'content', 'problems', `${slug}.json`),
+    ];
+
+    for (const filePath of possiblePaths) {
+      try {
+        const raw = await readFile(filePath, 'utf-8');
+        return JSON.parse(raw) as Problem;
+      } catch {
+        continue;
+      }
+    }
     console.error(`[ProblemService] Problem not found: ${slug}`);
+    return null;
+  } catch {
+    console.error(`[ProblemService] Error loading problem: ${slug}`);
     return null;
   }
 }
