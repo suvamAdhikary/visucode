@@ -28,6 +28,7 @@
     "app/**/*.tsx",
     "app/**/*.js",
     "app/**/*.jsx",
+    "lib/**/*.ts",
     "../../apps/web/.next/types/**/*.ts",
     "../../dist/apps/web/.next/types/**/*.ts",
     "next-env.d.ts"
