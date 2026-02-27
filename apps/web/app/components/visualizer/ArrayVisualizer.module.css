@@ -1,0 +1,176 @@
+/* ============================================
+   Array Visualizer Styles
+   ============================================ */
+
+.visualizer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  min-height: 180px;
+  justify-content: center;
+}
+
+/* Rows */
+.pointerRow,
+.arrayRow,
+.indexRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.pointerSlot {
+  width: 56px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Pointer label */
+.pointerLabel {
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  animation: pointerAppear 0.3s ease-out;
+}
+
+.pointerArrow {
+  font-size: var(--text-base);
+  font-weight: 700;
+  animation: pointerAppear 0.3s ease-out;
+}
+
+@keyframes pointerAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Array element */
+.element {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-code);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border);
+  color: var(--color-text-primary);
+  transition: all 0.3s ease-out;
+  position: relative;
+}
+
+/* Highlighted */
+.highlighted {
+  transform: scale(1.08);
+  z-index: 1;
+}
+
+/* Comparing (pulse) */
+.comparing {
+  animation: pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Swapping */
+.swapping {
+  animation: swap 0.5s ease-in-out;
+}
+
+@keyframes swap {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-20px); }
+  75% { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
+}
+
+/* In sliding window */
+.inWindow {
+  background: rgba(168, 85, 247, 0.08);
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+/* Sorted region */
+.sorted {
+  background: rgba(34, 197, 94, 0.06);
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+/* Changed value flash */
+.changed {
+  animation: flash 0.4s ease-out;
+}
+
+@keyframes flash {
+  0% {
+    background: rgba(245, 158, 11, 0.3);
+    transform: scale(1.15);
+  }
+  100% {
+    background: var(--color-bg-tertiary);
+    transform: scale(1);
+  }
+}
+
+/* Index labels */
+.indexLabel {
+  width: 56px;
+  text-align: center;
+  font-family: var(--font-code);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* Window bracket */
+.windowRow {
+  width: 100%;
+  position: relative;
+  height: 12px;
+}
+
+.windowBracket {
+  position: absolute;
+  height: 8px;
+  border: 2px solid;
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  transition: all 0.3s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .element {
+    width: 44px;
+    height: 44px;
+    font-size: var(--text-base);
+  }
+
+  .pointerSlot {
+    width: 44px;
+  }
+
+  .indexLabel {
+    width: 44px;
+  }
+
+  .arrayRow,
+  .pointerRow,
+  .indexRow {
+    gap: var(--space-1);
+  }
+}
