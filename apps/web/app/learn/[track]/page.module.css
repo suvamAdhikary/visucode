@@ -1,0 +1,143 @@
+/* Track Page Styles */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+}
+
+.breadcrumb a {
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+
+.breadcrumb a:hover {
+  color: var(--color-text-primary);
+}
+
+.trackHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.trackIcon {
+  font-size: 3rem;
+}
+
+.trackHeader h1 {
+  margin-bottom: var(--space-2);
+}
+
+.trackHeader p {
+  font-size: var(--text-base);
+  max-width: 600px;
+}
+
+/* Progress Bar */
+.progressBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.progressTrack {
+  flex: 1;
+  height: 8px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.progressText {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* Lesson List */
+.lessonList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.lessonCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-6) !important;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.lessonNumber {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.lessonInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.lessonInfo h3 {
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+}
+
+.lessonMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.lessonSteps {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.lessonExercise {
+  font-size: var(--text-xs);
+  color: var(--color-brand-hover);
+  font-weight: 600;
+}
+
+.linkedProblem {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.lessonArrow {
+  font-size: var(--text-xl);
+  color: var(--color-text-muted);
+  transition:
+    transform var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.lessonCard:hover .lessonArrow {
+  transform: translateX(4px);
+  color: var(--color-text-primary);
+}
