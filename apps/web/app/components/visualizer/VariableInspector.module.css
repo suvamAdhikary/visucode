@@ -1,0 +1,113 @@
+/* Variable Inspector Styles */
+
+.inspector {
+  width: 100%;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Line indicator */
+.lineIndicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.lineLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lineNumber {
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-brand-hover);
+  background: var(--color-brand-soft);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+/* Variables */
+.variables {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.variable {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  transition: all var(--transition-fast);
+}
+
+.changed {
+  border-color: var(--color-warning);
+  background: rgba(245, 158, 11, 0.08);
+  animation: varFlash 0.5s ease-out;
+}
+
+@keyframes varFlash {
+  0% {
+    background: rgba(245, 158, 11, 0.25);
+    transform: scale(1.05);
+  }
+  100% {
+    background: rgba(245, 158, 11, 0.08);
+    transform: scale(1);
+  }
+}
+
+.varName {
+  color: var(--color-two-pointers);
+  font-weight: 600;
+}
+
+.varEquals {
+  color: var(--color-text-muted);
+}
+
+.varValue {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.varType {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  margin-left: var(--space-1);
+}
+
+/* Explanation */
+.explanation {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-brand-soft);
+  border-radius: var(--radius-md);
+}
+
+.explanationIcon {
+  flex-shrink: 0;
+}
+
+.explanation p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+}
