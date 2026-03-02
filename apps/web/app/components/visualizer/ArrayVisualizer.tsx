@@ -11,7 +11,7 @@
 
 import { useEffect, useRef } from 'react';
 import type { ArrayVisualizerState, Pointer } from '@visucode/shared-types';
-import { useVisualizerStore } from '../../lib/stores';
+import { useVisualizerStore } from '../../../lib/stores';
 import styles from './ArrayVisualizer.module.css';
 
 interface ArrayVisualizerProps {
@@ -30,7 +30,7 @@ export function ArrayVisualizer({
   animateChanges = true,
 }: ArrayVisualizerProps) {
   const prevElementsRef = useRef<(number | string)[]>([]);
-  const { isPlaying, speed } = useVisualizerStore();
+  const { speed } = useVisualizerStore();
 
   // Track which elements changed for animation
   const prevElements = prevElementsRef.current;

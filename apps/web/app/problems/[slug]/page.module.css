@@ -1,0 +1,318 @@
+/* Problem Detail Page Styles */
+
+.problemPage {
+  min-height: calc(100vh - var(--navbar-height));
+}
+
+/* Top Bar */
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.breadcrumb a {
+  color: var(--color-text-muted);
+}
+
+.breadcrumb a:hover {
+  color: var(--color-text-primary);
+}
+
+.topActions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.externalLink {
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.externalLink:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text-primary);
+}
+
+/* Main Grid — 2 columns */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - var(--navbar-height) - 57px);
+}
+
+/* Left Panel — Description */
+.descriptionPanel {
+  padding: var(--space-6);
+  overflow-y: auto;
+  max-height: calc(100vh - var(--navbar-height) - 57px);
+  border-right: 1px solid var(--color-border);
+}
+
+.problemHeader {
+  margin-bottom: var(--space-6);
+}
+
+.problemHeader h1 {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-3);
+}
+
+.problemMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.companyTag {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+/* Description text */
+.description p {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+/* Sections */
+.section {
+  margin-top: var(--space-6);
+}
+
+.section h3 {
+  font-size: var(--text-base);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-primary);
+}
+
+/* Examples */
+.example {
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.exampleLine {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  align-items: flex-start;
+}
+
+.exampleLabel {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+/* Constraints */
+.constraintsList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.constraintsList li {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.constraintsList li::before {
+  content: '•';
+  color: var(--color-text-muted);
+  margin-right: var(--space-2);
+}
+
+/* Hints */
+.hintDetails {
+  margin-bottom: var(--space-2);
+}
+
+.hintSummary {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.hintSummary:hover {
+  background: var(--color-bg-elevated);
+}
+
+.hintContent {
+  padding: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Use Cases */
+.useCase {
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.useCaseCompany {
+  font-size: var(--text-xs);
+  color: var(--color-brand-hover);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.useCase strong {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+.useCase p {
+  font-size: var(--text-sm);
+}
+
+/* Right Panel — Dry Run Viewer */
+.visualizerPanel {
+  padding: var(--space-6);
+  overflow-y: auto;
+  max-height: calc(100vh - var(--navbar-height) - 57px);
+}
+
+.dryRunViewer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.dryRunTitle {
+  font-size: var(--text-lg);
+}
+
+.dryRunEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-12);
+  color: var(--color-text-muted);
+}
+
+/* Code Block */
+.codeBlock {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.codeHeader {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-bg-tertiary);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.complexity {
+  font-family: var(--font-code);
+}
+
+.codeContent {
+  padding: var(--space-2) 0;
+  margin: 0;
+  overflow-x: auto;
+}
+
+.codeLine {
+  display: flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-4);
+  border-left: 3px solid transparent;
+  transition: all var(--transition-fast);
+  min-height: 1.6em;
+}
+
+.codeLineActive {
+  border-left-width: 3px;
+}
+
+.codeLine code {
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  background: none;
+  padding: 0;
+  white-space: pre;
+}
+
+.lineNumber {
+  font-family: var(--font-code);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  min-width: 28px;
+  text-align: right;
+  margin-right: var(--space-3);
+  user-select: none;
+}
+
+/* Viz Container */
+.vizContainer {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .descriptionPanel {
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .visualizerPanel {
+    max-height: none;
+  }
+}

@@ -7,7 +7,7 @@
 // Used in problem detail pages and dry run mode
 
 import { useEffect, useRef, useCallback } from 'react';
-import { useVisualizerStore } from '../../lib/stores';
+import { useVisualizerStore } from '../../../lib/stores';
 import styles from './StepController.module.css';
 
 interface StepControllerProps {
