@@ -3,6 +3,5 @@
   "buildCommand": "npx nx build web",
   "outputDirectory": "dist/apps/web/.next",
   "installCommand": "npm install",
-  "framework": "nextjs",
-  "ignoreCommand": "npx nx-ignore web"
+  "framework": "nextjs"
 }
