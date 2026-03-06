@@ -1,0 +1,206 @@
+{
+  "slug": "best-time-to-buy-sell-stock",
+  "title": "Best Time to Buy and Sell Stock",
+  "difficulty": "Easy",
+  "category": "array",
+  "patterns": ["sliding-window"],
+  "companies": ["Amazon", "Meta", "Google", "Goldman Sachs"],
+  "description": "You are given an array `prices` where `prices[i]` is the price of a given stock on the `i`th day.\n\nYou want to maximize your profit by choosing a **single day** to buy one stock and choosing a **different day in the future** to sell that stock.\n\nReturn the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return `0`.",
+  "examples": [
+    {
+      "input": "prices = [7,1,5,3,6,4]",
+      "output": "5",
+      "explanation": "Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5."
+    },
+    {
+      "input": "prices = [7,6,4,3,1]",
+      "output": "0",
+      "explanation": "No profitable transaction is possible, so max profit is 0."
+    }
+  ],
+  "constraints": [
+    "1 <= prices.length <= 10^5",
+    "0 <= prices[i] <= 10^4"
+  ],
+  "hints": [
+    "Track the minimum price seen so far as you scan left to right.",
+    "At each step, calculate the profit if you sold today (current price - min price). Track the maximum profit."
+  ],
+  "starterCode": {
+    "javascript": "function maxProfit(prices) {\n  // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function maxProfit(prices) {\n  let minPrice = Infinity;\n  let maxProfit = 0;\n\n  for (let i = 0; i < prices.length; i++) {\n    if (prices[i] < minPrice) {\n      minPrice = prices[i];\n    } else {\n      const profit = prices[i] - minPrice;\n      maxProfit = Math.max(maxProfit, profit);\n    }\n  }\n\n  return maxProfit;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "explanation": "Single pass: track the minimum price seen so far and the maximum profit possible at each position. The sliding window is between the min price day and the current day."
+    }
+  ],
+  "testCases": [
+    { "id": "1", "input": "[[7,1,5,3,6,4]]", "expected": "5" },
+    { "id": "2", "input": "[[7,6,4,3,1]]", "expected": "0" },
+    { "id": "3", "input": "[[2,4,1]]", "expected": "2" }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 2,
+      "variables": [
+        { "name": "minPrice", "value": "∞", "type": "number", "changed": true },
+        { "name": "maxProfit", "value": "0", "type": "number", "changed": true },
+        { "name": "i", "value": "0", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [7, 1, 5, 3, 6, 4],
+        "highlightIndices": [0]
+      },
+      "explanation": "Initialize minPrice=∞, maxProfit=0. Start scanning at i=0 (price 7)",
+      "pointers": [
+        { "name": "i", "index": 0, "color": "#f59e0b" }
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "line": 6,
+      "variables": [
+        { "name": "minPrice", "value": "7", "type": "number", "changed": true },
+        { "name": "maxProfit", "value": "0", "type": "number" },
+        { "name": "i", "value": "0", "type": "number" }
+      ],
+      "arrayState": {
+        "elements": [7, 1, 5, 3, 6, 4],
+        "highlightIndices": [0]
+      },
+      "explanation": "prices[0]=7 < ∞ → new minPrice=7. Buy day candidate!",
+      "pointers": [
+        { "name": "buy", "index": 0, "color": "#06b6d4" },
+        { "name": "i", "index": 0, "color": "#f59e0b" }
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "line": 6,
+      "variables": [
+        { "name": "minPrice", "value": "1", "type": "number", "changed": true },
+        { "name": "maxProfit", "value": "0", "type": "number" },
+        { "name": "i", "value": "1", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [7, 1, 5, 3, 6, 4],
+        "highlightIndices": [1]
+      },
+      "explanation": "prices[1]=1 < 7 → new minPrice=1. Even better buy day!",
+      "pointers": [
+        { "name": "buy", "index": 1, "color": "#06b6d4" },
+        { "name": "i", "index": 1, "color": "#f59e0b" }
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "line": 9,
+      "variables": [
+        { "name": "minPrice", "value": "1", "type": "number" },
+        { "name": "maxProfit", "value": "4", "type": "number", "changed": true },
+        { "name": "i", "value": "2", "type": "number", "changed": true },
+        { "name": "profit", "value": "4", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [7, 1, 5, 3, 6, 4],
+        "highlightIndices": [2],
+        "windowStart": 1,
+        "windowEnd": 2
+      },
+      "explanation": "prices[2]=5 ≥ 1 → profit = 5-1 = 4. maxProfit=4!",
+      "pointers": [
+        { "name": "buy", "index": 1, "color": "#06b6d4" },
+        { "name": "sell", "index": 2, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "line": 9,
+      "variables": [
+        { "name": "minPrice", "value": "1", "type": "number" },
+        { "name": "maxProfit", "value": "4", "type": "number" },
+        { "name": "i", "value": "3", "type": "number", "changed": true },
+        { "name": "profit", "value": "2", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [7, 1, 5, 3, 6, 4],
+        "highlightIndices": [3],
+        "windowStart": 1,
+        "windowEnd": 3
+      },
+      "explanation": "prices[3]=3 ≥ 1 → profit = 3-1 = 2 < 4. No improvement",
+      "pointers": [
+        { "name": "buy", "index": 1, "color": "#06b6d4" },
+        { "name": "i", "index": 3, "color": "#f59e0b" }
+      ]
+    },
+    {
+      "stepNumber": 6,
+      "line": 9,
+      "variables": [
+        { "name": "minPrice", "value": "1", "type": "number" },
+        { "name": "maxProfit", "value": "5", "type": "number", "changed": true },
+        { "name": "i", "value": "4", "type": "number", "changed": true },
+        { "name": "profit", "value": "5", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [7, 1, 5, 3, 6, 4],
+        "highlightIndices": [4],
+        "windowStart": 1,
+        "windowEnd": 4
+      },
+      "explanation": "prices[4]=6 ≥ 1 → profit = 6-1 = 5 > 4. New maxProfit=5! 🎉",
+      "pointers": [
+        { "name": "buy", "index": 1, "color": "#06b6d4" },
+        { "name": "sell", "index": 4, "color": "#a855f7", "label": "best" }
+      ]
+    },
+    {
+      "stepNumber": 7,
+      "line": 13,
+      "variables": [
+        { "name": "minPrice", "value": "1", "type": "number" },
+        { "name": "maxProfit", "value": "5", "type": "number" },
+        { "name": "result", "value": "5", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [7, 1, 5, 3, 6, 4],
+        "highlightIndices": [1, 4]
+      },
+      "explanation": "Scan complete! Return maxProfit=5 (buy at 1, sell at 6)",
+      "pointers": [
+        { "name": "buy", "index": 1, "color": "#06b6d4", "label": "✓" },
+        { "name": "sell", "index": 4, "color": "#a855f7", "label": "✓" }
+      ]
+    }
+  ],
+  "externalLinks": [
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+      "problemId": "121"
+    },
+    {
+      "platform": "neetcode",
+      "url": "https://neetcode.io/problems/buy-and-sell-crypto"
+    }
+  ],
+  "realWorldUseCases": [
+    {
+      "company": "Goldman Sachs",
+      "scenario": "Trading algorithms",
+      "description": "Finding the optimal buy-low-sell-high opportunity in historical stock data for backtesting trading strategies."
+    },
+    {
+      "company": "Amazon",
+      "scenario": "Dynamic pricing",
+      "description": "Analyzing historical price data to determine the best markdown-to-sale timing for maximum revenue per product."
+    }
+  ],
+  "accessLevel": "free"
+}

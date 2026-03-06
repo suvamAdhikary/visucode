@@ -1,0 +1,223 @@
+{
+  "slug": "container-with-most-water",
+  "title": "Container With Most Water",
+  "difficulty": "Medium",
+  "category": "array",
+  "patterns": ["two-pointers"],
+  "companies": ["Amazon", "Google", "Goldman Sachs", "Bloomberg"],
+  "description": "You are given an integer array `height` of length `n`. There are `n` vertical lines drawn such that the two endpoints of the `i`th line are `(i, 0)` and `(i, height[i])`.\n\nFind two lines that together with the x-axis form a container, such that the container contains the **most water**.\n\nReturn the maximum amount of water a container can store.\n\n**Notice** that you may not slant the container.",
+  "examples": [
+    {
+      "input": "height = [1,8,6,2,5,4,8,3,7]",
+      "output": "49",
+      "explanation": "The lines at index 1 (height 8) and index 8 (height 7) form a container with area = min(8,7) * (8-1) = 49."
+    },
+    {
+      "input": "height = [1,1]",
+      "output": "1",
+      "explanation": "The only container is between index 0 and 1, with area = min(1,1) * 1 = 1."
+    }
+  ],
+  "constraints": [
+    "n == height.length",
+    "2 <= n <= 10^5",
+    "0 <= height[i] <= 10^4"
+  ],
+  "hints": [
+    "Start with the widest container (left=0, right=n-1) and try to find a taller one.",
+    "Always move the pointer pointing to the shorter line — keeping the shorter line can never increase the area."
+  ],
+  "starterCode": {
+    "javascript": "function maxArea(height) {\n  // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function maxArea(height) {\n  let left = 0;\n  let right = height.length - 1;\n  let maxArea = 0;\n\n  while (left < right) {\n    const width = right - left;\n    const h = Math.min(height[left], height[right]);\n    const area = width * h;\n    maxArea = Math.max(maxArea, area);\n\n    if (height[left] < height[right]) {\n      left++;\n    } else {\n      right--;\n    }\n  }\n\n  return maxArea;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "explanation": "Two pointers from both ends. Calculate area at each position. Move the pointer with the shorter height — keeping the shorter line can't produce a larger area since width is already decreasing."
+    }
+  ],
+  "testCases": [
+    { "id": "1", "input": "[[1,8,6,2,5,4,8,3,7]]", "expected": "49" },
+    { "id": "2", "input": "[[1,1]]", "expected": "1" },
+    { "id": "3", "input": "[[4,3,2,1,4]]", "expected": "16" }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 2,
+      "variables": [
+        { "name": "left", "value": "0", "type": "number", "changed": true },
+        { "name": "right", "value": "5", "type": "number", "changed": true },
+        { "name": "maxArea", "value": "0", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [1, 8, 6, 2, 5, 7],
+        "highlightIndices": [0, 5]
+      },
+      "explanation": "Initialize left=0 (height 1), right=5 (height 7), maxArea=0",
+      "pointers": [
+        { "name": "L", "index": 0, "color": "#06b6d4" },
+        { "name": "R", "index": 5, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "line": 7,
+      "variables": [
+        { "name": "left", "value": "0", "type": "number" },
+        { "name": "right", "value": "5", "type": "number" },
+        { "name": "width", "value": "5", "type": "number", "changed": true },
+        { "name": "h", "value": "1", "type": "number", "changed": true },
+        { "name": "area", "value": "5", "type": "number", "changed": true },
+        { "name": "maxArea", "value": "5", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [1, 8, 6, 2, 5, 7],
+        "highlightIndices": [0, 5],
+        "windowStart": 0,
+        "windowEnd": 5
+      },
+      "explanation": "Width=5, h=min(1,7)=1, area=5×1=5. maxArea=5. Height[L]=1 < Height[R]=7 → move L",
+      "pointers": [
+        { "name": "L", "index": 0, "color": "#06b6d4" },
+        { "name": "R", "index": 5, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "line": 7,
+      "variables": [
+        { "name": "left", "value": "1", "type": "number", "changed": true },
+        { "name": "right", "value": "5", "type": "number" },
+        { "name": "width", "value": "4", "type": "number", "changed": true },
+        { "name": "h", "value": "7", "type": "number", "changed": true },
+        { "name": "area", "value": "28", "type": "number", "changed": true },
+        { "name": "maxArea", "value": "28", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [1, 8, 6, 2, 5, 7],
+        "highlightIndices": [1, 5],
+        "windowStart": 1,
+        "windowEnd": 5
+      },
+      "explanation": "L=1. Width=4, h=min(8,7)=7, area=4×7=28. maxArea=28! Height[R]=7 < Height[L]=8 → move R",
+      "pointers": [
+        { "name": "L", "index": 1, "color": "#06b6d4" },
+        { "name": "R", "index": 5, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "line": 7,
+      "variables": [
+        { "name": "left", "value": "1", "type": "number" },
+        { "name": "right", "value": "4", "type": "number", "changed": true },
+        { "name": "width", "value": "3", "type": "number", "changed": true },
+        { "name": "h", "value": "5", "type": "number", "changed": true },
+        { "name": "area", "value": "15", "type": "number", "changed": true },
+        { "name": "maxArea", "value": "28", "type": "number" }
+      ],
+      "arrayState": {
+        "elements": [1, 8, 6, 2, 5, 7],
+        "highlightIndices": [1, 4],
+        "windowStart": 1,
+        "windowEnd": 4
+      },
+      "explanation": "R=4. Width=3, h=min(8,5)=5, area=3×5=15 < 28. Height[R]=5 < Height[L]=8 → move R",
+      "pointers": [
+        { "name": "L", "index": 1, "color": "#06b6d4" },
+        { "name": "R", "index": 4, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "line": 7,
+      "variables": [
+        { "name": "left", "value": "1", "type": "number" },
+        { "name": "right", "value": "3", "type": "number", "changed": true },
+        { "name": "width", "value": "2", "type": "number", "changed": true },
+        { "name": "h", "value": "2", "type": "number", "changed": true },
+        { "name": "area", "value": "4", "type": "number", "changed": true },
+        { "name": "maxArea", "value": "28", "type": "number" }
+      ],
+      "arrayState": {
+        "elements": [1, 8, 6, 2, 5, 7],
+        "highlightIndices": [1, 3],
+        "windowStart": 1,
+        "windowEnd": 3
+      },
+      "explanation": "R=3. Width=2, h=min(8,2)=2, area=2×2=4 < 28. Height[R]=2 < Height[L]=8 → move R",
+      "pointers": [
+        { "name": "L", "index": 1, "color": "#06b6d4" },
+        { "name": "R", "index": 3, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 6,
+      "line": 7,
+      "variables": [
+        { "name": "left", "value": "1", "type": "number" },
+        { "name": "right", "value": "2", "type": "number", "changed": true },
+        { "name": "width", "value": "1", "type": "number", "changed": true },
+        { "name": "h", "value": "6", "type": "number", "changed": true },
+        { "name": "area", "value": "6", "type": "number", "changed": true },
+        { "name": "maxArea", "value": "28", "type": "number" }
+      ],
+      "arrayState": {
+        "elements": [1, 8, 6, 2, 5, 7],
+        "highlightIndices": [1, 2],
+        "windowStart": 1,
+        "windowEnd": 2
+      },
+      "explanation": "R=2. Width=1, h=min(8,6)=6, area=1×6=6 < 28. Left ≥ Right → loop ends",
+      "pointers": [
+        { "name": "L", "index": 1, "color": "#06b6d4" },
+        { "name": "R", "index": 2, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 7,
+      "line": 18,
+      "variables": [
+        { "name": "maxArea", "value": "28", "type": "number" },
+        { "name": "result", "value": "28", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [1, 8, 6, 2, 5, 7],
+        "highlightIndices": [1, 5]
+      },
+      "explanation": "Return maxArea = 28. Best container: indices 1 and 5 (heights 8 and 7)",
+      "pointers": [
+        { "name": "L", "index": 1, "color": "#06b6d4", "label": "✓" },
+        { "name": "R", "index": 5, "color": "#a855f7", "label": "✓" }
+      ]
+    }
+  ],
+  "externalLinks": [
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/container-with-most-water/",
+      "problemId": "11"
+    },
+    {
+      "platform": "neetcode",
+      "url": "https://neetcode.io/problems/max-water-container"
+    }
+  ],
+  "realWorldUseCases": [
+    {
+      "company": "Amazon",
+      "scenario": "Warehouse space optimization",
+      "description": "Finding the optimal placement of two dividers in a warehouse to maximize storage volume between them."
+    },
+    {
+      "company": "Goldman Sachs",
+      "scenario": "Trading range analysis",
+      "description": "Identifying the maximum potential profit window between two price points in a time series."
+    }
+  ],
+  "accessLevel": "free"
+}

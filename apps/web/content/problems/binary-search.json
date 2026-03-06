@@ -1,0 +1,175 @@
+{
+  "slug": "binary-search",
+  "title": "Binary Search",
+  "difficulty": "Easy",
+  "category": "array",
+  "patterns": ["binary-search"],
+  "companies": ["Google", "Amazon", "Microsoft", "Apple"],
+  "description": "Given an array of integers `nums` which is sorted in ascending order, and an integer `target`, write a function to search `target` in `nums`.\n\nIf `target` exists, then return its index. Otherwise, return `-1`.\n\nYou must write an algorithm with **O(log n)** runtime complexity.",
+  "examples": [
+    {
+      "input": "nums = [-1,0,3,5,9,12], target = 9",
+      "output": "4",
+      "explanation": "9 exists in nums and its index is 4."
+    },
+    {
+      "input": "nums = [-1,0,3,5,9,12], target = 2",
+      "output": "-1",
+      "explanation": "2 does not exist in nums so return -1."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^4",
+    "-10^4 < nums[i], target < 10^4",
+    "All integers in nums are unique",
+    "nums is sorted in ascending order"
+  ],
+  "hints": [
+    "Compare the middle element with the target. If equal, you found it!",
+    "If the middle element is less than the target, search the right half. If greater, search the left half."
+  ],
+  "starterCode": {
+    "javascript": "function search(nums, target) {\n  // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function search(nums, target) {\n  let left = 0;\n  let right = nums.length - 1;\n\n  while (left <= right) {\n    const mid = Math.floor((left + right) / 2);\n\n    if (nums[mid] === target) {\n      return mid;\n    } else if (nums[mid] < target) {\n      left = mid + 1;\n    } else {\n      right = mid - 1;\n    }\n  }\n\n  return -1;\n}",
+      "timeComplexity": "O(log n)",
+      "spaceComplexity": "O(1)",
+      "explanation": "Classic binary search. Repeatedly halve the search space by comparing the middle element with the target. Each iteration eliminates half the remaining elements."
+    }
+  ],
+  "testCases": [
+    { "id": "1", "input": "[[-1,0,3,5,9,12], 9]", "expected": "4" },
+    { "id": "2", "input": "[[-1,0,3,5,9,12], 2]", "expected": "-1" },
+    { "id": "3", "input": "[[5], 5]", "expected": "0" }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 2,
+      "variables": [
+        { "name": "left", "value": "0", "type": "number", "changed": true },
+        { "name": "right", "value": "7", "type": "number", "changed": true },
+        { "name": "target", "value": "23", "type": "number" }
+      ],
+      "arrayState": {
+        "elements": [2, 5, 8, 12, 16, 23, 38, 56],
+        "highlightIndices": [0, 7],
+        "windowStart": 0,
+        "windowEnd": 7
+      },
+      "explanation": "Search for 23 in sorted array. Initialize left=0, right=7. Search space: entire array",
+      "pointers": [
+        { "name": "L", "index": 0, "color": "#06b6d4" },
+        { "name": "R", "index": 7, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "line": 6,
+      "variables": [
+        { "name": "left", "value": "0", "type": "number" },
+        { "name": "right", "value": "7", "type": "number" },
+        { "name": "mid", "value": "3", "type": "number", "changed": true },
+        { "name": "nums[mid]", "value": "12", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [2, 5, 8, 12, 16, 23, 38, 56],
+        "highlightIndices": [3],
+        "windowStart": 0,
+        "windowEnd": 7
+      },
+      "explanation": "mid = floor((0+7)/2) = 3. nums[3]=12. 12 < 23 → target is in the RIGHT half",
+      "pointers": [
+        { "name": "L", "index": 0, "color": "#06b6d4" },
+        { "name": "mid", "index": 3, "color": "#f59e0b" },
+        { "name": "R", "index": 7, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "line": 10,
+      "variables": [
+        { "name": "left", "value": "4", "type": "number", "changed": true },
+        { "name": "right", "value": "7", "type": "number" },
+        { "name": "mid", "value": "3", "type": "number" }
+      ],
+      "arrayState": {
+        "elements": [2, 5, 8, 12, 16, 23, 38, 56],
+        "windowStart": 4,
+        "windowEnd": 7,
+        "sortedRegion": { "start": 0, "end": 3 }
+      },
+      "explanation": "Eliminate left half! left = mid+1 = 4. Search space halved: [16, 23, 38, 56]",
+      "pointers": [
+        { "name": "L", "index": 4, "color": "#06b6d4" },
+        { "name": "R", "index": 7, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "line": 6,
+      "variables": [
+        { "name": "left", "value": "4", "type": "number" },
+        { "name": "right", "value": "7", "type": "number" },
+        { "name": "mid", "value": "5", "type": "number", "changed": true },
+        { "name": "nums[mid]", "value": "23", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [2, 5, 8, 12, 16, 23, 38, 56],
+        "highlightIndices": [5],
+        "windowStart": 4,
+        "windowEnd": 7,
+        "sortedRegion": { "start": 0, "end": 3 }
+      },
+      "explanation": "mid = floor((4+7)/2) = 5. nums[5]=23. 23 === 23 → FOUND! 🎯",
+      "pointers": [
+        { "name": "L", "index": 4, "color": "#06b6d4" },
+        { "name": "mid", "index": 5, "color": "#34d399", "label": "✓" },
+        { "name": "R", "index": 7, "color": "#a855f7" }
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "line": 9,
+      "variables": [
+        { "name": "mid", "value": "5", "type": "number" },
+        { "name": "result", "value": "5", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [2, 5, 8, 12, 16, 23, 38, 56],
+        "highlightIndices": [5]
+      },
+      "explanation": "Return index 5. Found 23 in just 2 comparisons! (8 elements → log₂8 = 3 max)",
+      "pointers": [
+        { "name": "found", "index": 5, "color": "#34d399", "label": "✓" }
+      ]
+    }
+  ],
+  "externalLinks": [
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/binary-search/",
+      "problemId": "704"
+    },
+    {
+      "platform": "neetcode",
+      "url": "https://neetcode.io/problems/binary-search"
+    }
+  ],
+  "realWorldUseCases": [
+    {
+      "company": "Google",
+      "scenario": "Search index lookup",
+      "description": "Searching sorted inverted indexes to find documents containing a query term — binary search makes this O(log n) instead of O(n)."
+    },
+    {
+      "company": "Amazon",
+      "scenario": "Price range filtering",
+      "description": "Finding the first and last products within a price range using binary search on a sorted price column."
+    }
+  ],
+  "accessLevel": "free"
+}

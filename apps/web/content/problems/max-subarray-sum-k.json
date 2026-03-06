@@ -1,0 +1,178 @@
+{
+  "slug": "max-subarray-sum-k",
+  "title": "Maximum Sum Subarray of Size K",
+  "difficulty": "Easy",
+  "category": "array",
+  "patterns": ["sliding-window"],
+  "companies": ["Amazon", "Microsoft", "Apple"],
+  "description": "Given an array of integers `nums` and an integer `k`, find the maximum sum of any contiguous subarray of size `k`.\n\nReturn the maximum sum.",
+  "examples": [
+    {
+      "input": "nums = [2, 1, 5, 1, 3, 2], k = 3",
+      "output": "9",
+      "explanation": "Subarray [5, 1, 3] has the maximum sum of 9."
+    },
+    {
+      "input": "nums = [2, 3, 4, 1, 5], k = 2",
+      "output": "7",
+      "explanation": "Subarray [3, 4] has the maximum sum of 7."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "-10^4 <= nums[i] <= 10^4",
+    "1 <= k <= nums.length"
+  ],
+  "hints": [
+    "Calculate the sum of the first k elements. Then slide the window: add the new right element and subtract the old left element.",
+    "This avoids recalculating the entire window sum — just one addition and one subtraction per step."
+  ],
+  "starterCode": {
+    "javascript": "function maxSubarraySum(nums, k) {\n  // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function maxSubarraySum(nums, k) {\n  let windowSum = 0;\n\n  // Calculate first window\n  for (let i = 0; i < k; i++) {\n    windowSum += nums[i];\n  }\n\n  let maxSum = windowSum;\n\n  // Slide the window\n  for (let i = k; i < nums.length; i++) {\n    windowSum += nums[i] - nums[i - k];\n    maxSum = Math.max(maxSum, windowSum);\n  }\n\n  return maxSum;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "explanation": "Classic fixed-size sliding window. First calculate the sum of the initial window. Then slide right: add the new element entering the window, subtract the element leaving. Track the maximum sum."
+    }
+  ],
+  "testCases": [
+    { "id": "1", "input": "[[2,1,5,1,3,2], 3]", "expected": "9" },
+    { "id": "2", "input": "[[2,3,4,1,5], 2]", "expected": "7" },
+    { "id": "3", "input": "[[1,2,3], 3]", "expected": "6" }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 5,
+      "variables": [
+        { "name": "windowSum", "value": "8", "type": "number", "changed": true },
+        { "name": "k", "value": "3", "type": "number" }
+      ],
+      "arrayState": {
+        "elements": [2, 1, 5, 1, 3, 2],
+        "windowStart": 0,
+        "windowEnd": 2
+      },
+      "explanation": "First window [2,1,5]: sum = 2+1+5 = 8",
+      "pointers": []
+    },
+    {
+      "stepNumber": 2,
+      "line": 8,
+      "variables": [
+        { "name": "windowSum", "value": "8", "type": "number" },
+        { "name": "maxSum", "value": "8", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [2, 1, 5, 1, 3, 2],
+        "windowStart": 0,
+        "windowEnd": 2,
+        "highlightIndices": [0, 1, 2]
+      },
+      "explanation": "Set maxSum = windowSum = 8. Now start sliding...",
+      "pointers": []
+    },
+    {
+      "stepNumber": 3,
+      "line": 11,
+      "variables": [
+        { "name": "windowSum", "value": "7", "type": "number", "changed": true },
+        { "name": "maxSum", "value": "8", "type": "number" },
+        { "name": "add", "value": "1", "type": "number", "changed": true },
+        { "name": "remove", "value": "2", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [2, 1, 5, 1, 3, 2],
+        "windowStart": 1,
+        "windowEnd": 3,
+        "highlightIndices": [1, 2, 3]
+      },
+      "explanation": "Slide right: +nums[3]=1, −nums[0]=2. windowSum = 8+1−2 = 7 < 8",
+      "pointers": [
+        { "name": "−", "index": 0, "color": "#f87171" },
+        { "name": "+", "index": 3, "color": "#34d399" }
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "line": 11,
+      "variables": [
+        { "name": "windowSum", "value": "9", "type": "number", "changed": true },
+        { "name": "maxSum", "value": "9", "type": "number", "changed": true },
+        { "name": "add", "value": "3", "type": "number", "changed": true },
+        { "name": "remove", "value": "1", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [2, 1, 5, 1, 3, 2],
+        "windowStart": 2,
+        "windowEnd": 4,
+        "highlightIndices": [2, 3, 4]
+      },
+      "explanation": "Slide right: +nums[4]=3, −nums[1]=1. windowSum = 7+3−1 = 9 > 8. New maxSum=9! 🎉",
+      "pointers": [
+        { "name": "−", "index": 1, "color": "#f87171" },
+        { "name": "+", "index": 4, "color": "#34d399" }
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "line": 11,
+      "variables": [
+        { "name": "windowSum", "value": "6", "type": "number", "changed": true },
+        { "name": "maxSum", "value": "9", "type": "number" },
+        { "name": "add", "value": "2", "type": "number", "changed": true },
+        { "name": "remove", "value": "5", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [2, 1, 5, 1, 3, 2],
+        "windowStart": 3,
+        "windowEnd": 5,
+        "highlightIndices": [3, 4, 5]
+      },
+      "explanation": "Slide right: +nums[5]=2, −nums[2]=5. windowSum = 9+2−5 = 6 < 9",
+      "pointers": [
+        { "name": "−", "index": 2, "color": "#f87171" },
+        { "name": "+", "index": 5, "color": "#34d399" }
+      ]
+    },
+    {
+      "stepNumber": 6,
+      "line": 16,
+      "variables": [
+        { "name": "maxSum", "value": "9", "type": "number" },
+        { "name": "result", "value": "9", "type": "number", "changed": true }
+      ],
+      "arrayState": {
+        "elements": [2, 1, 5, 1, 3, 2],
+        "windowStart": 2,
+        "windowEnd": 4,
+        "highlightIndices": [2, 3, 4]
+      },
+      "explanation": "Done! Return maxSum=9. Best window: [5, 1, 3] at indices 2-4",
+      "pointers": []
+    }
+  ],
+  "externalLinks": [
+    {
+      "platform": "geeksforgeeks",
+      "url": "https://www.geeksforgeeks.org/find-maximum-minimum-sum-subarray-size-k/"
+    }
+  ],
+  "realWorldUseCases": [
+    {
+      "company": "Netflix",
+      "scenario": "Peak viewership detection",
+      "description": "Finding the 7-day window with the highest total viewership to plan marketing campaigns and content releases."
+    },
+    {
+      "company": "Amazon",
+      "scenario": "Peak order processing",
+      "description": "Identifying the k-hour window with the highest order volume to optimize warehouse staffing."
+    }
+  ],
+  "accessLevel": "free"
+}
