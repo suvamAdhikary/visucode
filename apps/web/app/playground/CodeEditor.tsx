@@ -85,21 +85,6 @@ export function CodeEditor({
           horizontalScrollbarSize: 8,
         },
       }}
-      loading={
-        <div
-          style={{
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#1e1e1e',
-            color: '#888',
-            fontSize: '0.875rem',
-          }}
-        >
-          Loading editor...
-        </div>
-      }
     />
   );
 }

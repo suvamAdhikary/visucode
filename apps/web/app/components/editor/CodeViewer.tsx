@@ -82,13 +82,19 @@ export function CodeViewer({
           <div style={{ 
             height, 
             display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            background: '#1e1e1e',
-            color: '#888',
-            fontSize: '0.875rem',
+            flexDirection: 'column',
+            gap: '0.5rem',
+            padding: '1rem',
+            background: '#0d1117',
           }}>
-            Loading editor...
+            {[75, 50, 85, 40, 65, 55, 30, 70].map((w, i) => (
+              <div key={i} style={{
+                height: '14px',
+                width: `${w}%`,
+                background: 'rgba(255,255,255,0.04)',
+                borderRadius: '4px',
+              }} />
+            ))}
           </div>
         }
       />
