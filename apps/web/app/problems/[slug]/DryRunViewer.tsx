@@ -11,6 +11,7 @@ import type { Problem } from '@visucode/shared-types';
 import { ArrayVisualizer } from '../../components/visualizer/ArrayVisualizer';
 import { StepController } from '../../components/visualizer/StepController';
 import { VariableInspector } from '../../components/visualizer/VariableInspector';
+import { CodeViewer } from '../../components/editor/CodeViewer';
 import { useVisualizerStore } from '../../../lib/stores';
 import styles from './page.module.css';
 
@@ -51,9 +52,9 @@ export function DryRunViewer({ problem }: DryRunViewerProps) {
     <div className={styles.dryRunViewer}>
       <h2 className={styles.dryRunTitle}>🔍 Dry Run</h2>
 
-      {/* Solution code with current line highlight */}
+      {/* Solution code with Monaco syntax highlighting */}
       {problem.solutions[0] && (
-        <div className={styles.codeBlock}>
+        <div>
           <div className={styles.codeHeader}>
             <span>Solution</span>
             <span className={styles.complexity}>
@@ -61,24 +62,13 @@ export function DryRunViewer({ problem }: DryRunViewerProps) {
               {problem.solutions[0].spaceComplexity}
             </span>
           </div>
-          <pre className={styles.codeContent}>
-            {problem.solutions[0].code.split('\n').map((line, i) => (
-              <div
-                key={i}
-                className={`${styles.codeLine} ${
-                  step?.line === i + 1 ? styles.codeLineActive : ''
-                }`}
-                style={
-                  step?.line === i + 1
-                    ? { borderLeftColor: accentColor, background: `${accentColor}10` }
-                    : undefined
-                }
-              >
-                <span className={styles.lineNumber}>{i + 1}</span>
-                <code>{line}</code>
-              </div>
-            ))}
-          </pre>
+          <CodeViewer
+            code={problem.solutions[0].code}
+            language="javascript"
+            activeLine={step?.line}
+            accentColor={accentColor}
+            height="280px"
+          />
         </div>
       )}
 
