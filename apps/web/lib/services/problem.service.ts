@@ -118,3 +118,24 @@ export function getProblemsByPattern(): Record<string, typeof PROBLEM_INDEX> {
   }
   return grouped;
 }
+
+/**
+ * Get basic problem info for a list of slugs (used by pattern detail pages)
+ * Returns null for problems not yet in the index (shown as "Coming Soon")
+ */
+export function getProblemSummaries(
+  slugs: string[]
+): Array<{ slug: string; title: string; difficulty: Difficulty; exists: boolean }> {
+  return slugs.map((slug) => {
+    const found = PROBLEM_INDEX.find((p) => p.slug === slug);
+    if (found) {
+      return { slug: found.slug, title: found.title, difficulty: found.difficulty, exists: true };
+    }
+    // Format slug as readable title for coming-soon problems
+    const title = slug
+      .split('-')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+    return { slug, title, difficulty: 'Medium' as Difficulty, exists: false };
+  });
+}
