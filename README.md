@@ -1,101 +1,250 @@
-# Visucode
+# 🎬 VisuCode
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+**Learn DSA Visually — Interactive algorithm visualizations with step-by-step dry runs**
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-visucode.vercel.app-6366f1?style=for-the-badge)](https://visucode.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript)](https://typescriptlang.org)
+[![Nx](https://img.shields.io/badge/Nx-Monorepo-143055?style=flat-square&logo=nx)](https://nx.dev)
+[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat-square&logo=vercel)](https://visucode.vercel.app)
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+---
 
-## Run tasks
+## What is VisuCode?
 
-To run the dev server for your app, use:
+VisuCode is an interactive DSA learning platform that replaces pen-and-paper dry runs with **animated step-by-step algorithm visualizations**. Instead of passively reading solutions, learners watch pointers move, variables update, and arrays transform — exactly as the code executes.
 
-```sh
-npx nx dev web
+Built as a production-grade startup MVP, not a side project. Server-rendered where possible, client-interactive where needed, with a clear migration path from JSON to GraphQL.
+
+### Who is it for?
+
+- **CS students** preparing for placements and coding interviews
+- **Self-taught developers** transitioning into software engineering
+- **Anyone** who learns better visually than textually
+
+---
+
+## ✨ Key Features
+
+### 🔍 Interactive Dry Run Viewer
+
+The core feature. Step through any algorithm and watch it execute in real-time:
+
+- **Array visualization** with pointer labels (L, R), sliding windows, swap animations
+- **Variable inspector** showing live state changes per step
+- **Code highlighting** synchronized to the current execution line
+- **Playback controls** — play/pause, speed (0.5x–3x), keyboard shortcuts
+
+### 📚 Animated Lesson Viewer
+
+Visual-first learning with animated concepts:
+
+- Step-by-step array building animations
+- Inline mini-exercises (click, choose, type)
+- Linked problems for immediate practice
+
+### 💡 Problem Browser
+
+Smart problem discovery:
+
+- Filter by difficulty, pattern, and category
+- Company tags (Amazon, Google, Apple)
+- External links to LeetCode, NeetCode
+- Real-world use cases for every problem
+
+### ⚡ Performance First
+
+- **Server Components** for all static content (zero JS shipped)
+- **Client Components** only for visualizer interactivity
+- **CSS Modules** — no runtime CSS-in-JS overhead
+- **GPU-accelerated animations** via CSS transforms
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TB
+    subgraph "Nx Monorepo"
+        subgraph "apps/web — Next.js 16 (App Router)"
+            SC["Server Components<br/>Landing, Learn, Problems"]
+            CC["Client Components<br/>Visualizer, DryRun, Lesson"]
+            SVC["Data Services<br/>problem.service, lesson.service"]
+            STORE["Zustand Stores<br/>visualizer, preferences"]
+        end
+        subgraph "libs/"
+            TYPES["shared-types<br/>Problem, Lesson, Pattern"]
+            LOGGER["logger<br/>Structured logging"]
+        end
+    end
+    subgraph "Data (Phase 1)"
+        JSON["Local JSON files"]
+    end
+    subgraph "Data (Phase 2+)"
+        GQL["GraphQL API"]
+    end
+
+    SC --> SVC
+    CC --> STORE
+    CC --> SVC
+    SVC --> JSON
+    SVC -.-> GQL
+    SC --> TYPES
+    CC --> TYPES
+    SVC --> LOGGER
 ```
 
-To create a production bundle:
+### Server vs Client Component Split
 
-```sh
-npx nx build web
+| Component           | Type   | Why                                |
+| ------------------- | ------ | ---------------------------------- |
+| Landing page        | Server | Static content, zero JS            |
+| Problem description | Server | SEO, no interactivity needed       |
+| Filter pills        | Server | URL-based, no state                |
+| Dry Run Viewer      | Client | Needs Zustand store + animations   |
+| Array Visualizer    | Client | DOM animations, pointer tracking   |
+| Step Controller     | Client | Playback state, keyboard shortcuts |
+| Lesson Viewer       | Client | Step-through animation state       |
+
+---
+
+## 🧠 Tech Decisions
+
+Every technology choice is justified — no "I just used what I knew":
+
+| Decision                  | Alternative Considered      | Why This Choice                                                                                                              |
+| ------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Nx Monorepo**           | Turborepo                   | First-class Next.js plugin, `nx-ignore` for Vercel, project graph for dependency analysis                                    |
+| **Next.js 16 App Router** | Pages Router, Vite          | Server Components reduce JS bundle, `generateMetadata` for SEO, streaming SSR                                                |
+| **Zustand** (~2KB)        | Redux (~8KB), Jotai         | Minimal API, no providers, persist middleware for preferences, tiny footprint                                                |
+| **DOM Visualizer**        | Canvas, D3.js               | Accessible (screen readers), CSS animations are GPU-accelerated, lighter bundle. Canvas planned for Phase 5 (1000+ elements) |
+| **CSS Modules**           | Tailwind, styled-components | Zero runtime cost, tree-shakeable, co-located with components                                                                |
+| **Local JSON → GraphQL**  | Direct DB, REST             | JSON for instant MVP. Service abstraction means swapping to GraphQL = change one file, zero component changes                |
+| **URL-based Filters**     | Client state                | Shareable links, SEO-friendly, works without JS                                                                              |
+
+---
+
+## 📁 Project Structure
+
+```
+visucode/
+├── apps/
+│   └── web/                        # Next.js 16 application
+│       ├── app/
+│       │   ├── page.tsx            # Landing page (Server Component)
+│       │   ├── learn/              # Learning tracks & lesson viewer
+│       │   ├── problems/           # Problem browser & dry run
+│       │   ├── patterns/           # Pattern detail pages
+│       │   ├── playground/         # Code playground (coming)
+│       │   └── components/
+│       │       └── visualizer/     # ArrayVisualizer, StepController, VariableInspector
+│       ├── lib/
+│       │   ├── services/           # Data abstraction layer
+│       │   └── stores/             # Zustand state management
+│       └── content/
+│           └── problems/           # Problem JSON data
+├── libs/
+│   ├── shared-types/               # TypeScript interfaces (Problem, Lesson, Pattern)
+│   └── logger/                     # Structured logging utility
+├── vercel.json                     # Deployment config
+└── nx.json                         # Nx workspace config
 ```
 
-To see all available targets to run for a project, run:
+---
 
-```sh
-npx nx show project web
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js** ≥ 18
+- **npm** ≥ 9
+
+### Install
+
+```bash
+git clone https://github.com/suvamAdhikary/visucode.git
+cd visucode
+npm install
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+### Development
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/next:app demo
+```bash
+npx nx dev web           # Start dev server (http://localhost:3000)
+npx nx build web         # Production build
+npx nx lint web          # Run ESLint
+npx nx test shared-types # Run tests
+npx nx graph             # Visualize dependency graph
 ```
 
-To generate a new library, use:
+### All Available Targets
 
-```sh
-npx nx g @nx/react:lib mylib
+```bash
+npx nx show project web  # See all targets for the web app
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+---
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🌍 Deployment
 
-## Set up CI!
+Deployed on **Vercel** with automatic deploys on push to `main`.
 
-### Step 1
+| Setting          | Value              |
+| ---------------- | ------------------ |
+| Framework        | Next.js            |
+| Root Directory   | _(monorepo root)_  |
+| Build Command    | `npx nx build web` |
+| Output Directory | `apps/web/.next`   |
 
-To connect to Nx Cloud, run the following command:
+### Branch Strategy
 
-```sh
-npx nx connect
+```
+feature/* → develop (integration) → main (production)
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+- Push to `main` → auto-deploy to [visucode.vercel.app](https://visucode.vercel.app)
+- PRs generate preview URLs
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-### Step 2
+## 🗺️ Roadmap
 
-Use the following command to configure a CI workflow for your workspace:
+### Phase 1 — MVP ✅
 
-```sh
-npx nx g ci-workflow
-```
+- [x] Nx monorepo + shared types + logger
+- [x] Landing page with design system
+- [x] Learn pages (tracks → lessons → exercises)
+- [x] Problem browser with filters
+- [x] Dry Run Viewer (array viz + step controller + variable inspector)
+- [x] Zustand stores (visualizer + preferences)
+- [x] Vercel deployment
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Phase 2 — Content & Patterns
 
-## Install Nx Console
+- [ ] Pattern detail pages (`/patterns/two-pointers`)
+- [ ] 15+ problems across 5 patterns
+- [ ] Monaco code editor integration
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+### Phase 3 — User System
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [ ] Anonymous progress tracking (localStorage)
+- [ ] Auth (NextAuth.js)
+- [ ] Premium content gating
 
-## Useful links
+### Phase 4 — Backend
 
-Learn more:
+- [ ] GraphQL API (swap service layer, zero UI changes)
+- [ ] PostgreSQL + Prisma
+- [ ] Redis caching
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Phase 5 — Scale
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [ ] Rust → WASM canvas visualizer (1000+ elements)
+- [ ] Real-time multiplayer dry runs
+- [ ] Analytics dashboard
+
+---
+
+## 📄 License
+
+MIT © [Suvam Adhikary](https://github.com/suvamAdhikary)
