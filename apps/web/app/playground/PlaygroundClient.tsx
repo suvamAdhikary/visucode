@@ -7,9 +7,19 @@
 // Interview/Practice mode toggles autocomplete
 
 import { useState, useCallback } from 'react';
-import { CodeEditor } from './CodeEditor';
+import dynamic from 'next/dynamic';
 import { EditorModeToggle } from '../components/editor/EditorModeToggle';
 import styles from './page.module.css';
+
+// Lazy-load Monaco — show spinner while loading
+const CodeEditor = dynamic(() => import('./CodeEditor').then((m) => m.CodeEditor), {
+  ssr: false,
+  loading: () => (
+    <div className={styles.editorLoading}>
+      <span className={styles.loadingText}>Loading editor...</span>
+    </div>
+  ),
+});
 
 // Algorithm starter templates
 const TEMPLATES: Record<string, { label: string; code: string }> = {
@@ -147,7 +157,6 @@ export default function PlaygroundClient() {
     };
 
     try {
-      // eslint-disable-next-line no-new-func
       const fn = new Function(code);
       const result = fn();
 
