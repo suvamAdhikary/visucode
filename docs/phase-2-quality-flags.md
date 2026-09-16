@@ -30,11 +30,69 @@ If any item fails: **do not merge.** Fix on the feature branch, update this file
 
 | Item | Verdict |
 | --- | --- |
-| **[PR #8](https://github.com/suvamAdhikary/visucode/pull/8)** — `feat: complete Phase 2 Sprint 1 - code test runner and 9 new problems` | **DO NOT MERGE** |
-| Reason | Product is buggy. Vercel Ready only means the app *built and deployed*. The test runner can fail correct solutions. Dry-run traces disagree with the code they teach. Hidden-test errors leak. User code can freeze the tab. |
-| Required to reopen merge | All Sprint 1 `BLOCKED` flags below marked `FIXED`, plus a re-review of the judging path. |
+| **[PR #8](https://github.com/suvamAdhikary/visucode/pull/8)** | **Superseded.** Do not revive. Buggy Sprint 1. Already merged to `develop` — **do not promote `develop` to `main`.** |
+| **[PR #10](https://github.com/suvamAdhikary/visucode/pull/10)** — `feature/phase-2-sprint-1` → `main` · head `7b4b732` | **DO NOT MERGE YET** |
 
-Do not merge this PR “because it is running.” A DSA product that fails a valid 3Sum or Find Peak submission is worse than not shipping the runner yet.
+PR #10 is a real fix pass, not a fake one. Judging, dry-run math, hidden-field redaction, and official-solution tests are in source. It is **not** shippable until the remaining `BLOCKED` items below are done. Vercel Ready still only means the app built.
+
+---
+
+## Dev work remaining (do this on `feature/phase-2-sprint-1`)
+
+Work these in order. When a flag is done: set it `FIXED` in this file in the **same commit**, with the PR number and a one-line “how.”
+
+### 1. F-P2S1-06 — kill the main-thread fallback
+
+**Still BLOCKED.** Worker + 2s timeout exists, but `executeTests` catches Worker construct failure and calls `executeTestsSync` (`new Function()` on the UI thread). `while (true) {}` still freezes the tab.
+
+**Do:**
+
+- In `apps/web/lib/utils/test-executor.ts`: **remove** the `executeTestsSync` production fallback. If the Worker cannot start, return `createErrorResult` (“runner unavailable”), never run user code on the main thread.
+- Keep a **test-only** sync path if Jest cannot load Workers (guard with `process.env.NODE_ENV === 'test'` or inject the runner). Production browser must always use the Worker.
+- In `apps/web/lib/utils/executor.worker.ts`: delete the comment that says globals are “explicitly nullified.” They are not. Do not claim sandboxing.
+- Verify on the Vercel preview: Run Tests works; paste `while (true) {}` → timeout message, UI still clickable. If the Worker 404s, fix the webpack/`new URL(..., import.meta.url)` bundle — do not “fix” it by falling back to sync.
+
+### 2. F-P2S1-01 / F-P2S1-02 — prove alternate valid answers in CI
+
+**Code is right; tests are not.** Official Find Peak still returns `5`, so `ANY_OF:1` is never executed. Official 3Sum returns canonical order, so unordered compare is never executed.
+
+**Do:** add `apps/web/lib/utils/__tests__/comparator.spec.ts` (or extend `test-executor.spec.ts`) with at least:
+
+```ts
+expect(semanticCompare('[[-1,-1,2],[-1,0,1]]', '[[-1,0,1],[-1,-1,2]]')).toBe(true);
+expect(semanticCompare('[[-1,-1,2],[-1,0,1]]', '[[-1,2,-1],[0,-1,1]]')).toBe(true);
+expect(semanticCompare('[[-1,-1,2],[-1,0,1]]', '[[-1,0,1]]')).toBe(false);
+expect(semanticCompare('ANY_OF:1|5', '1')).toBe(true);
+expect(semanticCompare('ANY_OF:1|5', '5')).toBe(true);
+expect(semanticCompare('ANY_OF:1|5', '2')).toBe(false);
+expect(semanticCompare('[1,2]', '[2,1]')).toBe(false); // Two Sum stays ordered
+```
+
+Hidden failure must not include `error`:
+
+```ts
+const result = await executeTests('function add() { throw new Error("secret input") }', 'add', [
+  { id: '1', input: '[1]', expected: '1', isHidden: true },
+]);
+expect(result.results[0].error).toBeUndefined();
+expect(result.results[0].actual).toBe('Wrong Answer');
+```
+
+Run: `npx nx test web`.
+
+### 3. F-P2S1-07 — drop generated / local paths
+
+**Still BLOCKED.**
+
+- Revert `apps/web/next-env.d.ts` (do not commit it).
+- In `docs/phase-2-sprint-1-plan.md`, remove `file:///d:/Suvam-Work/...`. Link the repo path instead: `libs/shared-types/src/index.ts`.
+
+### 4. Housekeeping (same PR)
+
+- Fill in the GitHub PR #10 description (what, why, how to verify).
+- After the three items above: update this file’s statuses to `FIXED` and flip the verdict only if a re-review agrees.
+
+**Do not start Sprint 2 until Sprint 1 `BLOCKED` flags are `FIXED`.**
 
 ---
 
@@ -51,132 +109,122 @@ Do not merge this PR “because it is running.” A DSA product that fails a val
 
 | | |
 | --- | --- |
-| **PR** | [#8](https://github.com/suvamAdhikary/visucode/pull/8) · `feature/phase-2-sprint-1` → `main` |
-| **Commit reviewed** | `4f67d79` (23 files, +2570 / −7) |
-| **Reviewed** | 2026-09-16 |
+| **Active PR** | [#10](https://github.com/suvamAdhikary/visucode/pull/10) · `feature/phase-2-sprint-1` → `main` |
+| **Fix commit reviewed** | `7b4b732` (`fix: resolve phase 2 sprint 1 quality flags`) |
+| **Prior PR** | [#8](https://github.com/suvamAdhikary/visucode/pull/8) · `4f67d79` — superseded, do not merge to `main` |
+| **Reviewed** | 2026-09-16 (initial) · 2026-09-16 (re-review of #10) |
 | **CI** | Vercel preview Ready — **not a product pass** |
-| **Sprint status** | `BLOCKED` |
+| **Sprint status** | `BLOCKED` (closer; remaining work is listed above) |
 
-Scope that landed (keep; do not throw away the feature):
+Scope to keep:
 
 - Client-side Run Tests on problem pages (`CodeSubmit`, `TestRunner`, `test-executor`)
 - Tabbed right panel: Visualizer \| Your Code
 - 9 new problems + pattern / `PROBLEM_INDEX` slug updates
-- JSON shape tests + executor unit tests
+- `comparator.ts`, `executor.worker.ts`
+- JSON validation + official-solution-vs-own-tests gate
 
-The original 6 problems already had `testCases`. That plan item was already done on `main`.
+`develop` currently has buggy #8 (`79547b0`) **without** `7b4b732`. Do not merge `develop` → `main`.
 
-### BLOCKED — must fix before merge
+---
 
-#### F-P2S1-01 — Strict JSON compare fails valid answers
-
-| | |
-| --- | --- |
-| **Status** | `BLOCKED` |
-| **Where** | `apps/web/lib/utils/test-executor.ts` → `normalizeOutput` |
-
-`JSON.parse` → `JSON.stringify` → `===` is not a judge.
-
-- **3Sum:** LeetCode accepts any triplet order. `[[-1,0,1],[-1,-1,2]]` is correct and fails against `[[-1,-1,2],[-1,0,1]]`. Unsorted inner triplets (`[-1,2,-1]`) also fail.
-- **Find Peak Element, test 2:** prompt says index **1 or 5** is valid; expected is hardcoded `"5"`. A first-peak solution returning `1` is marked wrong.
-
-**Fix:** semantic compare (order-insensitive list-of-lists; any-of expected for multi-answer cases), or only author cases with a unique valid output. Cover both in tests.
-
-#### F-P2S1-02 — Official solutions never run against their own tests
-
-| | |
-| --- | --- |
-| **Status** | `BLOCKED` |
-| **Where** | `apps/web/lib/utils/__tests__/test-executor.spec.ts`, `problem-json-validation.spec.ts` |
-
-Executor tests use inlined snippets. There is no “`solutions[0].code` passes this problem’s `testCases`” loop. That test would have caught F-P2S1-01.
-
-**Fix:** for every problem JSON, execute the posted JavaScript solution against that file’s `testCases` and assert `totalFailed === 0`. Keep this as a required gate for every new problem.
-
-#### F-P2S1-03 — Koko dry run numbers contradict themselves
-
-| | |
-| --- | --- |
-| **Status** | `BLOCKED` |
-| **Where** | `apps/web/content/problems/koko-eating-bananas.json` |
-
-Input `[3,6,7,11]`, `h = 8`:
-
-- Step 4: variables `hours=9`, explanation `1+2+3+4 = 10` (real value is **10**)
-- Step 6: variables `hours=7`, explanation `1+2+2+3 = 8` (real value is **8**)
-
-**Fix:** make variables and explanation match the actual `ceil` math. Re-walk the dry run against the solution.
-
-#### F-P2S1-04 — Character Replacement dry run does not match the solution
-
-| | |
-| --- | --- |
-| **Status** | `BLOCKED` |
-| **Where** | `apps/web/content/problems/longest-repeating-character-replacement.json` |
-
-The solution **never decreases `maxFreq` on shrink**. After adding `'B'` at index 4, one shrink makes the window valid. The dry run shrinks twice using live frequencies.
-
-**Fix:** rewrite the dry run to follow the posted code (including the stale-`maxFreq` optimization), or change the solution to match the trace. They must agree.
-
-#### F-P2S1-05 — Hidden tests leak via `error`
-
-| | |
-| --- | --- |
-| **Status** | `BLOCKED` |
-| **Where** | `test-executor.ts` (always returns `error`); `TestRunner.tsx` (renders it) |
-
-Input/expected/actual are masked for `isHidden`, but thrown messages still render. That can expose the hidden case.
-
-**Fix:** never return or render `error` (or raw actual) for hidden cases. UI: pass / wrong answer only.
+### BLOCKED — still must fix before merge
 
 #### F-P2S1-06 — User code can freeze the tab
 
 | | |
 | --- | --- |
 | **Status** | `BLOCKED` |
-| **Where** | `test-executor.ts` (`new Function()` on the main thread) |
+| **Where** | `apps/web/lib/utils/test-executor.ts`, `executor.worker.ts` |
+| **PR #10** | Worker + 2s `terminate()` added. **Incomplete:** `catch` falls back to `executeTestsSync` on the main thread. Worker comments claim sandboxing that is not implemented. |
 
-There is no timeout. `while (true) {}` runs after a cosmetic 300ms delay and locks the page. The comment says “sandboxed”; it is not (`window`, `document`, `fetch` are available).
+Original issue: `new Function()` on the main thread, no timeout, `while (true) {}` locks the page.
 
-**Fix for Sprint 1 (minimum):** run in a Web Worker with a hard timeout; kill the worker on overrun; show a timeout failure, do not freeze the UI.
+**Remaining fix:** production path = Worker only. Fail closed if the Worker cannot start. Timeout must leave the UI usable. See “Dev work remaining” §1.
 
-**Do not** claim sandboxing until it is actually isolated.
+#### F-P2S1-01 — Strict JSON compare fails valid answers
+
+| | |
+| --- | --- |
+| **Status** | `BLOCKED` *(logic done, CI does not prove it)* |
+| **Where** | `apps/web/lib/utils/comparator.ts`; Find Peak test 2 in `find-peak-element.json` |
+| **PR #10** | Unordered matrix compare for 3Sum. Find Peak expected is `ANY_OF:1\|5`. Manual check of the compare function: reverse triplets pass, peak `1` and `5` pass, peak `2` fails, Two Sum `[1,2]` vs `[2,1]` stays strict. |
+
+Original issue: stringify equality failed valid 3Sum order and Find Peak index `1`.
+
+**Remaining fix:** unit tests in “Dev work remaining” §2. Do not mark `FIXED` until those tests exist and pass.
+
+#### F-P2S1-02 — Official solutions never run against their own tests
+
+| | |
+| --- | --- |
+| **Status** | `BLOCKED` *(gate exists; alternate answers not covered)* |
+| **Where** | `apps/web/lib/utils/__tests__/problem-json-validation.spec.ts` |
+| **PR #10** | Added `official solution passes all tests` per JSON file. That does **not** exercise `ANY_OF:1` or unordered 3Sum. |
+
+**Remaining fix:** comparator tests in §2. Keep the official-solution loop forever; every new problem must pass it.
 
 #### F-P2S1-07 — Generated / scratch files in the PR
 
 | | |
 | --- | --- |
 | **Status** | `BLOCKED` |
-| **Where** | `apps/web/next-env.d.ts`; `implementation_plan_ph2_content_test.md` (repo root) |
+| **Where** | `apps/web/next-env.d.ts`; `docs/phase-2-sprint-1-plan.md` |
+| **PR #10** | Root plan moved to `docs/`. **Still in the diff:** `next-env.d.ts` (`.next/dev/types` → `.next/types`). Plan still has `file:///d:/Suvam-Work/...`. |
 
-- `next-env.d.ts` is machine-generated (`.next/dev/types` vs `.next/types`) and says do not edit.
-- Root plan file includes a local `file:///d:/Suvam-Work/...` path.
+**Remaining fix:** revert `next-env.d.ts`; replace the local `file:///` link. See §3.
 
-**Fix:** revert `next-env.d.ts`. Move planning notes to `docs/` without machine-local paths, or drop them from the PR. Do not merge scratch files to `main`.
+---
 
-### OPEN — fix with Sprint 1 or immediately after (do not ignore)
+### FIXED in PR #10 (do not regress)
+
+#### F-P2S1-03 — Koko dry run numbers contradict themselves
+
+| | |
+| --- | --- |
+| **Status** | `FIXED` |
+| **How** | `koko-eating-bananas.json`: step 4 `hours=10`, step 6 `hours=8`, matching the explanations. |
+
+#### F-P2S1-04 — Character Replacement dry run does not match the solution
+
+| | |
+| --- | --- |
+| **Status** | `FIXED` |
+| **How** | Dry run now shrinks once and keeps stale `maxFreq` (`4-3=1<=1`), matching the posted solution. |
+
+#### F-P2S1-05 — Hidden tests leak via `error`
+
+| | |
+| --- | --- |
+| **Status** | `FIXED` *(code; add the hidden-throw assertion in §2)* |
+| **How** | Worker + sync paths set `error: undefined` and `actual: 'Wrong Answer'` when `isHidden`. |
+
+Treat the missing test as part of F-P2S1-01/02 remaining work, not a new flag.
 
 #### F-P2S1-08 — Stale pass/fail after edits
 
 | | |
 | --- | --- |
-| **Status** | `OPEN` |
-| **Where** | `TestRunner.tsx` |
-
-Editing code after a run leaves the previous results on screen.
-
-**Fix:** clear `result` when `code` changes (or show an explicit “stale” state until re-run).
+| **Status** | `FIXED` |
+| **How** | `TestRunner.tsx` shows “Stale results (code changed)” when `code` changes after a run. |
 
 #### F-P2S1-09 — Function name taken from the user buffer
 
 | | |
 | --- | --- |
-| **Status** | `OPEN` |
-| **Where** | `TestRunner.tsx` → `extractFunctionName(code)` |
+| **Status** | `FIXED` |
+| **How** | `extractFunctionName(starterCode)` in `TestRunner`; `CodeSubmit` passes `starterCode` through. |
 
-The first `function` / `const` in the editor is what gets called. A helper declared first is invoked instead of the solution.
+#### F-P2S1-12 — “Exactly 15 problem files” will break Sprint 2
 
-**Fix:** extract from starter code (or a problem field), not from whatever the user typed first.
+| | |
+| --- | --- |
+| **Status** | `FIXED` |
+| **How** | `toBeGreaterThanOrEqual(15)` plus expected-slug contains checks. |
+
+---
+
+### OPEN — not merge-blocking if called out
 
 #### F-P2S1-10 — Playground not wired to the runner
 
@@ -185,7 +233,7 @@ The first `function` / `const` in the editor is what gets called. A helper decla
 | **Status** | `OPEN` |
 | **Where** | `apps/web/app/playground/` |
 
-Sprint plan said Playground **or** problem page. Only problem pages got Run Tests. Acceptable deferral if called out; do not silently treat Playground as done.
+Sprint plan said Playground **or** problem page. Only problem pages got Run Tests. Defer to a later sprint; do not mark Playground done.
 
 #### F-P2S1-11 — Accessibility gaps on new UI
 
@@ -193,21 +241,11 @@ Sprint plan said Playground **or** problem page. Only problem pages got Run Test
 | --- | --- |
 | **Status** | `OPEN` |
 | **Where** | `TestRunner.tsx`, `ProblemTabs.tsx` |
+| **PR #10** | Tabs: `role="tablist"` / `tab` / `aria-selected`. Test rows: `role="button"` + keyboard, still a `div`. |
 
-Test rows are `div` + `onClick`. Tabs are not `role="tab"` / tablist.
+**Follow-up:** use a real `<button>` for test-row headers.
 
-**Fix:** buttons (or `role="button"` + keyboard), proper tab pattern, focus states.
-
-#### F-P2S1-12 — “Exactly 15 problem files” will break Sprint 2
-
-| | |
-| --- | --- |
-| **Status** | `OPEN` |
-| **Where** | `problem-json-validation.spec.ts` |
-
-`expect(problemFiles.length).toBe(15)` fails the moment problem 16 is added.
-
-**Fix:** assert expected slugs are present; do not pin an exact count.
+---
 
 ### What already looks solid (do not regress)
 
@@ -215,28 +253,32 @@ Test rows are `div` + `onClick`. Tabs are not `role="tab"` / tablist.
 - Monaco is lazy-loaded
 - Existing 6 problems already use executor-shaped `testCases`
 - Pattern slugs no longer point at 404 placeholders (`three-sum` → `3sum`, etc.)
+- `semanticCompare` unordered matrices + `ANY_OF:` (logic verified 2026-09-16; **tests still required**)
 
-### Sprint 1 merge checklist
+### Sprint 1 merge checklist (PR #10)
 
-Copy this onto the PR when asking for re-review:
+Do not ask for merge until every box is checked:
 
-- [ ] F-P2S1-01 judging: 3Sum order + Find Peak multi-answer
-- [ ] F-P2S1-02 every official solution passes its own tests
-- [ ] F-P2S1-03 Koko dry-run math
-- [ ] F-P2S1-04 Character Replacement dry run vs code
-- [ ] F-P2S1-05 hidden-test error leak
-- [ ] F-P2S1-06 Worker + timeout (no main-thread freeze)
-- [ ] F-P2S1-07 `next-env.d.ts` + scratch plan removed
-- [ ] F-P2S1-08 stale results cleared on edit *(or waived in writing)*
-- [ ] F-P2S1-09 function name from starter, not user buffer *(or waived)*
-- [ ] PR description filled in (what, why, how to verify)
-- [ ] Human re-review of judging + one problem dry run in the browser
+- [x] F-P2S1-03 Koko dry-run math
+- [x] F-P2S1-04 Character Replacement dry run vs code
+- [x] F-P2S1-05 hidden-test error leak *(code; test in remaining work)*
+- [x] F-P2S1-08 stale results
+- [x] F-P2S1-09 function name from starter
+- [x] F-P2S1-12 file-count assertion
+- [ ] F-P2S1-06 Worker only in production — **no sync fallback**
+- [ ] F-P2S1-01/02 comparator tests: unordered 3Sum + `ANY_OF` both peaks + hidden `error` omitted
+- [ ] F-P2S1-07 `next-env.d.ts` reverted + `file:///` removed from plan
+- [ ] `npx nx test web` green on the feature branch
+- [ ] Preview: Run Tests works; infinite loop times out without freezing the tab
+- [ ] PR #10 description filled in
+- [ ] This flags file updated in the same PR (`BLOCKED` → `FIXED` for the items above)
+- [ ] Human re-review after the remaining commits
 
 ---
 
 ## Sprint 2 — More content + visualizers *(planned)*
 
-From the Sprint 1 plan / README. **Do not start until Sprint 1 `BLOCKED` flags are `FIXED`**, or you will pile content on a broken judge.
+**Do not start until Sprint 1 `BLOCKED` flags are `FIXED`.**
 
 Planned slice (adjust when the sprint is scoped):
 
@@ -257,19 +299,17 @@ Add flags here as Sprint 2 PRs appear. Same quality bar as Sprint 1.
 
 ## Later Phase 2 *(unscheduled)*
 
-Keep parking lot items here so they are not “forgotten = done.”
-
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
 | F-P2X-01 | Real sandbox (not just Worker timeout) | `OPEN` | iframe / origin isolation if we ever execute untrusted code beyond the owner’s browser |
-| F-P2X-02 | Semantic comparator as a real module | `OPEN` | Lists, floats, any-of, unordered sets — shared by UI + tests |
-| F-P2X-03 | PRs target `develop`, not `main` | `OPEN` | README: `feature → develop → main`. PR #8 targeted `main`. |
+| F-P2X-02 | Semantic comparator as a real module | `OPEN` | `comparator.ts` exists; still needs the unit tests in remaining work, then this can move to `FIXED` |
+| F-P2X-03 | PRs target `develop`, not `main` | `OPEN` | README: `feature → develop → main`. #8 and #10 targeted `main`. `develop` has buggy #8; do not fast-forward `main` from `develop`. |
 | F-P2X-04 | README Phase 2 checkboxes are stale | `OPEN` | Pattern pages + Monaco already shipped; still listed as unchecked |
 
 ---
 
-## Review notes (Sprint 1)
+## Review notes
 
-- Preview URL was SSO-gated at review time; judging/dry-run issues were found in source, not only in the browser.
-- `gh` was not available on the review machine; PR metadata came from the GitHub API. Re-run `npx nx test web` on the feature branch after fixes.
-- Owner of this tracker: update statuses in the same PR that fixes the flag when possible.
+- 2026-09-16: PR #8 blocked (judging, dry runs, hidden errors, freeze, generated files).
+- 2026-09-16: PR #10 (`7b4b732`) re-reviewed. Product logic mostly fixed; remaining blockers are Worker sync fallback, missing comparator tests, `next-env.d.ts` / `file:///` paths. Preview was SSO-gated; freeze behavior still needs a browser check after the fallback is removed.
+- Owner of this tracker: update statuses in the same PR that fixes the flag.
