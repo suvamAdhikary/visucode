@@ -1,0 +1,35 @@
+# Epics and Stories
+
+This document tracks the backlog, epics, and user stories for VisuCode.
+
+## Epic 1: Phase 2 - Advanced Content & Test Runner
+**Status**: IN PROGRESS
+
+### Sprint 1: Code Test Runner & Core Problem Set (DONE)
+- [x] **Story**: Implement Monaco editor for user code submission.
+- [x] **Story**: Implement client-side test execution sandbox (`test-executor.ts`).
+- [x] **Story**: Update UI with a tabbed interface (Dry Run vs Your Code) and Test Runner results panel.
+- [x] **Story**: Add test cases to existing 6 problems.
+- [x] **Story**: Add 9 new problems (total 15), complete with dry runs and test cases.
+
+### Sprint 2: Visualizer Expansion & Final Polish (TODO)
+- [ ] **Story**: Implement Linked List visualizer component (nodes, pointers, traversal animations).
+- [ ] **Story**: Implement Tree visualizer component.
+- [ ] **Story**: Add 5 more problems requiring Linked List / Tree visualizers (total 20).
+- [ ] **Story**: Integrate visualizer components seamlessly into the Dry Run viewer.
+
+## Epic 2: Phase 3 - User System & Progress Tracking
+**Status**: TODO
+
+- [ ] **Story**: Implement anonymous progress tracking using `localStorage` (mark problems as completed).
+- [ ] **Story**: Integrate NextAuth.js for GitHub/Google authentication.
+- [ ] **Story**: Add user profile page with completion stats.
+- [ ] **Story**: Implement premium content gating for advanced patterns.
+
+## Epic 3: Phase 4 - Backend Migration
+**Status**: TODO
+
+- [ ] **Story**: Setup PostgreSQL database and Prisma ORM.
+- [ ] **Story**: Create a GraphQL API to serve problem and lesson data.
+- [ ] **Story**: Swap `problem.service.ts` to fetch from GraphQL instead of local JSON.
+- [ ] **Story**: Implement Redis caching for high-traffic read operations.
