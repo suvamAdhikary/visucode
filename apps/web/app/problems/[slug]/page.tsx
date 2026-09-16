@@ -41,13 +41,13 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         <div className={styles.topActions}>
           {problem.externalLinks.map((link) => (
             <a
-              key={link.platform}
+              key={link.name}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.externalLink}
             >
-              {link.platform === 'leetcode' ? '🔗 LeetCode' : `🔗 ${link.platform}`}
+              {link.name.toLowerCase() === 'leetcode' ? '🔗 LeetCode' : `🔗 ${link.name}`}
             </a>
           ))}
         </div>

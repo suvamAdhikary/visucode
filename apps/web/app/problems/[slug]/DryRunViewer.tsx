@@ -9,6 +9,8 @@
 import { useCallback } from 'react';
 import type { Problem } from '@visucode/shared-types';
 import { ArrayVisualizer } from '../../components/visualizer/ArrayVisualizer';
+import { LinkedListVisualizer } from '../../components/visualizer/LinkedListVisualizer';
+import { TreeVisualizer } from '../../components/visualizer/TreeVisualizer';
 import { StepController } from '../../components/visualizer/StepController';
 import { VariableInspector } from '../../components/visualizer/VariableInspector';
 import { CodeViewer } from '../../components/editor/CodeViewer';
@@ -72,11 +74,25 @@ export function DryRunViewer({ problem }: DryRunViewerProps) {
         </div>
       )}
 
-      {/* Array Visualization */}
+      {/* Visualizations */}
       <div className={styles.vizContainer}>
         {step?.arrayState && (
           <ArrayVisualizer
             arrayState={step.arrayState}
+            pointers={step.pointers}
+            accentColor={accentColor}
+          />
+        )}
+        {step?.linkedListState && (
+          <LinkedListVisualizer
+            listState={step.linkedListState}
+            pointers={step.pointers}
+            accentColor={accentColor}
+          />
+        )}
+        {step?.treeState && (
+          <TreeVisualizer
+            treeState={step.treeState}
             pointers={step.pointers}
             accentColor={accentColor}
           />

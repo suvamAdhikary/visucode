@@ -53,8 +53,9 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
           style={{ display: activeTab === 'code' ? 'flex' : 'none' }}
         >
           <CodeSubmit
-            starterCode={starterCode}
-            testCases={problem.testCases || []}
+            starterCode={problem.starterCode?.['javascript'] || ''}
+            wrapperCode={problem.wrapperCode?.['javascript']}
+            testCases={problem.testCases}
           />
         </div>
       </div>
