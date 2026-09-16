@@ -13,10 +13,11 @@ import styles from './TestRunner.module.css';
 interface TestRunnerProps {
   code: string;
   starterCode: string;
+  wrapperCode?: string;
   testCases: TestCase[];
 }
 
-export function TestRunner({ code, starterCode, testCases }: TestRunnerProps) {
+export function TestRunner({ code, starterCode, wrapperCode, testCases }: TestRunnerProps) {
   const [result, setResult] = useState<ExecutionResult | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [expandedTests, setExpandedTests] = useState<Set<string>>(new Set());
@@ -34,7 +35,7 @@ export function TestRunner({ code, starterCode, testCases }: TestRunnerProps) {
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     const funcName = extractFunctionName(starterCode) || 'solution'; // F-P2S1-09: from starter
-    const execResult = await executeTests(code, funcName, testCases);
+    const execResult = await executeTests(code, funcName, testCases, wrapperCode);
     setResult(execResult);
     setIsStale(false);
     setIsRunning(false);

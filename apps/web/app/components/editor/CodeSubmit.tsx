@@ -26,10 +26,11 @@ const CodeEditor = dynamic(
 
 interface CodeSubmitProps {
   starterCode: string;
+  wrapperCode?: string;
   testCases: TestCase[];
 }
 
-export function CodeSubmit({ starterCode, testCases }: CodeSubmitProps) {
+export function CodeSubmit({ starterCode, wrapperCode, testCases }: CodeSubmitProps) {
   const [code, setCode] = useState(starterCode);
 
   const resetCode = () => setCode(starterCode);
@@ -58,7 +59,7 @@ export function CodeSubmit({ starterCode, testCases }: CodeSubmitProps) {
       </div>
 
       <div className={styles.testRunnerSection}>
-        <TestRunner code={code} starterCode={starterCode} testCases={testCases} />
+        <TestRunner code={code} starterCode={starterCode} wrapperCode={wrapperCode} testCases={testCases} />
       </div>
     </div>
   );

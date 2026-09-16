@@ -77,7 +77,14 @@ describe('Problem JSON Validation', () => {
     });
 
     it('has valid patterns', () => {
-      const validPatterns = ['two-pointers', 'sliding-window', 'binary-search'];
+      const validPatterns = [
+        'two-pointers',
+        'sliding-window',
+        'binary-search',
+        'dfs',
+        'bfs',
+        'dynamic-programming',
+      ];
       const patterns = problem.patterns as string[];
       expect(patterns.length).toBeGreaterThan(0);
       for (const p of patterns) {
@@ -150,7 +157,8 @@ describe('Problem JSON Validation', () => {
       const starterCode = problem.starterCode as Record<string, string>;
 
       // Extract function name from starter code
-      const funcMatch = starterCode.javascript.match(/function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/);
+      const cleanStarterCode = (starterCode.javascript || '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*/g, '');
+      const funcMatch = cleanStarterCode.match(/function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/);
       if (funcMatch) {
         const funcName = funcMatch[1];
         expect(solutions[0].code).toContain(`function ${funcName}`);
@@ -158,15 +166,20 @@ describe('Problem JSON Validation', () => {
     });
 
     it('official solution passes all tests', async () => {
-      const solutions = problem.solutions as Array<{ code: string }>;
-      const starterCode = problem.starterCode as Record<string, string>;
-      const funcName = extractFunctionName(starterCode.javascript) || 'solution';
-      const testCases = problem.testCases as any[];
+      const solutions = problem.solutions as any[];
+      const cleanStarterCode = ((problem.starterCode as any)['javascript'] || '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*/g, '');
+      const funcMatch = cleanStarterCode.match(/function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/);
+      const funcName = funcMatch ? funcMatch[1] : 'solution';
       
-      const result = await executeTests(solutions[0].code, funcName, testCases);
+      const result = await executeTests(
+        solutions[0].code,
+        funcName,
+        problem.testCases as any[],
+        (problem.wrapperCode as any)?.['javascript']
+      );
       
       if (result.totalFailed > 0) {
-        console.error(`Problem ${filename} solution failed:`, result.results.filter(r => !r.passed));
+        console.error(`Problem ${filename} solution failed:`, JSON.stringify(result.results.filter(r => !r.passed), null, 2));
       }
       expect(result.totalFailed).toBe(0);
       expect(result.results.length).toBeGreaterThan(0);

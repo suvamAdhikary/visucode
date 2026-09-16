@@ -1,0 +1,121 @@
+.visualizer {
+  position: relative;
+  width: 100%;
+  padding: 3rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 200px;
+  overflow-x: auto;
+}
+
+.svgOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nodesContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 3rem;
+  position: relative;
+  z-index: 2;
+}
+
+.nodeWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.pointerContainer {
+  position: absolute;
+  top: -45px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.pointerLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: bounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pointerArrow {
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.headLabel {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.node {
+  display: flex;
+  flex-direction: row;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  height: 48px;
+  width: auto;
+  min-width: 64px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.nodeValue {
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.nodeNextDot {
+  width: 20px;
+  border-left: 2px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nodeNextDot::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+.highlighted {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-4px);
+}
+
+@keyframes bounce {
+  0% { transform: translateY(-10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}

@@ -39,7 +39,8 @@ export interface TestCase {
 export async function executeTests(
   code: string,
   functionName: string,
-  testCases: TestCase[]
+  testCases: TestCase[],
+  wrapperCode?: string
 ): Promise<ExecutionResult> {
   return new Promise((resolve) => {
     // Note: This relies on Webpack / Next.js resolving the worker correctly.
@@ -65,11 +66,11 @@ export async function executeTests(
         resolve(createErrorResult(testCases, 'Worker error: ' + e.message));
       };
 
-      worker.postMessage({ code, functionName, testCases });
+      worker.postMessage({ code, functionName, testCases, wrapperCode });
     } catch (e) {
       console.warn('Failed to instantiate Web Worker', e);
       if (process.env.NODE_ENV === 'test') {
-        resolve(executeTestsSync(code, functionName, testCases));
+        resolve(executeTestsSync(code, functionName, testCases, wrapperCode));
       } else {
         resolve(createErrorResult(testCases, 'Failed to initialize code sandbox environment.'));
       }
@@ -82,7 +83,8 @@ import { semanticCompare } from './comparator';
 function executeTestsSync(
   code: string,
   functionName: string,
-  testCases: TestCase[]
+  testCases: TestCase[],
+  wrapperCode?: string
 ): ExecutionResult {
   const results: TestResult[] = [];
   const overallStart = performance.now();
@@ -98,7 +100,8 @@ function executeTestsSync(
       const args = Array.isArray(parsedInput) ? parsedInput : [parsedInput];
       const wrappedCode = `
         ${code}
-        return JSON.stringify(${functionName}(${args.map((_, i) => `arguments[${i}]`).join(', ')}));
+        ${wrapperCode || ''}
+        return JSON.stringify(${wrapperCode ? '__execute' : functionName}(${args.map((_, i) => `arguments[${i}]`).join(', ')}));
       `;
       const fn = new Function(...args.map((_, i) => `arg${i}`), wrappedCode);
       const rawResult = fn(...args);
@@ -177,8 +180,11 @@ function createErrorResult(testCases: TestCase[], errorMsg: string): ExecutionRe
  * Looks for: function xyz(, const xyz =, var xyz =
  */
 export function extractFunctionName(code: string): string | null {
+  // Strip block comments and line comments for regex
+  const cleanCode = code.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*/g, '');
+
   // function declaration
-  const funcMatch = code.match(/function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/);
+  const funcMatch = cleanCode.match(/function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/);
   if (funcMatch) return funcMatch[1];
 
   // const/let/var arrow or function expression
