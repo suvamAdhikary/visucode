@@ -1,0 +1,165 @@
+{
+  "slug": "trapping-rain-water",
+  "title": "Trapping Rain Water",
+  "difficulty": "Hard",
+  "category": "array",
+  "patterns": ["two-pointers"],
+  "companies": ["Amazon", "Google", "Goldman Sachs", "Microsoft"],
+  "description": "Given `n` non-negative integers representing an elevation map where the width of each bar is `1`, compute how much water it can trap after raining.",
+  "examples": [
+    {
+      "input": "height = [0,1,0,2,1,0,1,3,2,1,2,1]",
+      "output": "6",
+      "explanation": "The elevation map [0,1,0,2,1,0,1,3,2,1,2,1] can trap 6 units of rain water."
+    },
+    {
+      "input": "height = [4,2,0,3,2,5]",
+      "output": "9"
+    }
+  ],
+  "constraints": [
+    "n == height.length",
+    "1 <= n <= 2 * 10^4",
+    "0 <= height[i] <= 10^5"
+  ],
+  "hints": [
+    "Water at any index depends on the min of max-left and max-right heights.",
+    "Use two pointers from both ends, tracking leftMax and rightMax.",
+    "If height[left] < height[right], process left side; otherwise process right."
+  ],
+  "starterCode": {
+    "javascript": "function trap(height) {\n  // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function trap(height) {\n  let left = 0, right = height.length - 1;\n  let leftMax = 0, rightMax = 0;\n  let water = 0;\n\n  while (left < right) {\n    if (height[left] < height[right]) {\n      if (height[left] >= leftMax) {\n        leftMax = height[left];\n      } else {\n        water += leftMax - height[left];\n      }\n      left++;\n    } else {\n      if (height[right] >= rightMax) {\n        rightMax = height[right];\n      } else {\n        water += rightMax - height[right];\n      }\n      right--;\n    }\n  }\n  return water;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "explanation": "Two pointers from both ends. The side with the smaller height determines the water level. Track leftMax/rightMax — if current height is less than the max, water is trapped."
+    }
+  ],
+  "testCases": [
+    { "id": "1", "input": "[[0,1,0,2,1,0,1,3,2,1,2,1]]", "expected": "6" },
+    { "id": "2", "input": "[[4,2,0,3,2,5]]", "expected": "9" },
+    { "id": "3", "input": "[[1,1,1]]", "expected": "0" },
+    { "id": "4", "input": "[[4,2,3]]", "expected": "1", "isHidden": true }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 2,
+      "variables": [
+        { "name": "left", "value": "0", "type": "number", "changed": true },
+        { "name": "right", "value": "5", "type": "number", "changed": true },
+        { "name": "leftMax", "value": "0", "type": "number", "changed": true },
+        { "name": "rightMax", "value": "0", "type": "number", "changed": true },
+        { "name": "water", "value": "0", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [4, 2, 0, 3, 2, 5] },
+      "pointers": [
+        { "name": "L", "index": 0, "color": "#06b6d4" },
+        { "name": "R", "index": 5, "color": "#a855f7" }
+      ],
+      "explanation": "Initialize pointers and max trackers. Input: [4,2,0,3,2,5]"
+    },
+    {
+      "stepNumber": 2,
+      "line": 7,
+      "variables": [
+        { "name": "height[L]", "value": "4", "type": "number" },
+        { "name": "height[R]", "value": "5", "type": "number" }
+      ],
+      "arrayState": { "elements": [4, 2, 0, 3, 2, 5], "compareIndices": [0, 5] },
+      "pointers": [
+        { "name": "L", "index": 0, "color": "#06b6d4" },
+        { "name": "R", "index": 5, "color": "#a855f7" }
+      ],
+      "explanation": "height[L]=4 < height[R]=5 → process left side. 4 >= leftMax(0), so leftMax = 4."
+    },
+    {
+      "stepNumber": 3,
+      "line": 8,
+      "variables": [
+        { "name": "leftMax", "value": "4", "type": "number", "changed": true },
+        { "name": "left", "value": "1", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [4, 2, 0, 3, 2, 5], "highlightIndices": [0] },
+      "pointers": [
+        { "name": "L", "index": 1, "color": "#06b6d4" },
+        { "name": "R", "index": 5, "color": "#a855f7" }
+      ],
+      "explanation": "leftMax updated to 4. Move left to 1."
+    },
+    {
+      "stepNumber": 4,
+      "line": 11,
+      "variables": [
+        { "name": "height[L]", "value": "2", "type": "number" },
+        { "name": "water", "value": "2", "type": "number", "changed": true },
+        { "name": "left", "value": "2", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [4, 2, 0, 3, 2, 5], "highlightIndices": [1] },
+      "pointers": [
+        { "name": "L", "index": 2, "color": "#06b6d4" },
+        { "name": "R", "index": 5, "color": "#a855f7" }
+      ],
+      "explanation": "height[1]=2 < leftMax(4). Trap water: 4-2=2. water=2. left→2."
+    },
+    {
+      "stepNumber": 5,
+      "line": 11,
+      "variables": [
+        { "name": "height[L]", "value": "0", "type": "number" },
+        { "name": "water", "value": "6", "type": "number", "changed": true },
+        { "name": "left", "value": "3", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [4, 2, 0, 3, 2, 5], "highlightIndices": [2] },
+      "pointers": [
+        { "name": "L", "index": 3, "color": "#06b6d4" },
+        { "name": "R", "index": 5, "color": "#a855f7" }
+      ],
+      "explanation": "height[2]=0 < leftMax(4). Trap: 4-0=4. water=6. left→3."
+    },
+    {
+      "stepNumber": 6,
+      "line": 11,
+      "variables": [
+        { "name": "height[L]", "value": "3", "type": "number" },
+        { "name": "water", "value": "7", "type": "number", "changed": true },
+        { "name": "left", "value": "4", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [4, 2, 0, 3, 2, 5], "highlightIndices": [3] },
+      "pointers": [
+        { "name": "L", "index": 4, "color": "#06b6d4" },
+        { "name": "R", "index": 5, "color": "#a855f7" }
+      ],
+      "explanation": "height[3]=3 < leftMax(4). Trap: 4-3=1. water=7. left→4."
+    },
+    {
+      "stepNumber": 7,
+      "line": 11,
+      "variables": [
+        { "name": "height[L]", "value": "2", "type": "number" },
+        { "name": "water", "value": "9", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [4, 2, 0, 3, 2, 5], "highlightIndices": [4] },
+      "pointers": [
+        { "name": "L=R", "index": 4, "color": "#34d399" }
+      ],
+      "explanation": "height[4]=2 < leftMax(4). Trap: 4-2=2. water=9. Pointers meet → done!"
+    }
+  ],
+  "externalLinks": [
+    { "platform": "leetcode", "url": "https://leetcode.com/problems/trapping-rain-water/", "problemId": "42" },
+    { "platform": "neetcode", "url": "https://neetcode.io/problems/trapping-rain-water" }
+  ],
+  "realWorldUseCases": [
+    {
+      "company": "Civil Engineering",
+      "scenario": "Volume estimation",
+      "description": "Estimating water pooling volume on terrain based on elevation profiles — same min-boundary logic as this problem."
+    }
+  ],
+  "accessLevel": "free"
+}
