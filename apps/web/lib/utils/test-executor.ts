@@ -1,7 +1,7 @@
 // ============================================
 // Test Executor — Client-side code runner
 // ============================================
-// Runs user code against test cases using Function()
+// Runs user code against test cases using Web Workers
 // Returns structured results with pass/fail per case
 
 export interface TestResult {
@@ -22,7 +22,7 @@ export interface ExecutionResult {
   overallTimeMs: number;
 }
 
-interface TestCase {
+export interface TestCase {
   id: string;
   input: string;
   expected: string;
@@ -30,16 +30,53 @@ interface TestCase {
 }
 
 /**
- * Execute user code against a set of test cases.
- * 
- * The code should define a function. We wrap it and call it
- * with the parsed input, then compare the output to expected.
+ * Execute user code against a set of test cases safely in a Web Worker.
  *
  * @param code - User's JavaScript code (should define a function)
  * @param functionName - The name of the function to call
  * @param testCases - Array of test cases from the problem JSON
  */
-export function executeTests(
+export async function executeTests(
+  code: string,
+  functionName: string,
+  testCases: TestCase[]
+): Promise<ExecutionResult> {
+  return new Promise((resolve) => {
+    // Note: This relies on Webpack / Next.js resolving the worker correctly.
+    // In a test environment (Jest), workers might need a mock or polyfill.
+    try {
+      const worker = new Worker(new URL('./executor.worker.ts', import.meta.url));
+
+      // Hard timeout for the worker to prevent infinite loops (tab freezing)
+      const timeoutId = setTimeout(() => {
+        worker.terminate();
+        resolve(createTimeoutResult(testCases));
+      }, 2000);
+
+      worker.onmessage = (e) => {
+        clearTimeout(timeoutId);
+        resolve(e.data as ExecutionResult);
+        worker.terminate();
+      };
+
+      worker.onerror = (e) => {
+        clearTimeout(timeoutId);
+        worker.terminate();
+        resolve(createErrorResult(testCases, 'Worker error: ' + e.message));
+      };
+
+      worker.postMessage({ code, functionName, testCases });
+    } catch (e) {
+      // Fallback if Worker fails to instantiate (e.g. in some test environments without full polyfills)
+      console.warn('Failed to instantiate Web Worker, using synchronous fallback', e);
+      resolve(executeTestsSync(code, functionName, testCases));
+    }
+  });
+}
+
+import { semanticCompare } from './comparator';
+
+function executeTestsSync(
   code: string,
   functionName: string,
   testCases: TestCase[]
@@ -54,26 +91,16 @@ export function executeTests(
     let error: string | undefined;
 
     try {
-      // Parse the input — stored as JSON array of arguments
-      // e.g., "[[2,7,11,15], 9]" → args = [[2,7,11,15], 9]
       const parsedInput = JSON.parse(testCase.input);
       const args = Array.isArray(parsedInput) ? parsedInput : [parsedInput];
-
-      // Create a sandboxed function that defines the user's code
-      // and returns the result of calling their function
       const wrappedCode = `
         ${code}
         return JSON.stringify(${functionName}(${args.map((_, i) => `arguments[${i}]`).join(', ')}));
       `;
-
       const fn = new Function(...args.map((_, i) => `arg${i}`), wrappedCode);
       const rawResult = fn(...args);
       actual = rawResult ?? 'undefined';
-
-      // Normalize both for comparison
-      const normalizedExpected = normalizeOutput(testCase.expected);
-      const normalizedActual = normalizeOutput(actual);
-      passed = normalizedExpected === normalizedActual;
+      passed = semanticCompare(testCase.expected, actual);
     } catch (err) {
       error = err instanceof Error ? err.message : String(err);
       actual = `Error: ${error}`;
@@ -81,14 +108,13 @@ export function executeTests(
     }
 
     const executionTimeMs = performance.now() - start;
-
     results.push({
       id: testCase.id,
       passed,
       input: testCase.isHidden ? 'Hidden' : testCase.input,
       expected: testCase.isHidden ? 'Hidden' : testCase.expected,
       actual: testCase.isHidden ? (passed ? 'Correct' : 'Wrong Answer') : actual,
-      error,
+      error: testCase.isHidden ? undefined : error,
       executionTimeMs: Math.round(executionTimeMs * 100) / 100,
     });
   }
@@ -105,17 +131,42 @@ export function executeTests(
   };
 }
 
-/**
- * Normalize output for comparison — handles JSON formatting differences
- */
-function normalizeOutput(value: string): string {
-  try {
-    // Parse and re-stringify to normalize formatting
-    return JSON.stringify(JSON.parse(value));
-  } catch {
-    // If not valid JSON, compare as trimmed strings
-    return value.trim();
-  }
+function createTimeoutResult(testCases: TestCase[]): ExecutionResult {
+  const results: TestResult[] = testCases.map(tc => ({
+    id: tc.id,
+    passed: false,
+    input: tc.isHidden ? 'Hidden' : tc.input,
+    expected: tc.isHidden ? 'Hidden' : tc.expected,
+    actual: tc.isHidden ? 'Wrong Answer' : 'Timeout Error',
+    error: tc.isHidden ? undefined : 'Execution timed out (> 2000ms). Possible infinite loop.',
+    executionTimeMs: 2000,
+  }));
+  return {
+    results,
+    totalPassed: 0,
+    totalFailed: testCases.length,
+    totalTests: testCases.length,
+    overallTimeMs: 2000,
+  };
+}
+
+function createErrorResult(testCases: TestCase[], errorMsg: string): ExecutionResult {
+  const results: TestResult[] = testCases.map(tc => ({
+    id: tc.id,
+    passed: false,
+    input: tc.isHidden ? 'Hidden' : tc.input,
+    expected: tc.isHidden ? 'Hidden' : tc.expected,
+    actual: tc.isHidden ? 'Wrong Answer' : 'System Error',
+    error: tc.isHidden ? undefined : errorMsg,
+    executionTimeMs: 0,
+  }));
+  return {
+    results,
+    totalPassed: 0,
+    totalFailed: testCases.length,
+    totalTests: testCases.length,
+    overallTimeMs: 0,
+  };
 }
 
 /**

@@ -20,16 +20,20 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
 
   return (
     <div className={styles.tabsContainer}>
-      <div className={styles.tabHeader}>
+      <div className={styles.tabHeader} role="tablist">
         <button
           className={`${styles.tabBtn} ${activeTab === 'visualizer' ? styles.active : ''}`}
           onClick={() => setActiveTab('visualizer')}
+          role="tab"
+          aria-selected={activeTab === 'visualizer'}
         >
           🔍 Visualizer
         </button>
         <button
           className={`${styles.tabBtn} ${activeTab === 'code' ? styles.active : ''}`}
           onClick={() => setActiveTab('code')}
+          role="tab"
+          aria-selected={activeTab === 'code'}
         >
           💻 Your Code <span className={styles.betaBadge}>Beta</span>
         </button>

@@ -58,7 +58,7 @@ export function CodeSubmit({ starterCode, testCases }: CodeSubmitProps) {
       </div>
 
       <div className={styles.testRunnerSection}>
-        <TestRunner code={code} testCases={testCases} />
+        <TestRunner code={code} starterCode={starterCode} testCases={testCases} />
       </div>
     </div>
   );

@@ -113,22 +113,20 @@
         { "name": "L", "index": 1, "color": "#06b6d4" },
         { "name": "R", "index": 4, "color": "#a855f7" }
       ],
-      "explanation": "Shrink: remove s[0]='A'. count={A:2,B:2}. Window=4, 4-2=2>1. Still invalid."
+      "explanation": "Shrink: remove s[0]='A'. count={A:2,B:2}. Window=4, maxFreq=3 (stale). 4-3=1<=1. Valid! Loop ends."
     },
     {
       "stepNumber": 6,
-      "line": 10,
+      "line": 12,
       "variables": [
-        { "name": "left", "value": "2", "type": "number", "changed": true },
-        { "name": "count", "value": "{A:1,B:2}", "type": "object", "changed": true },
         { "name": "maxLen", "value": "4", "type": "number" }
       ],
-      "arrayState": { "elements": ["A","A","B","A","B","B","A"], "windowStart": 2, "windowEnd": 4 },
+      "arrayState": { "elements": ["A","A","B","A","B","B","A"], "windowStart": 1, "windowEnd": 4 },
       "pointers": [
-        { "name": "L", "index": 2, "color": "#06b6d4" },
+        { "name": "L", "index": 1, "color": "#06b6d4" },
         { "name": "R", "index": 4, "color": "#a855f7" }
       ],
-      "explanation": "Shrink again: remove s[1]='A'. Window=[B,A,B], 3-2=1<=1. Valid. maxLen stays 4."
+      "explanation": "maxLen stays 4."
     },
     {
       "stepNumber": 7,

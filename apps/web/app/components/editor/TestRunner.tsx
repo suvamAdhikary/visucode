@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   executeTests,
   extractFunctionName,
@@ -12,21 +12,31 @@ import styles from './TestRunner.module.css';
 
 interface TestRunnerProps {
   code: string;
+  starterCode: string;
   testCases: TestCase[];
 }
 
-export function TestRunner({ code, testCases }: TestRunnerProps) {
+export function TestRunner({ code, starterCode, testCases }: TestRunnerProps) {
   const [result, setResult] = useState<ExecutionResult | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [expandedTests, setExpandedTests] = useState<Set<string>>(new Set());
+  const [isStale, setIsStale] = useState(false);
+
+  // F-P2S1-08: Mark results as stale when code changes
+  useEffect(() => {
+    if (result) {
+      setIsStale(true);
+    }
+  }, [code]);
 
   const handleRunTests = async () => {
     setIsRunning(true);
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    const funcName = extractFunctionName(code) || 'solution';
-    const execResult = executeTests(code, funcName, testCases);
+    const funcName = extractFunctionName(starterCode) || 'solution'; // F-P2S1-09: from starter
+    const execResult = await executeTests(code, funcName, testCases);
     setResult(execResult);
+    setIsStale(false);
     setIsRunning(false);
 
     // Auto-expand failed tests, or first test if all passed
@@ -61,12 +71,18 @@ export function TestRunner({ code, testCases }: TestRunnerProps) {
                 result.totalFailed === 0 ? styles.statusPass : styles.statusFail
               }
             >
-              {result.totalFailed === 0
-                ? `✅ All ${result.totalPassed} tests passed!`
-                : `❌ ${result.totalFailed}/${result.totalTests} failed`}
-              <span className={styles.timeStr}>
-                ({result.overallTimeMs}ms)
-              </span>
+              {isStale ? (
+                <span className={styles.statusReady}>Stale results (code changed)</span>
+              ) : (
+                <>
+                  {result.totalFailed === 0
+                    ? `✅ All ${result.totalPassed} tests passed!`
+                    : `❌ ${result.totalFailed}/${result.totalTests} failed`}
+                  <span className={styles.timeStr}>
+                    ({result.overallTimeMs}ms)
+                  </span>
+                </>
+              )}
             </span>
           ) : (
             <span className={styles.statusReady}>Ready to run tests</span>
@@ -100,6 +116,14 @@ export function TestRunner({ code, testCases }: TestRunnerProps) {
                 <div
                   className={styles.testHeader}
                   onClick={() => toggleTest(test.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      toggleTest(test.id);
+                    }
+                  }}
                 >
                   <span className={styles.testIcon}>
                     {test.passed ? '✅' : '❌'}

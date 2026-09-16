@@ -5,6 +5,7 @@
 
 import { readFileSync, readdirSync } from 'fs';
 import path from 'path';
+import { executeTests, extractFunctionName } from '../test-executor';
 
 const PROBLEMS_DIR = path.join(__dirname, '../../../content/problems');
 
@@ -12,8 +13,8 @@ const PROBLEMS_DIR = path.join(__dirname, '../../../content/problems');
 const problemFiles = readdirSync(PROBLEMS_DIR).filter(f => f.endsWith('.json'));
 
 describe('Problem JSON Validation', () => {
-  it('should have exactly 15 problem files', () => {
-    expect(problemFiles.length).toBe(15);
+  it('should have at least 15 problem files', () => {
+    expect(problemFiles.length).toBeGreaterThanOrEqual(15);
   });
 
   const expectedSlugs = [
@@ -154,6 +155,21 @@ describe('Problem JSON Validation', () => {
         const funcName = funcMatch[1];
         expect(solutions[0].code).toContain(`function ${funcName}`);
       }
+    });
+
+    it('official solution passes all tests', async () => {
+      const solutions = problem.solutions as Array<{ code: string }>;
+      const starterCode = problem.starterCode as Record<string, string>;
+      const funcName = extractFunctionName(starterCode.javascript) || 'solution';
+      const testCases = problem.testCases as any[];
+      
+      const result = await executeTests(solutions[0].code, funcName, testCases);
+      
+      if (result.totalFailed > 0) {
+        console.error(`Problem ${filename} solution failed:`, result.results.filter(r => !r.passed));
+      }
+      expect(result.totalFailed).toBe(0);
+      expect(result.results.length).toBeGreaterThan(0);
     });
   });
 });

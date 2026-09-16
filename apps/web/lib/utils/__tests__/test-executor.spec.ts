@@ -30,8 +30,8 @@ describe('extractFunctionName', () => {
 describe('executeTests', () => {
   const simpleAddCode = `function add(a, b) { return a + b; }`;
 
-  it('passes all correct test cases', () => {
-    const result = executeTests(simpleAddCode, 'add', [
+  it('passes all correct test cases', async () => {
+    const result = await executeTests(simpleAddCode, 'add', [
       { id: '1', input: '[1, 2]', expected: '3' },
       { id: '2', input: '[0, 0]', expected: '0' },
       { id: '3', input: '[-1, 1]', expected: '0' },
@@ -43,9 +43,9 @@ describe('executeTests', () => {
     expect(result.results.every(r => r.passed)).toBe(true);
   });
 
-  it('detects failures', () => {
+  it('detects failures', async () => {
     const wrongCode = `function add(a, b) { return a * b; }`;
-    const result = executeTests(wrongCode, 'add', [
+    const result = await executeTests(wrongCode, 'add', [
       { id: '1', input: '[2, 3]', expected: '5' },
     ]);
 
@@ -54,9 +54,9 @@ describe('executeTests', () => {
     expect(result.results[0].actual).toBe('6');
   });
 
-  it('handles syntax errors gracefully', () => {
+  it('handles syntax errors gracefully', async () => {
     const badCode = `function broken( { return }`;
-    const result = executeTests(badCode, 'broken', [
+    const result = await executeTests(badCode, 'broken', [
       { id: '1', input: '[1]', expected: '1' },
     ]);
 
@@ -65,9 +65,9 @@ describe('executeTests', () => {
     expect(result.results[0].passed).toBe(false);
   });
 
-  it('handles runtime errors gracefully', () => {
+  it('handles runtime errors gracefully', async () => {
     const errorCode = `function boom() { throw new Error('kaboom'); }`;
-    const result = executeTests(errorCode, 'boom', [
+    const result = await executeTests(errorCode, 'boom', [
       { id: '1', input: '[]', expected: '1' },
     ]);
 
@@ -75,7 +75,7 @@ describe('executeTests', () => {
     expect(result.results[0].error).toContain('kaboom');
   });
 
-  it('parses array-of-args input format correctly', () => {
+  it('parses array-of-args input format correctly', async () => {
     const code = `function twoSum(numbers, target) {
       let l = 0, r = numbers.length - 1;
       while (l < r) {
@@ -87,7 +87,7 @@ describe('executeTests', () => {
       return [-1,-1];
     }`;
 
-    const result = executeTests(code, 'twoSum', [
+    const result = await executeTests(code, 'twoSum', [
       { id: '1', input: '[[2,7,11,15], 9]', expected: '[1,2]' },
     ]);
 
@@ -95,13 +95,13 @@ describe('executeTests', () => {
     expect(result.results[0].passed).toBe(true);
   });
 
-  it('handles single-argument input', () => {
+  it('handles single-argument input', async () => {
     const code = `function isPalindrome(s) {
       const clean = s.toLowerCase().replace(/[^a-z0-9]/g, '');
       return clean === clean.split('').reverse().join('');
     }`;
 
-    const result = executeTests(code, 'isPalindrome', [
+    const result = await executeTests(code, 'isPalindrome', [
       { id: '1', input: '["racecar"]', expected: 'true' },
       { id: '2', input: '["hello"]', expected: 'false' },
     ]);
@@ -109,19 +109,19 @@ describe('executeTests', () => {
     expect(result.totalPassed).toBe(2);
   });
 
-  it('normalizes array output for comparison', () => {
+  it('normalizes array output for comparison', async () => {
     // Test that [1,2] matches [1, 2] (whitespace differences)
     const code = `function getArr() { return [1, 2]; }`;
-    const result = executeTests(code, 'getArr', [
+    const result = await executeTests(code, 'getArr', [
       { id: '1', input: '[]', expected: '[1,2]' },
     ]);
 
     expect(result.totalPassed).toBe(1);
   });
 
-  it('handles hidden test cases', () => {
+  it('handles hidden test cases', async () => {
     const code = `function add(a, b) { return a + b; }`;
-    const result = executeTests(code, 'add', [
+    const result = await executeTests(code, 'add', [
       { id: '1', input: '[1, 2]', expected: '3', isHidden: true },
     ]);
 
@@ -130,9 +130,9 @@ describe('executeTests', () => {
     expect(result.results[0].passed).toBe(true);
   });
 
-  it('tracks execution time', () => {
+  it('tracks execution time', async () => {
     const code = `function slow() { let x = 0; for(let i=0;i<100;i++) x+=i; return x; }`;
-    const result = executeTests(code, 'slow', [
+    const result = await executeTests(code, 'slow', [
       { id: '1', input: '[]', expected: '4950' },
     ]);
 
@@ -142,7 +142,7 @@ describe('executeTests', () => {
 
   // ---- Tests for actual problem solutions ----
 
-  it('validates 3Sum solution', () => {
+  it('validates 3Sum solution', async () => {
     const code = `function threeSum(nums) {
       const res = [];
       nums.sort((a, b) => a - b);
@@ -163,7 +163,7 @@ describe('executeTests', () => {
       return res;
     }`;
 
-    const result = executeTests(code, 'threeSum', [
+    const result = await executeTests(code, 'threeSum', [
       { id: '1', input: '[[-1,0,1,2,-1,-4]]', expected: '[[-1,-1,2],[-1,0,1]]' },
       { id: '2', input: '[[0,0,0]]', expected: '[[0,0,0]]' },
     ]);
@@ -171,7 +171,7 @@ describe('executeTests', () => {
     expect(result.totalPassed).toBe(2);
   });
 
-  it('validates binary search solution', () => {
+  it('validates binary search solution', async () => {
     const code = `function search(nums, target) {
       let left = 0, right = nums.length - 1;
       while (left <= right) {
@@ -183,7 +183,7 @@ describe('executeTests', () => {
       return -1;
     }`;
 
-    const result = executeTests(code, 'search', [
+    const result = await executeTests(code, 'search', [
       { id: '1', input: '[[-1,0,3,5,9,12], 9]', expected: '4' },
       { id: '2', input: '[[-1,0,3,5,9,12], 2]', expected: '-1' },
     ]);
@@ -191,7 +191,7 @@ describe('executeTests', () => {
     expect(result.totalPassed).toBe(2);
   });
 
-  it('validates sliding window solution (lengthOfLongestSubstring)', () => {
+  it('validates sliding window solution (lengthOfLongestSubstring)', async () => {
     const code = `function lengthOfLongestSubstring(s) {
       const charSet = new Set();
       let left = 0, maxLen = 0;
@@ -203,7 +203,7 @@ describe('executeTests', () => {
       return maxLen;
     }`;
 
-    const result = executeTests(code, 'lengthOfLongestSubstring', [
+    const result = await executeTests(code, 'lengthOfLongestSubstring', [
       { id: '1', input: '["abcabcbb"]', expected: '3' },
       { id: '2', input: '["bbbbb"]', expected: '1' },
       { id: '3', input: '[""]', expected: '0' },

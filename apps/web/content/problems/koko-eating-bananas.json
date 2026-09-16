@@ -71,7 +71,7 @@
       "stepNumber": 4, "line": 6,
       "variables": [
         { "name": "mid (speed)", "value": "3", "type": "number", "changed": true },
-        { "name": "hours", "value": "9", "type": "number", "changed": true }
+        { "name": "hours", "value": "10", "type": "number", "changed": true }
       ],
       "arrayState": { "elements": [3,6,7,11] },
       "explanation": "Try k=3. Hours: 1+2+3+4 = 10 > 8. Too slow!"
@@ -88,7 +88,7 @@
       "stepNumber": 6, "line": 6,
       "variables": [
         { "name": "mid (speed)", "value": "5", "type": "number", "changed": true },
-        { "name": "hours", "value": "7", "type": "number", "changed": true }
+        { "name": "hours", "value": "8", "type": "number", "changed": true }
       ],
       "arrayState": { "elements": [3,6,7,11] },
       "explanation": "Try k=5. Hours: 1+2+2+3 = 8 ≤ 8. Feasible! right = 5."
