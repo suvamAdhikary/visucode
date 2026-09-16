@@ -1,0 +1,161 @@
+{
+  "slug": "longest-substring-without-repeating",
+  "title": "Longest Substring Without Repeating Characters",
+  "difficulty": "Medium",
+  "category": "string",
+  "patterns": ["sliding-window"],
+  "companies": ["Amazon", "Meta", "Google", "Bloomberg"],
+  "description": "Given a string `s`, find the length of the **longest substring** without repeating characters.",
+  "examples": [
+    {
+      "input": "s = \"abcabcbb\"",
+      "output": "3",
+      "explanation": "The answer is \"abc\", with the length of 3."
+    },
+    {
+      "input": "s = \"bbbbb\"",
+      "output": "1",
+      "explanation": "The answer is \"b\", with the length of 1."
+    },
+    {
+      "input": "s = \"pwwkew\"",
+      "output": "3",
+      "explanation": "The answer is \"wke\", with the length of 3."
+    }
+  ],
+  "constraints": [
+    "0 <= s.length <= 5 * 10^4",
+    "s consists of English letters, digits, symbols and spaces"
+  ],
+  "hints": [
+    "Use a sliding window with a Set to track characters in the current window.",
+    "Expand right. If duplicate found, shrink from left until no duplicate.",
+    "Track the maximum window size seen."
+  ],
+  "starterCode": {
+    "javascript": "function lengthOfLongestSubstring(s) {\n  // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function lengthOfLongestSubstring(s) {\n  const charSet = new Set();\n  let left = 0;\n  let maxLen = 0;\n\n  for (let right = 0; right < s.length; right++) {\n    while (charSet.has(s[right])) {\n      charSet.delete(s[left]);\n      left++;\n    }\n    charSet.add(s[right]);\n    maxLen = Math.max(maxLen, right - left + 1);\n  }\n  return maxLen;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(min(n, m))",
+      "explanation": "Sliding window with a Set. Expand right, shrink left on duplicates, track max window size."
+    }
+  ],
+  "testCases": [
+    { "id": "1", "input": "[\"abcabcbb\"]", "expected": "3" },
+    { "id": "2", "input": "[\"bbbbb\"]", "expected": "1" },
+    { "id": "3", "input": "[\"pwwkew\"]", "expected": "3" },
+    { "id": "4", "input": "[\"\"]", "expected": "0" },
+    { "id": "5", "input": "[\"dvdf\"]", "expected": "3", "isHidden": true }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 2,
+      "variables": [
+        { "name": "charSet", "value": "{}", "type": "set", "changed": true },
+        { "name": "left", "value": "0", "type": "number", "changed": true },
+        { "name": "maxLen", "value": "0", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"] },
+      "explanation": "Initialize: empty Set, left=0, maxLen=0. Trace 'abcabcbb'."
+    },
+    {
+      "stepNumber": 2,
+      "line": 6,
+      "variables": [
+        { "name": "right", "value": "0", "type": "number", "changed": true },
+        { "name": "s[right]", "value": "a", "type": "string" }
+      ],
+      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 0, "windowEnd": 0 },
+      "pointers": [{ "name": "L=R", "index": 0, "color": "#34d399" }],
+      "explanation": "right=0 → 'a' not in set. Add it. Window: [a], maxLen=1."
+    },
+    {
+      "stepNumber": 3,
+      "line": 11,
+      "variables": [
+        { "name": "charSet", "value": "{a,b,c}", "type": "set", "changed": true },
+        { "name": "right", "value": "2", "type": "number", "changed": true },
+        { "name": "maxLen", "value": "3", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 0, "windowEnd": 2 },
+      "pointers": [
+        { "name": "L", "index": 0, "color": "#06b6d4" },
+        { "name": "R", "index": 2, "color": "#a855f7" }
+      ],
+      "explanation": "Add 'b','c'. Window grows to [a,b,c]. maxLen=3."
+    },
+    {
+      "stepNumber": 4,
+      "line": 7,
+      "variables": [
+        { "name": "right", "value": "3", "type": "number", "changed": true },
+        { "name": "s[right]", "value": "a", "type": "string" }
+      ],
+      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 0, "windowEnd": 3, "highlightIndices": [3] },
+      "pointers": [
+        { "name": "L", "index": 0, "color": "#06b6d4" },
+        { "name": "R", "index": 3, "color": "#a855f7" }
+      ],
+      "explanation": "right=3 → 'a' already in set! Must shrink window from left."
+    },
+    {
+      "stepNumber": 5,
+      "line": 8,
+      "variables": [
+        { "name": "charSet", "value": "{b,c,a}", "type": "set", "changed": true },
+        { "name": "left", "value": "1", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 1, "windowEnd": 3 },
+      "pointers": [
+        { "name": "L", "index": 1, "color": "#06b6d4" },
+        { "name": "R", "index": 3, "color": "#a855f7" }
+      ],
+      "explanation": "Remove s[0]='a' from set. left→1. Now add s[3]='a'. Window: [b,c,a]."
+    },
+    {
+      "stepNumber": 6,
+      "line": 7,
+      "variables": [
+        { "name": "right", "value": "4", "type": "number", "changed": true },
+        { "name": "s[right]", "value": "b", "type": "string" }
+      ],
+      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 1, "windowEnd": 4, "highlightIndices": [4] },
+      "pointers": [
+        { "name": "L", "index": 1, "color": "#06b6d4" },
+        { "name": "R", "index": 4, "color": "#a855f7" }
+      ],
+      "explanation": "right=4 → 'b' already in set! Shrink: remove s[1]='b', left→2."
+    },
+    {
+      "stepNumber": 7,
+      "line": 12,
+      "variables": [
+        { "name": "left", "value": "2", "type": "number", "changed": true },
+        { "name": "maxLen", "value": "3", "type": "number" }
+      ],
+      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 2, "windowEnd": 4 },
+      "pointers": [
+        { "name": "L", "index": 2, "color": "#06b6d4" },
+        { "name": "R", "index": 4, "color": "#a855f7" }
+      ],
+      "explanation": "Window [c,a,b], size 3 = maxLen. Pattern continues until end. Return 3."
+    }
+  ],
+  "externalLinks": [
+    { "platform": "leetcode", "url": "https://leetcode.com/problems/longest-substring-without-repeating-characters/", "problemId": "3" },
+    { "platform": "neetcode", "url": "https://neetcode.io/problems/longest-substring-without-duplicates" }
+  ],
+  "realWorldUseCases": [
+    {
+      "company": "Networking",
+      "scenario": "Packet deduplication",
+      "description": "Finding the longest unique sequence of packet IDs in a data stream before a repeat occurs."
+    }
+  ],
+  "accessLevel": "free"
+}

@@ -219,11 +219,11 @@ feature/* → develop (integration) → main (production)
 - [x] Zustand stores (visualizer + preferences)
 - [x] Vercel deployment
 
-### Phase 2 — Content & Patterns
+### Phase 2 — Content & Patterns (Sprint 1 Completed)
 
-- [ ] Pattern detail pages (`/patterns/two-pointers`)
-- [ ] 15+ problems across 5 patterns
-- [ ] Monaco code editor integration
+- [x] Pattern detail pages (`/patterns/two-pointers`)
+- [x] 15+ problems across 5 patterns
+- [x] Monaco code editor integration (with Code Test Runner)
 
 ### Phase 3 — User System
 

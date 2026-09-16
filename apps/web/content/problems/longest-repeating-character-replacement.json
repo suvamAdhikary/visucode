@@ -1,0 +1,153 @@
+{
+  "slug": "longest-repeating-character-replacement",
+  "title": "Longest Repeating Character Replacement",
+  "difficulty": "Medium",
+  "category": "string",
+  "patterns": ["sliding-window"],
+  "companies": ["Google", "Amazon", "Microsoft"],
+  "description": "You are given a string `s` and an integer `k`. You can choose any character of the string and change it to any other uppercase English character. You can perform this operation at most `k` times.\n\nReturn the length of the longest substring containing the same letter you can get after performing the above operations.",
+  "examples": [
+    {
+      "input": "s = \"ABAB\", k = 2",
+      "output": "4",
+      "explanation": "Replace the two 'A's with two 'B's or vice versa."
+    },
+    {
+      "input": "s = \"AABABBA\", k = 1",
+      "output": "4",
+      "explanation": "Replace one 'A' in 'AABA' → 'AAAA' or replace one 'B' in 'ABBB' → 'BBBB'."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 10^5",
+    "s consists of only uppercase English letters",
+    "0 <= k <= s.length"
+  ],
+  "hints": [
+    "Use a sliding window and track the frequency of each character inside the window.",
+    "The key insight: windowSize - maxFreqInWindow <= k means the window is valid.",
+    "If invalid, shrink from the left."
+  ],
+  "starterCode": {
+    "javascript": "function characterReplacement(s, k) {\n  // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function characterReplacement(s, k) {\n  const count = {};\n  let left = 0, maxFreq = 0, maxLen = 0;\n\n  for (let right = 0; right < s.length; right++) {\n    count[s[right]] = (count[s[right]] || 0) + 1;\n    maxFreq = Math.max(maxFreq, count[s[right]]);\n\n    while ((right - left + 1) - maxFreq > k) {\n      count[s[left]]--;\n      left++;\n    }\n    maxLen = Math.max(maxLen, right - left + 1);\n  }\n  return maxLen;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "explanation": "Sliding window tracking character frequencies. Window is valid if (windowSize - maxFreq) <= k. If invalid, shrink left. Track maximum valid window size."
+    }
+  ],
+  "testCases": [
+    { "id": "1", "input": "[\"ABAB\", 2]", "expected": "4" },
+    { "id": "2", "input": "[\"AABABBA\", 1]", "expected": "4" },
+    { "id": "3", "input": "[\"AAAA\", 0]", "expected": "4" },
+    { "id": "4", "input": "[\"ABCD\", 2]", "expected": "3", "isHidden": true }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 2,
+      "variables": [
+        { "name": "count", "value": "{}", "type": "object", "changed": true },
+        { "name": "left", "value": "0", "type": "number", "changed": true },
+        { "name": "maxFreq", "value": "0", "type": "number", "changed": true },
+        { "name": "maxLen", "value": "0", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": ["A","A","B","A","B","B","A"] },
+      "explanation": "Initialize. Input: 'AABABBA', k=1."
+    },
+    {
+      "stepNumber": 2,
+      "line": 5,
+      "variables": [
+        { "name": "right", "value": "0", "type": "number", "changed": true },
+        { "name": "count", "value": "{A:1}", "type": "object", "changed": true },
+        { "name": "maxFreq", "value": "1", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": ["A","A","B","A","B","B","A"], "windowStart": 0, "windowEnd": 0 },
+      "pointers": [{ "name": "L=R", "index": 0, "color": "#34d399" }],
+      "explanation": "Add 'A'. count={A:1}, maxFreq=1. Window valid (1-1=0<=1). maxLen=1."
+    },
+    {
+      "stepNumber": 3,
+      "line": 6,
+      "variables": [
+        { "name": "right", "value": "3", "type": "number", "changed": true },
+        { "name": "count", "value": "{A:3,B:1}", "type": "object", "changed": true },
+        { "name": "maxFreq", "value": "3", "type": "number", "changed": true },
+        { "name": "maxLen", "value": "4", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": ["A","A","B","A","B","B","A"], "windowStart": 0, "windowEnd": 3 },
+      "pointers": [
+        { "name": "L", "index": 0, "color": "#06b6d4" },
+        { "name": "R", "index": 3, "color": "#a855f7" }
+      ],
+      "explanation": "Expand to index 3. [A,A,B,A]: maxFreq=3(A), need to replace 1 char. 4-3=1<=k=1. Valid! maxLen=4."
+    },
+    {
+      "stepNumber": 4,
+      "line": 9,
+      "variables": [
+        { "name": "right", "value": "4", "type": "number", "changed": true },
+        { "name": "count", "value": "{A:3,B:2}", "type": "object", "changed": true }
+      ],
+      "arrayState": { "elements": ["A","A","B","A","B","B","A"], "windowStart": 0, "windowEnd": 4, "highlightIndices": [4] },
+      "pointers": [
+        { "name": "L", "index": 0, "color": "#06b6d4" },
+        { "name": "R", "index": 4, "color": "#a855f7" }
+      ],
+      "explanation": "Add 'B': count={A:3,B:2}. Window size=5, 5-3=2>k=1. Window invalid!"
+    },
+    {
+      "stepNumber": 5,
+      "line": 10,
+      "variables": [
+        { "name": "left", "value": "1", "type": "number", "changed": true },
+        { "name": "count", "value": "{A:2,B:2}", "type": "object", "changed": true }
+      ],
+      "arrayState": { "elements": ["A","A","B","A","B","B","A"], "windowStart": 1, "windowEnd": 4 },
+      "pointers": [
+        { "name": "L", "index": 1, "color": "#06b6d4" },
+        { "name": "R", "index": 4, "color": "#a855f7" }
+      ],
+      "explanation": "Shrink: remove s[0]='A'. count={A:2,B:2}. Window=4, maxFreq=3 (stale). 4-3=1<=1. Valid! Loop ends."
+    },
+    {
+      "stepNumber": 6,
+      "line": 12,
+      "variables": [
+        { "name": "maxLen", "value": "4", "type": "number" }
+      ],
+      "arrayState": { "elements": ["A","A","B","A","B","B","A"], "windowStart": 1, "windowEnd": 4 },
+      "pointers": [
+        { "name": "L", "index": 1, "color": "#06b6d4" },
+        { "name": "R", "index": 4, "color": "#a855f7" }
+      ],
+      "explanation": "maxLen stays 4."
+    },
+    {
+      "stepNumber": 7,
+      "line": 13,
+      "variables": [
+        { "name": "maxLen", "value": "4", "type": "number" }
+      ],
+      "arrayState": { "elements": ["A","A","B","A","B","B","A"] },
+      "explanation": "Continue expanding. No window exceeds 4. Final answer: 4."
+    }
+  ],
+  "externalLinks": [
+    { "platform": "leetcode", "url": "https://leetcode.com/problems/longest-repeating-character-replacement/", "problemId": "424" },
+    { "platform": "neetcode", "url": "https://neetcode.io/problems/longest-repeating-substring-with-replacement" }
+  ],
+  "realWorldUseCases": [
+    {
+      "company": "Bioinformatics",
+      "scenario": "DNA sequence matching",
+      "description": "Finding the longest segment of a DNA strand that can be made uniform with at most k mutations — directly maps to this problem."
+    }
+  ],
+  "accessLevel": "free"
+}

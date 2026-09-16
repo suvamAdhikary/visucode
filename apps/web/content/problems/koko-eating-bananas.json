@@ -1,0 +1,115 @@
+{
+  "slug": "koko-eating-bananas",
+  "title": "Koko Eating Bananas",
+  "difficulty": "Medium",
+  "category": "array",
+  "patterns": ["binary-search"],
+  "companies": ["Google", "Amazon", "Meta"],
+  "description": "Koko loves to eat bananas. There are `n` piles of bananas, the `ith` pile has `piles[i]` bananas. The guards have gone and will come back in `h` hours.\n\nKoko can decide her bananas-per-hour eating speed of `k`. Each hour, she chooses a pile and eats `k` bananas from it. If the pile has less than `k` bananas, she eats all of them and won't eat any more during that hour.\n\nReturn the minimum integer `k` such that she can eat all the bananas within `h` hours.",
+  "examples": [
+    { "input": "piles = [3,6,7,11], h = 8", "output": "4" },
+    { "input": "piles = [30,11,23,4,20], h = 5", "output": "30" },
+    { "input": "piles = [30,11,23,4,20], h = 6", "output": "23" }
+  ],
+  "constraints": [
+    "1 <= piles.length <= 10^4",
+    "piles.length <= h <= 10^9",
+    "1 <= piles[i] <= 10^9"
+  ],
+  "hints": [
+    "Binary search on the answer: the eating speed k.",
+    "The search range is [1, max(piles)].",
+    "For each candidate k, calculate total hours needed. If hours <= h, try smaller k."
+  ],
+  "starterCode": {
+    "javascript": "function minEatingSpeed(piles, h) {\n  // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function minEatingSpeed(piles, h) {\n  let left = 1;\n  let right = Math.max(...piles);\n\n  while (left < right) {\n    const mid = Math.floor((left + right) / 2);\n    const hours = piles.reduce((sum, p) => sum + Math.ceil(p / mid), 0);\n\n    if (hours <= h) {\n      right = mid;\n    } else {\n      left = mid + 1;\n    }\n  }\n  return left;\n}",
+      "timeComplexity": "O(n * log(max(piles)))",
+      "spaceComplexity": "O(1)",
+      "explanation": "Binary search on the eating speed. For each candidate speed, calculate total hours. If feasible (<= h), try smaller. Otherwise, try larger."
+    }
+  ],
+  "testCases": [
+    { "id": "1", "input": "[[3,6,7,11], 8]", "expected": "4" },
+    { "id": "2", "input": "[[30,11,23,4,20], 5]", "expected": "30" },
+    { "id": "3", "input": "[[30,11,23,4,20], 6]", "expected": "23" },
+    { "id": "4", "input": "[[1,1,1,999999999], 10]", "expected": "142857143", "isHidden": true }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1, "line": 2,
+      "variables": [
+        { "name": "left", "value": "1", "type": "number", "changed": true },
+        { "name": "right", "value": "11", "type": "number", "changed": true },
+        { "name": "h", "value": "8", "type": "number" }
+      ],
+      "arrayState": { "elements": [3,6,7,11] },
+      "explanation": "Input: piles=[3,6,7,11], h=8. Binary search speed in [1..11]."
+    },
+    {
+      "stepNumber": 2, "line": 6,
+      "variables": [
+        { "name": "mid (speed)", "value": "6", "type": "number", "changed": true },
+        { "name": "hours", "value": "6", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [3,6,7,11], "highlightIndices": [0,1,2,3] },
+      "explanation": "Try k=6. Hours: ceil(3/6)+ceil(6/6)+ceil(7/6)+ceil(11/6) = 1+1+2+2 = 6 ≤ 8. Feasible!"
+    },
+    {
+      "stepNumber": 3, "line": 10,
+      "variables": [
+        { "name": "right", "value": "6", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [3,6,7,11] },
+      "explanation": "hours(6)=6 ≤ 8. Can we go slower? right = mid = 6. Search [1..6]."
+    },
+    {
+      "stepNumber": 4, "line": 6,
+      "variables": [
+        { "name": "mid (speed)", "value": "3", "type": "number", "changed": true },
+        { "name": "hours", "value": "10", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [3,6,7,11] },
+      "explanation": "Try k=3. Hours: 1+2+3+4 = 10 > 8. Too slow!"
+    },
+    {
+      "stepNumber": 5, "line": 12,
+      "variables": [
+        { "name": "left", "value": "4", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [3,6,7,11] },
+      "explanation": "hours(3)=10 > 8. Too slow. left = mid+1 = 4. Search [4..6]."
+    },
+    {
+      "stepNumber": 6, "line": 6,
+      "variables": [
+        { "name": "mid (speed)", "value": "5", "type": "number", "changed": true },
+        { "name": "hours", "value": "8", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [3,6,7,11] },
+      "explanation": "Try k=5. Hours: 1+2+2+3 = 8 ≤ 8. Feasible! right = 5."
+    },
+    {
+      "stepNumber": 7, "line": 6,
+      "variables": [
+        { "name": "mid (speed)", "value": "4", "type": "number", "changed": true },
+        { "name": "hours", "value": "8", "type": "number", "changed": true },
+        { "name": "result", "value": "4", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [3,6,7,11] },
+      "explanation": "Try k=4. Hours: 1+2+2+3 = 8 ≤ 8. Feasible! right=4. left=right=4. Return 4. 🎯"
+    }
+  ],
+  "externalLinks": [
+    { "platform": "leetcode", "url": "https://leetcode.com/problems/koko-eating-bananas/", "problemId": "875" },
+    { "platform": "neetcode", "url": "https://neetcode.io/problems/eating-bananas" }
+  ],
+  "realWorldUseCases": [
+    { "company": "Cloud Computing", "scenario": "Resource allocation", "description": "Finding the minimum server throughput (processing speed) needed to complete all tasks within a deadline — binary search on the answer." }
+  ],
+  "accessLevel": "free"
+}

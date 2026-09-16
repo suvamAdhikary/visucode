@@ -23,6 +23,7 @@
     "customConditions": [
       "@visucode/source"
     ],
+    "baseUrl": ".",
     "paths": {
       "@visucode/shared-types": [
         "libs/shared-types/src/index.ts"
