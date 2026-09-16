@@ -1,0 +1,94 @@
+{
+  "slug": "find-peak-element",
+  "title": "Find Peak Element",
+  "difficulty": "Medium",
+  "category": "array",
+  "patterns": ["binary-search"],
+  "companies": ["Google", "Meta", "Microsoft"],
+  "description": "A peak element is an element that is strictly greater than its neighbors.\n\nGiven a **0-indexed** integer array `nums`, find a peak element, and return its index. If the array contains multiple peaks, return the index to any of the peaks.\n\nYou may imagine that `nums[-1] = nums[n] = -∞`. In other words, an element is always considered to be strictly greater than a neighbor that is outside the array.\n\nYou must write an algorithm that runs in **O(log n)** time.",
+  "examples": [
+    { "input": "nums = [1,2,3,1]", "output": "2", "explanation": "3 is a peak element and your function should return the index number 2." },
+    { "input": "nums = [1,2,1,3,5,6,4]", "output": "5", "explanation": "Your function can return either index 1 (peak 2) or index 5 (peak 6)." }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 1000",
+    "-2^31 <= nums[i] <= 2^31 - 1",
+    "nums[i] != nums[i + 1] for all valid i"
+  ],
+  "hints": [
+    "If nums[mid] < nums[mid + 1], there must be a peak to the right.",
+    "If nums[mid] > nums[mid + 1], there's a peak to the left (including mid).",
+    "This is because the edges are -∞, so a peak is guaranteed to exist on the ascending side."
+  ],
+  "starterCode": {
+    "javascript": "function findPeakElement(nums) {\n  // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function findPeakElement(nums) {\n  let left = 0, right = nums.length - 1;\n\n  while (left < right) {\n    const mid = Math.floor((left + right) / 2);\n    if (nums[mid] < nums[mid + 1]) {\n      left = mid + 1;\n    } else {\n      right = mid;\n    }\n  }\n  return left;\n}",
+      "timeComplexity": "O(log n)",
+      "spaceComplexity": "O(1)",
+      "explanation": "Binary search: if nums[mid] < nums[mid+1], a peak must exist on the right (ascending). Otherwise, a peak must exist on the left (including mid). Converge to the peak."
+    }
+  ],
+  "testCases": [
+    { "id": "1", "input": "[[1,2,3,1]]", "expected": "2" },
+    { "id": "2", "input": "[[1,2,1,3,5,6,4]]", "expected": "5" },
+    { "id": "3", "input": "[[1]]", "expected": "0" },
+    { "id": "4", "input": "[[3,2,1]]", "expected": "0", "isHidden": true }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1, "line": 2,
+      "variables": [
+        { "name": "left", "value": "0", "type": "number", "changed": true },
+        { "name": "right", "value": "3", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [1,2,3,1], "windowStart": 0, "windowEnd": 3 },
+      "pointers": [{ "name": "L", "index": 0, "color": "#06b6d4" }, { "name": "R", "index": 3, "color": "#a855f7" }],
+      "explanation": "Find peak in [1,2,3,1]. Initialize left=0, right=3."
+    },
+    {
+      "stepNumber": 2, "line": 5,
+      "variables": [
+        { "name": "mid", "value": "1", "type": "number", "changed": true },
+        { "name": "nums[mid]", "value": "2", "type": "number" },
+        { "name": "nums[mid+1]", "value": "3", "type": "number" }
+      ],
+      "arrayState": { "elements": [1,2,3,1], "highlightIndices": [1], "compareIndices": [1, 2] },
+      "pointers": [{ "name": "L", "index": 0, "color": "#06b6d4" }, { "name": "mid", "index": 1, "color": "#f59e0b" }, { "name": "R", "index": 3, "color": "#a855f7" }],
+      "explanation": "mid=1, nums[1]=2 < nums[2]=3. Ascending → peak must be on the right. left = mid+1 = 2."
+    },
+    {
+      "stepNumber": 3, "line": 5,
+      "variables": [
+        { "name": "left", "value": "2", "type": "number", "changed": true },
+        { "name": "mid", "value": "2", "type": "number", "changed": true },
+        { "name": "nums[mid]", "value": "3", "type": "number" },
+        { "name": "nums[mid+1]", "value": "1", "type": "number" }
+      ],
+      "arrayState": { "elements": [1,2,3,1], "highlightIndices": [2], "compareIndices": [2, 3] },
+      "pointers": [{ "name": "L=mid", "index": 2, "color": "#06b6d4" }, { "name": "R", "index": 3, "color": "#a855f7" }],
+      "explanation": "mid=2, nums[2]=3 > nums[3]=1. Descending → peak is on the left (including mid). right = mid = 2."
+    },
+    {
+      "stepNumber": 4, "line": 12,
+      "variables": [
+        { "name": "right", "value": "2", "type": "number", "changed": true },
+        { "name": "result", "value": "2", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [1,2,3,1], "highlightIndices": [2] },
+      "pointers": [{ "name": "peak", "index": 2, "color": "#34d399", "label": "✓" }],
+      "explanation": "left=right=2. Return 2. nums[2]=3 is the peak! 🎯"
+    }
+  ],
+  "externalLinks": [
+    { "platform": "leetcode", "url": "https://leetcode.com/problems/find-peak-element/", "problemId": "162" },
+    { "platform": "neetcode", "url": "https://neetcode.io/problems/find-peak-element" }
+  ],
+  "realWorldUseCases": [
+    { "company": "Signal Processing", "scenario": "Peak detection", "description": "Finding local maxima in signal data (audio waveforms, stock prices) efficiently using binary search on gradient direction." }
+  ],
+  "accessLevel": "free"
+}

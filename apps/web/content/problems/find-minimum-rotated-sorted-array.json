@@ -1,0 +1,95 @@
+{
+  "slug": "find-minimum-rotated-sorted-array",
+  "title": "Find Minimum in Rotated Sorted Array",
+  "difficulty": "Medium",
+  "category": "array",
+  "patterns": ["binary-search"],
+  "companies": ["Amazon", "Microsoft", "Meta"],
+  "description": "Suppose an array of length `n` sorted in ascending order is rotated between `1` and `n` times. For example, the array `nums = [0,1,2,4,5,6,7]` might become `[4,5,6,7,0,1,2]`.\n\nGiven the sorted rotated array `nums` of unique elements, return the minimum element of this array.\n\nYou must write an algorithm that runs in **O(log n)** time.",
+  "examples": [
+    { "input": "nums = [3,4,5,1,2]", "output": "1", "explanation": "The original array was [1,2,3,4,5] rotated 3 times." },
+    { "input": "nums = [4,5,6,7,0,1,2]", "output": "0" },
+    { "input": "nums = [11,13,15,17]", "output": "11", "explanation": "The original array was not rotated." }
+  ],
+  "constraints": [
+    "n == nums.length",
+    "1 <= n <= 5000",
+    "-5000 <= nums[i] <= 5000",
+    "All integers are unique"
+  ],
+  "hints": [
+    "The minimum is at the rotation point.",
+    "If nums[mid] > nums[right], the min is in the right half.",
+    "Otherwise, the min is in the left half (including mid)."
+  ],
+  "starterCode": {
+    "javascript": "function findMin(nums) {\n  // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function findMin(nums) {\n  let left = 0, right = nums.length - 1;\n\n  while (left < right) {\n    const mid = Math.floor((left + right) / 2);\n    if (nums[mid] > nums[right]) {\n      left = mid + 1;\n    } else {\n      right = mid;\n    }\n  }\n  return nums[left];\n}",
+      "timeComplexity": "O(log n)",
+      "spaceComplexity": "O(1)",
+      "explanation": "Binary search for the inflection point. If nums[mid] > nums[right], the minimum is in the right half. Otherwise, it's in the left half (including mid)."
+    }
+  ],
+  "testCases": [
+    { "id": "1", "input": "[[3,4,5,1,2]]", "expected": "1" },
+    { "id": "2", "input": "[[4,5,6,7,0,1,2]]", "expected": "0" },
+    { "id": "3", "input": "[[11,13,15,17]]", "expected": "11" },
+    { "id": "4", "input": "[[2,1]]", "expected": "1", "isHidden": true }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1, "line": 2,
+      "variables": [
+        { "name": "left", "value": "0", "type": "number", "changed": true },
+        { "name": "right", "value": "4", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [3,4,5,1,2], "windowStart": 0, "windowEnd": 4 },
+      "pointers": [{ "name": "L", "index": 0, "color": "#06b6d4" }, { "name": "R", "index": 4, "color": "#a855f7" }],
+      "explanation": "Find minimum in [3,4,5,1,2]. Initialize left=0, right=4."
+    },
+    {
+      "stepNumber": 2, "line": 5,
+      "variables": [
+        { "name": "mid", "value": "2", "type": "number", "changed": true },
+        { "name": "nums[mid]", "value": "5", "type": "number" },
+        { "name": "nums[right]", "value": "2", "type": "number" }
+      ],
+      "arrayState": { "elements": [3,4,5,1,2], "highlightIndices": [2] },
+      "pointers": [{ "name": "L", "index": 0, "color": "#06b6d4" }, { "name": "mid", "index": 2, "color": "#f59e0b" }, { "name": "R", "index": 4, "color": "#a855f7" }],
+      "explanation": "mid=2, nums[2]=5 > nums[4]=2. Min is in right half. left = mid+1 = 3."
+    },
+    {
+      "stepNumber": 3, "line": 5,
+      "variables": [
+        { "name": "left", "value": "3", "type": "number", "changed": true },
+        { "name": "mid", "value": "3", "type": "number", "changed": true },
+        { "name": "nums[mid]", "value": "1", "type": "number" }
+      ],
+      "arrayState": { "elements": [3,4,5,1,2], "highlightIndices": [3], "windowStart": 3, "windowEnd": 4 },
+      "pointers": [{ "name": "L=mid", "index": 3, "color": "#06b6d4" }, { "name": "R", "index": 4, "color": "#a855f7" }],
+      "explanation": "mid=3, nums[3]=1 <= nums[4]=2. Min is in left half (including mid). right = mid = 3."
+    },
+    {
+      "stepNumber": 4, "line": 12,
+      "variables": [
+        { "name": "right", "value": "3", "type": "number", "changed": true },
+        { "name": "result", "value": "1", "type": "number", "changed": true }
+      ],
+      "arrayState": { "elements": [3,4,5,1,2], "highlightIndices": [3] },
+      "pointers": [{ "name": "found", "index": 3, "color": "#34d399", "label": "✓" }],
+      "explanation": "left=right=3. Return nums[3] = 1. Found minimum! 🎯"
+    }
+  ],
+  "externalLinks": [
+    { "platform": "leetcode", "url": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/", "problemId": "153" },
+    { "platform": "neetcode", "url": "https://neetcode.io/problems/find-minimum-in-rotated-sorted-array" }
+  ],
+  "realWorldUseCases": [
+    { "company": "Databases", "scenario": "Log rotation detection", "description": "Detecting the oldest entry in a circular log buffer — finding the rotation point to identify the earliest timestamp." }
+  ],
+  "accessLevel": "free"
+}

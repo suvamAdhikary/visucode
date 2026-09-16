@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProblem } from '../../../lib/services';
-import { DryRunViewer } from './DryRunViewer';
+import { ProblemTabs } from './ProblemTabs';
 import styles from './page.module.css';
 
 interface ProblemPageProps {
@@ -165,9 +165,9 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
           )}
         </div>
 
-        {/* Right: Dry Run Viewer (Client Component) */}
+        {/* Right: Problem Tabs (Client Component) */}
         <div className={styles.visualizerPanel}>
-          <DryRunViewer problem={problem} />
+          <ProblemTabs problem={problem} />
         </div>
       </div>
     </div>
