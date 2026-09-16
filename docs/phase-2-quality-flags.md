@@ -276,24 +276,11 @@ Do not ask for merge until every box is checked:
 
 ---
 
-## Sprint 2 — More content + visualizers *(planned)*
+## Sprint 2 — Linked list + tree visualizers + 5 problems
 
-**Do not start until Sprint 1 `BLOCKED` flags are `FIXED`.**
+**Active tracker:** [`docs/phase-2-sprint-2-quality-flags.md`](./phase-2-sprint-2-quality-flags.md)
 
-Planned slice (adjust when the sprint is scoped):
-
-- ~5 more problems (toward 20)
-- Linked-list visualizer
-- Tree visualizer
-- User accounts / save progress *(may slip to Phase 3)*
-
-| ID | Flag | Status | Notes |
-| --- | --- | --- | --- |
-| F-P2S2-01 | New problems must pass F-P2S1-02 gate | `OPEN` | No problem JSON without a passing official solution |
-| F-P2S2-02 | Linked-list viz: empty / single-node / cycle (if taught) | `OPEN` | Fill when implementation starts |
-| F-P2S2-03 | Tree viz: unbalanced / missing child / highlight path | `OPEN` | Fill when implementation starts |
-
-Add flags here as Sprint 2 PRs appear. Same quality bar as Sprint 1.
+**[PR #11](https://github.com/suvamAdhikary/visucode/pull/11) is `BLOCKED`.** Do not merge. Work the Sprint 2 file, not this section.
 
 ---
 
