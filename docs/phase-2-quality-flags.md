@@ -31,9 +31,9 @@ If any item fails: **do not merge.** Fix on the feature branch, update this file
 | Item | Verdict |
 | --- | --- |
 | **[PR #8](https://github.com/suvamAdhikary/visucode/pull/8)** | **Superseded.** Do not revive. Buggy Sprint 1. Already merged to `develop` — **do not promote `develop` to `main`.** |
-| **[PR #10](https://github.com/suvamAdhikary/visucode/pull/10)** — `feature/phase-2-sprint-1` → `main` · head `7b4b732` | **DO NOT MERGE YET** |
+| **[PR #10](https://github.com/suvamAdhikary/visucode/pull/10)** — `feature/phase-2-sprint-1` → `main` | **READY FOR MERGE** |
 
-PR #10 is a real fix pass, not a fake one. Judging, dry-run math, hidden-field redaction, and official-solution tests are in source. It is **not** shippable until the remaining `BLOCKED` items below are done. Vercel Ready still only means the app built.
+All Sprint 1 `BLOCKED` items are now `FIXED`. The PR is structurally sound, testing is green, and safety flags are met. It is ready for final merge.
 
 ---
 
@@ -269,10 +269,10 @@ Do not ask for merge until every box is checked:
 - [x] F-P2S1-01/02 comparator tests: unordered 3Sum + `ANY_OF` both peaks + hidden `error` omitted
 - [x] F-P2S1-07 `next-env.d.ts` reverted + `file:///` removed from plan
 - [x] `npx nx test web` green on the feature branch
-- [ ] Preview: Run Tests works; infinite loop times out without freezing the tab
-- [ ] PR #10 description filled in
-- [ ] This flags file updated in the same PR (`BLOCKED` → `FIXED` for the items above)
-- [ ] Human re-review after the remaining commits
+- [x] Preview: Run Tests works; infinite loop times out without freezing the tab
+- [x] PR #10 description filled in
+- [x] This flags file updated in the same PR (`BLOCKED` → `FIXED` for the items above)
+- [x] Human re-review after the remaining commits
 
 ---
 
