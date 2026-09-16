@@ -239,9 +239,9 @@ Sprint plan said Playground **or** problem page. Only problem pages got Run Test
 
 | | |
 | --- | --- |
-| **Status** | `OPEN` |
+| **Status** | `FIXED` |
 | **Where** | `TestRunner.tsx`, `ProblemTabs.tsx` |
-| **PR #10** | Tabs: `role="tablist"` / `tab` / `aria-selected`. Test rows: `role="button"` + keyboard, still a `div`. |
+| **PR #10** | Replaced test-row header div with a native `<button>` element. |
 
 **Follow-up:** use a real `<button>` for test-row headers.
 

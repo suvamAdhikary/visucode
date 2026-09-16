@@ -113,17 +113,10 @@ export function TestRunner({ code, starterCode, testCases }: TestRunnerProps) {
                 key={test.id}
                 className={`${styles.testCase} ${test.passed ? styles.testPass : styles.testFail}`}
               >
-                <div
+                <button
                   className={styles.testHeader}
                   onClick={() => toggleTest(test.id)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      toggleTest(test.id);
-                    }
-                  }}
+                  aria-expanded={isExpanded}
                 >
                   <span className={styles.testIcon}>
                     {test.passed ? '✅' : '❌'}
@@ -137,7 +130,7 @@ export function TestRunner({ code, starterCode, testCases }: TestRunnerProps) {
                   <span className={styles.expandIcon}>
                     {isExpanded ? '▼' : '▶'}
                   </span>
-                </div>
+                </button>
 
                 {isExpanded && (
                   <div className={styles.testDetails}>
