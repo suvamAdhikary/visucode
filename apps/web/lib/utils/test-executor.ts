@@ -67,9 +67,12 @@ export async function executeTests(
 
       worker.postMessage({ code, functionName, testCases });
     } catch (e) {
-      // Fallback if Worker fails to instantiate (e.g. in some test environments without full polyfills)
-      console.warn('Failed to instantiate Web Worker, using synchronous fallback', e);
-      resolve(executeTestsSync(code, functionName, testCases));
+      console.warn('Failed to instantiate Web Worker', e);
+      if (process.env.NODE_ENV === 'test') {
+        resolve(executeTestsSync(code, functionName, testCases));
+      } else {
+        resolve(createErrorResult(testCases, 'Failed to initialize code sandbox environment.'));
+      }
     }
   });
 }

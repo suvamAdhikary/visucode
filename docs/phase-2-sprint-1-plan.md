@@ -13,7 +13,7 @@ Turn VisuCode from a **demo** (6 problems) into a **daily-use tool** (15+ proble
 
 **Architecture:**
 - Runs entirely client-side (no backend) via `new Function()`
-- Tests already defined in [TestCase](file:///d:/Suvam-Work/Project/visucode/libs/shared-types/src/index.ts#57-63) type: `{ id, input, expected, isHidden? }`
+- Tests already defined in [TestCase](../../libs/shared-types/src/index.ts) type: `{ id, input, expected, isHidden? }`
 - Each problem JSON needs `testCases` populated + `starterCode.javascript` populated
 
 ```

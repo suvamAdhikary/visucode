@@ -23,8 +23,7 @@ self.onmessage = function (e) {
         return JSON.stringify(${functionName}(${args.map((_, i) => `arguments[${i}]`).join(', ')}));
       `;
 
-      // We explicitly nullify access to global browser objects that might be present in a worker
-      // although workers already don't have DOM access.
+      // Evaluate code in worker scope
       const fn = new Function(...args.map((_, i) => `arg${i}`), wrappedCode);
       const rawResult = fn(...args);
       actual = rawResult ?? 'undefined';

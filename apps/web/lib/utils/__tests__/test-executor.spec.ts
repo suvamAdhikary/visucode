@@ -120,14 +120,16 @@ describe('executeTests', () => {
   });
 
   it('handles hidden test cases', async () => {
-    const code = `function add(a, b) { return a + b; }`;
+    const code = `function add(a, b) { throw new Error("secret input"); }`;
     const result = await executeTests(code, 'add', [
       { id: '1', input: '[1, 2]', expected: '3', isHidden: true },
     ]);
 
     expect(result.results[0].input).toBe('Hidden');
     expect(result.results[0].expected).toBe('Hidden');
-    expect(result.results[0].passed).toBe(true);
+    expect(result.results[0].passed).toBe(false);
+    expect(result.results[0].actual).toBe('Wrong Answer');
+    expect(result.results[0].error).toBeUndefined();
   });
 
   it('tracks execution time', async () => {
