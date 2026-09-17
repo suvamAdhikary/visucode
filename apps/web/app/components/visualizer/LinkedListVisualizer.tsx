@@ -38,7 +38,7 @@ export function LinkedListVisualizer({
     const containerRect = containerRef.current.getBoundingClientRect();
     const newArrows: ArrowLine[] = [];
 
-    listState.nodes.forEach((node, index) => {
+    listState.nodes.forEach((node) => {
       if (!node.nextId) return;
       
       const startEl = nodeRefs.current[node.id];
@@ -148,7 +148,7 @@ export function LinkedListVisualizer({
             <div key={node.id} className={styles.nodeWrapper}>
               {/* Pointers above node */}
               <div className={styles.pointerContainer}>
-                {nodePointers.map((p, i) => (
+                {nodePointers.map((p) => (
                   <div 
                     key={p.name} 
                     className={styles.pointerLabel}

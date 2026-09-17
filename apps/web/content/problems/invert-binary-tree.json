@@ -8,7 +8,7 @@
   ],
   "companies": [
     "Google",
-    "Mac"
+    "Meta"
   ],
   "description": "Given the `root` of a binary tree, invert the tree, and return its root.",
   "examples": [
@@ -23,12 +23,12 @@
   ],
   "externalLinks": [
     {
-      "title": "LeetCode Invert Binary Tree",
+      "platform": "leetcode",
       "url": "https://leetcode.com/problems/invert-binary-tree/"
     }
   ],
   "starterCode": {
-    "javascript": "function invertTree(root) {\n    if (!root) return null;\n    let temp = root.left;\n    root.left = root.right;\n    root.right = temp;\n    invertTree(root.left);\n    invertTree(root.right);\n    return root;\n}"
+    "javascript": "/**\n * Definition for a binary tree node.\n * function TreeNode(val, left, right) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.left = (left===undefined ? null : left)\n *     this.right = (right===undefined ? null : right)\n * }\n */\n/**\n * @param {TreeNode} root\n * @return {TreeNode}\n */\nfunction invertTree(root) {\n    // Your code here\n}"
   },
   "wrapperCode": {
     "javascript": "\nclass TreeNode { constructor(val, left, right) { this.val = (val===undefined ? 0 : val); this.left = (left===undefined ? null : left); this.right = (right===undefined ? null : right); } }\nfunction __arrayToTree(arr) {\n    if (!arr.length) return null;\n    let root = new TreeNode(arr[0]);\n    let q = [root];\n    let i = 1;\n    while(i < arr.length) {\n        let curr = q.shift();\n        if (arr[i] !== null) { curr.left = new TreeNode(arr[i]); q.push(curr.left); }\n        i++;\n        if (i < arr.length && arr[i] !== null) { curr.right = new TreeNode(arr[i]); q.push(curr.right); }\n        i++;\n    }\n    return root;\n}\nfunction __treeToArray(root) {\n    if (!root) return [];\n    let res = [];\n    let q = [root];\n    while(q.length > 0) {\n        let curr = q.shift();\n        if (curr) { res.push(curr.val); q.push(curr.left); q.push(curr.right); }\n        else { res.push(null); }\n    }\n    while(res[res.length-1] === null) res.pop();\n    return res;\n}\n\nfunction __execute(arr) { return __treeToArray(invertTree(__arrayToTree(arr))); }"
@@ -62,9 +62,171 @@
   "dryRunSteps": [
     {
       "stepNumber": 1,
-      "line": 4,
+      "line": 2,
       "variables": [],
-      "explanation": "Swap left and right of root.",
+      "explanation": "Start DFS at root (4).",
+      "treeState": {
+        "nodes": [
+          {
+            "id": "n4",
+            "value": 4,
+            "leftId": "n2",
+            "rightId": "n7"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "leftId": "n1",
+            "rightId": "n3"
+          },
+          {
+            "id": "n7",
+            "value": 7,
+            "leftId": "n6",
+            "rightId": "n9"
+          },
+          {
+            "id": "n1",
+            "value": 1
+          },
+          {
+            "id": "n3",
+            "value": 3
+          },
+          {
+            "id": "n6",
+            "value": 6
+          },
+          {
+            "id": "n9",
+            "value": 9
+          }
+        ],
+        "rootId": "n4"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n4",
+          "color": "#10b981"
+        }
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "line": 4,
+      "variables": [
+        {
+          "name": "temp",
+          "value": "n2 (2)",
+          "type": "TreeNode"
+        }
+      ],
+      "explanation": "Save left child (2) to temp.",
+      "treeState": {
+        "nodes": [
+          {
+            "id": "n4",
+            "value": 4,
+            "leftId": "n2",
+            "rightId": "n7"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "leftId": "n1",
+            "rightId": "n3"
+          },
+          {
+            "id": "n7",
+            "value": 7,
+            "leftId": "n6",
+            "rightId": "n9"
+          },
+          {
+            "id": "n1",
+            "value": 1
+          },
+          {
+            "id": "n3",
+            "value": 3
+          },
+          {
+            "id": "n6",
+            "value": 6
+          },
+          {
+            "id": "n9",
+            "value": 9
+          }
+        ],
+        "rootId": "n4"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n4",
+          "color": "#10b981"
+        }
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "line": 5,
+      "variables": [],
+      "explanation": "Set left child to right child (7).",
+      "treeState": {
+        "nodes": [
+          {
+            "id": "n4",
+            "value": 4,
+            "leftId": "n7",
+            "rightId": "n7"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "leftId": "n1",
+            "rightId": "n3"
+          },
+          {
+            "id": "n7",
+            "value": 7,
+            "leftId": "n6",
+            "rightId": "n9"
+          },
+          {
+            "id": "n1",
+            "value": 1
+          },
+          {
+            "id": "n3",
+            "value": 3
+          },
+          {
+            "id": "n6",
+            "value": 6
+          },
+          {
+            "id": "n9",
+            "value": 9
+          }
+        ],
+        "rootId": "n4"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n4",
+          "color": "#10b981"
+        }
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "line": 6,
+      "variables": [],
+      "explanation": "Set right child to temp (2).",
       "treeState": {
         "nodes": [
           {
@@ -75,44 +237,198 @@
           },
           {
             "id": "n2",
-            "value": 2
+            "value": 2,
+            "leftId": "n1",
+            "rightId": "n3"
           },
           {
             "id": "n7",
-            "value": 7
+            "value": 7,
+            "leftId": "n6",
+            "rightId": "n9"
+          },
+          {
+            "id": "n1",
+            "value": 1
+          },
+          {
+            "id": "n3",
+            "value": 3
+          },
+          {
+            "id": "n6",
+            "value": 6
+          },
+          {
+            "id": "n9",
+            "value": 9
           }
         ],
         "rootId": "n4"
       },
       "pointers": [
         {
-          "name": "root",
+          "name": "curr",
           "targetId": "n4",
           "color": "#10b981"
         }
       ]
     },
     {
-      "stepNumber": 2,
-      "line": 5,
+      "stepNumber": 5,
+      "line": 7,
       "variables": [],
-      "explanation": "Recurse left.",
+      "explanation": "Recursively invert the left subtree (which is now 7).",
       "treeState": {
-        "nodes": [],
-        "rootId": ""
+        "nodes": [
+          {
+            "id": "n4",
+            "value": 4,
+            "leftId": "n7",
+            "rightId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "leftId": "n1",
+            "rightId": "n3"
+          },
+          {
+            "id": "n7",
+            "value": 7,
+            "leftId": "n9",
+            "rightId": "n6"
+          },
+          {
+            "id": "n1",
+            "value": 1
+          },
+          {
+            "id": "n3",
+            "value": 3
+          },
+          {
+            "id": "n6",
+            "value": 6
+          },
+          {
+            "id": "n9",
+            "value": 9
+          }
+        ],
+        "rootId": "n4"
       },
-      "pointers": []
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n7",
+          "color": "#3b82f6"
+        }
+      ]
     },
     {
-      "stepNumber": 3,
-      "line": 6,
+      "stepNumber": 6,
+      "line": 8,
       "variables": [],
-      "explanation": "Recurse right.",
+      "explanation": "Recursively invert the right subtree (which is now 2).",
       "treeState": {
-        "nodes": [],
-        "rootId": ""
+        "nodes": [
+          {
+            "id": "n4",
+            "value": 4,
+            "leftId": "n7",
+            "rightId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "leftId": "n3",
+            "rightId": "n1"
+          },
+          {
+            "id": "n7",
+            "value": 7,
+            "leftId": "n9",
+            "rightId": "n6"
+          },
+          {
+            "id": "n1",
+            "value": 1
+          },
+          {
+            "id": "n3",
+            "value": 3
+          },
+          {
+            "id": "n6",
+            "value": 6
+          },
+          {
+            "id": "n9",
+            "value": 9
+          }
+        ],
+        "rootId": "n4"
       },
-      "pointers": []
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n2",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 7,
+      "line": 10,
+      "variables": [],
+      "explanation": "Return root.",
+      "treeState": {
+        "nodes": [
+          {
+            "id": "n4",
+            "value": 4,
+            "leftId": "n7",
+            "rightId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "leftId": "n3",
+            "rightId": "n1"
+          },
+          {
+            "id": "n7",
+            "value": 7,
+            "leftId": "n9",
+            "rightId": "n6"
+          },
+          {
+            "id": "n1",
+            "value": 1
+          },
+          {
+            "id": "n3",
+            "value": 3
+          },
+          {
+            "id": "n6",
+            "value": 6
+          },
+          {
+            "id": "n9",
+            "value": 9
+          }
+        ],
+        "rootId": "n4"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n4",
+          "color": "#10b981"
+        }
+      ]
     }
   ],
   "realWorldUseCases": [],

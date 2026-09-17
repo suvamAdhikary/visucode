@@ -23,12 +23,12 @@
   ],
   "externalLinks": [
     {
-      "title": "LeetCode Maximum Depth of Binary Tree",
+      "platform": "leetcode",
       "url": "https://leetcode.com/problems/maximum-depth-of-binary-tree/"
     }
   ],
   "starterCode": {
-    "javascript": "function maxDepth(root) {\n    if (!root) return 0;\n    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n}"
+    "javascript": "/**\n * Definition for a binary tree node.\n * function TreeNode(val, left, right) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.left = (left===undefined ? null : left)\n *     this.right = (right===undefined ? null : right)\n * }\n */\n/**\n * @param {TreeNode} root\n * @return {number}\n */\nfunction maxDepth(root) {\n    // Your code here\n}"
   },
   "wrapperCode": {
     "javascript": "\nclass TreeNode { constructor(val, left, right) { this.val = (val===undefined ? 0 : val); this.left = (left===undefined ? null : left); this.right = (right===undefined ? null : right); } }\nfunction __arrayToTree(arr) {\n    if (!arr.length) return null;\n    let root = new TreeNode(arr[0]);\n    let q = [root];\n    let i = 1;\n    while(i < arr.length) {\n        let curr = q.shift();\n        if (arr[i] !== null) { curr.left = new TreeNode(arr[i]); q.push(curr.left); }\n        i++;\n        if (i < arr.length && arr[i] !== null) { curr.right = new TreeNode(arr[i]); q.push(curr.right); }\n        i++;\n    }\n    return root;\n}\nfunction __treeToArray(root) {\n    if (!root) return [];\n    let res = [];\n    let q = [root];\n    while(q.length > 0) {\n        let curr = q.shift();\n        if (curr) { res.push(curr.val); q.push(curr.left); q.push(curr.right); }\n        else { res.push(null); }\n    }\n    while(res[res.length-1] === null) res.pop();\n    return res;\n}\n\nfunction __execute(arr) { return maxDepth(__arrayToTree(arr)); }"

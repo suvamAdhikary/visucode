@@ -96,7 +96,7 @@ export function TreeVisualizer({
       <div key={node.id} className={styles.treeNodeWrapper}>
         <div className={styles.nodeAndPointers}>
           <div className={styles.pointerContainer}>
-            {nodePointers.map((p, i) => (
+            {nodePointers.map((p) => (
               <div 
                 key={p.name} 
                 className={styles.pointerLabel}

@@ -15,8 +15,6 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
     'visualizer'
   );
 
-  const starterCode =
-    problem.starterCode?.javascript || '// Write your code here\n';
 
   return (
     <div className={styles.tabsContainer}>

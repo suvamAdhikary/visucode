@@ -39,17 +39,20 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
           <span>{problem.title}</span>
         </nav>
         <div className={styles.topActions}>
-          {problem.externalLinks.map((link) => (
-            <a
-              key={link.platform}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.externalLink}
-            >
-              {link.platform.toLowerCase() === 'leetcode' ? '🔗 LeetCode' : `🔗 ${link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}`}
-            </a>
-          ))}
+          {problem.externalLinks?.map((link, idx) => {
+            const platform = typeof link.platform === 'string' ? link.platform : 'link';
+            return (
+              <a
+                key={platform + idx}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.externalLink}
+              >
+                {platform.toLowerCase() === 'leetcode' ? '🔗 LeetCode' : `🔗 ${platform.charAt(0).toUpperCase() + platform.slice(1)}`}
+              </a>
+            );
+          })}
         </div>
       </div>
 

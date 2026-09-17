@@ -22,7 +22,7 @@
     "Can you use two pointers, one moving faster than the other?"
   ],
   "starterCode": {
-    "javascript": "function hasCycle(head) {\n    let slow = head, fast = head;\n    while (fast && fast.next) {\n        slow = slow.next;\n        fast = fast.next.next;\n        if (slow === fast) return true;\n    }\n    return false;\n}"
+    "javascript": "/**\n * Definition for singly-linked list.\n * function ListNode(val) {\n *     this.val = val;\n *     this.next = null;\n * }\n */\n/**\n * @param {ListNode} head\n * @return {boolean}\n */\nfunction hasCycle(head) {\n    // Your code here\n}"
   },
   "wrapperCode": {
     "javascript": "class ListNode { constructor(val, next) { this.val = (val===undefined ? 0 : val); this.next = (next===undefined ? null : next); } }\nfunction __arrayToList(arr, pos) { \n  if(!arr || !arr.length) return null; \n  let head = new ListNode(arr[0]); let curr = head; let cycleNode = pos===0?head:null;\n  for(let i=1; i<arr.length; i++) { curr.next = new ListNode(arr[i]); curr = curr.next; if(i===pos) cycleNode=curr; } \n  if(pos !== -1) curr.next = cycleNode;\n  return head; \n}\nfunction __execute(arr, pos) { return hasCycle(__arrayToList(arr, pos)); }"
@@ -88,7 +88,7 @@
         {
           "name": "slow",
           "targetId": "n1",
-          "color": "#10b981"
+          "color": "#3b82f6"
         },
         {
           "name": "fast",
@@ -99,29 +99,310 @@
     },
     {
       "stepNumber": 2,
-      "line": 3,
+      "line": 4,
       "variables": [],
-      "explanation": "Move slow pointer.",
+      "explanation": "Move slow pointer by 1 step.",
       "linkedListState": {
-        "nodes": []
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 0,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": -4,
+            "nextId": "n2"
+          }
+        ],
+        "headId": "n1"
       },
-      "pointers": []
+      "pointers": [
+        {
+          "name": "slow",
+          "targetId": "n2",
+          "color": "#3b82f6"
+        },
+        {
+          "name": "fast",
+          "targetId": "n1",
+          "color": "#ef4444"
+        }
+      ]
     },
     {
       "stepNumber": 3,
+      "line": 5,
+      "variables": [],
+      "explanation": "Move fast pointer by 2 steps.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 0,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": -4,
+            "nextId": "n2"
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "slow",
+          "targetId": "n2",
+          "color": "#3b82f6"
+        },
+        {
+          "name": "fast",
+          "targetId": "n3",
+          "color": "#ef4444"
+        }
+      ]
+    },
+    {
+      "stepNumber": 4,
       "line": 4,
       "variables": [],
-      "explanation": "Move fast pointer.",
+      "explanation": "Move slow pointer by 1 step.",
       "linkedListState": {
-        "nodes": []
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 0,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": -4,
+            "nextId": "n2"
+          }
+        ],
+        "headId": "n1"
       },
-      "pointers": []
+      "pointers": [
+        {
+          "name": "slow",
+          "targetId": "n3",
+          "color": "#3b82f6"
+        },
+        {
+          "name": "fast",
+          "targetId": "n3",
+          "color": "#ef4444"
+        }
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "line": 5,
+      "variables": [],
+      "explanation": "Move fast pointer by 2 steps (loops back).",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 0,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": -4,
+            "nextId": "n2"
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "slow",
+          "targetId": "n3",
+          "color": "#3b82f6"
+        },
+        {
+          "name": "fast",
+          "targetId": "n2",
+          "color": "#ef4444"
+        }
+      ]
+    },
+    {
+      "stepNumber": 6,
+      "line": 4,
+      "variables": [],
+      "explanation": "Move slow pointer by 1 step.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 0,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": -4,
+            "nextId": "n2"
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "slow",
+          "targetId": "n4",
+          "color": "#3b82f6"
+        },
+        {
+          "name": "fast",
+          "targetId": "n2",
+          "color": "#ef4444"
+        }
+      ]
+    },
+    {
+      "stepNumber": 7,
+      "line": 5,
+      "variables": [],
+      "explanation": "Move fast pointer by 2 steps (loops back to n4).",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 0,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": -4,
+            "nextId": "n2"
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "slow",
+          "targetId": "n4",
+          "color": "#3b82f6"
+        },
+        {
+          "name": "fast",
+          "targetId": "n4",
+          "color": "#ef4444"
+        }
+      ]
+    },
+    {
+      "stepNumber": 8,
+      "line": 6,
+      "variables": [],
+      "explanation": "slow and fast meet! Cycle detected.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 0,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": -4,
+            "nextId": "n2"
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "slow",
+          "targetId": "n4",
+          "color": "#10b981"
+        },
+        {
+          "name": "fast",
+          "targetId": "n4",
+          "color": "#10b981"
+        }
+      ]
     }
   ],
   "externalLinks": [
     {
-      "title": "LeetCode",
-      "url": "https://leetcode.com/"
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/linked-list-cycle/"
     }
   ],
   "realWorldUseCases": [],

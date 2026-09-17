@@ -27,8 +27,8 @@ const reverseLinkedList = {
   ],
   hints: ['Can you reverse the links while iterating?'],
   starterCode: {
-    javascript: '/**\n * Definition for singly-linked list.\n * function ListNode(val, next) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.next = (next===undefined ? null : next)\n * }\n */\n/**\n * @param {ListNode} head\n * @return {ListNode}\n */\nfunction reverseList(head) {\n    let prev = null;\n    let curr = head;\n    while (curr !== null) {\n        let nxt = curr.next;\n        curr.next = prev;\n        prev = curr;\n        curr = nxt;\n    }\n    return prev;\n}'
-  },
+  "javascript": "/**\n * Definition for singly-linked list.\n * function ListNode(val, next) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.next = (next===undefined ? null : next)\n * }\n */\n/**\n * @param {ListNode} head\n * @return {ListNode}\n */\nfunction reverseList(head) {\n    // Your code here\n}"
+},
   wrapperCode: {
     javascript: JS_LINKED_LIST_WRAPPER
   },
@@ -47,98 +47,1164 @@ const reverseLinkedList = {
     { id: '3', input: '[[]]', expected: '[]' }
   ],
   dryRunSteps: [
-    {
-      stepNumber: 1,
-      line: 2,
-      variables: [{ name: 'prev', value: 'null', type: 'ListNode' }, { name: 'curr', value: 'head', type: 'ListNode' }],
-      explanation: 'Initialize prev to null and curr to head.',
-      linkedListState: {
-        nodes: [
-          { id: 'n1', value: 1, nextId: 'n2' },
-          { id: 'n2', value: 2, nextId: 'n3' },
-          { id: 'n3', value: 3 }
-        ],
-        headId: 'n1'
+  {
+    "stepNumber": 1,
+    "line": 2,
+    "variables": [
+      {
+        "name": "prev",
+        "value": "null",
+        "type": "ListNode"
       },
-      pointers: [{ name: 'curr', targetId: 'n1', color: '#10b981' }, { name: 'prev', color: '#ef4444' }]
+      {
+        "name": "curr",
+        "value": "head",
+        "type": "ListNode"
+      }
+    ],
+    "explanation": "Initialize prev to null and curr to head.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
     },
-    {
-      stepNumber: 2,
-      line: 4,
-      variables: [{ name: 'nxt', value: 'n2', type: 'ListNode' }],
-      explanation: 'Save the next node before overwriting the link.',
-      linkedListState: {
-        nodes: [
-          { id: 'n1', value: 1, nextId: 'n2' },
-          { id: 'n2', value: 2, nextId: 'n3' },
-          { id: 'n3', value: 3 }
-        ],
-        headId: 'n1'
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n1",
+        "color": "#10b981"
       },
-      pointers: [{ name: 'curr', targetId: 'n1', color: '#10b981' }, { name: 'nxt', targetId: 'n2', color: '#3b82f6' }]
+      {
+        "name": "prev",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 2,
+    "line": 4,
+    "variables": [
+      {
+        "name": "nxt",
+        "value": "n2",
+        "type": "ListNode"
+      }
+    ],
+    "explanation": "Save the next node before overwriting the link.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
     },
-    {
-      stepNumber: 3,
-      line: 5,
-      variables: [],
-      explanation: 'Reverse the current link to point backwards.',
-      linkedListState: {
-        nodes: [
-          { id: 'n1', value: 1 },
-          { id: 'n2', value: 2, nextId: 'n3' },
-          { id: 'n3', value: 3 }
-        ],
-        headId: 'n1'
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n1",
+        "color": "#10b981"
       },
-      pointers: [{ name: 'curr', targetId: 'n1', color: '#10b981' }]
+      {
+        "name": "nxt",
+        "targetId": "n2",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 3,
+    "line": 5,
+    "variables": [],
+    "explanation": "Reverse the current link to point backwards.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
     },
-    {
-      stepNumber: 4,
-      line: 6,
-      variables: [],
-      explanation: 'Advance prev pointer.',
-      linkedListState: {
-        nodes: [
-          { id: 'n1', value: 1 },
-          { id: 'n2', value: 2, nextId: 'n3' },
-          { id: 'n3', value: 3 }
-        ],
-        headId: 'n1'
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n1",
+        "color": "#10b981"
       },
-      pointers: [{ name: 'curr', targetId: 'n1', color: '#10b981' }, { name: 'prev', targetId: 'n1', color: '#ef4444' }]
+      {
+        "name": "nxt",
+        "targetId": "n2",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 4,
+    "line": 6,
+    "variables": [],
+    "explanation": "Advance prev pointer.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
     },
-    {
-      stepNumber: 5,
-      line: 7,
-      variables: [],
-      explanation: 'Advance curr pointer.',
-      linkedListState: {
-        nodes: [
-          { id: 'n1', value: 1 },
-          { id: 'n2', value: 2, nextId: 'n3' },
-          { id: 'n3', value: 3 }
-        ],
-        headId: 'n1'
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n1",
+        "color": "#10b981"
       },
-      pointers: [{ name: 'curr', targetId: 'n2', color: '#10b981' }, { name: 'prev', targetId: 'n1', color: '#ef4444' }]
+      {
+        "name": "prev",
+        "targetId": "n1",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n2",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 5,
+    "line": 7,
+    "variables": [],
+    "explanation": "Advance curr pointer.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
     },
-    {
-      stepNumber: 6,
-      line: 5,
-      variables: [],
-      explanation: 'Reverse the second link to point backwards to prev.',
-      linkedListState: {
-        nodes: [
-          { id: 'n1', value: 1 },
-          { id: 'n2', value: 2, nextId: 'n1' },
-          { id: 'n3', value: 3 }
-        ],
-        headId: 'n1'
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n2",
+        "color": "#10b981"
       },
-      pointers: [{ name: 'curr', targetId: 'n2', color: '#10b981' }, { name: 'prev', targetId: 'n1', color: '#ef4444' }]
-    }
-  ],
-  externalLinks: [{ title: 'LeetCode', url: 'https://leetcode.com/' }],
+      {
+        "name": "prev",
+        "targetId": "n1",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n2",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 6,
+    "line": 4,
+    "variables": [
+      {
+        "name": "nxt",
+        "value": "n3",
+        "type": "ListNode"
+      }
+    ],
+    "explanation": "Save the next node before overwriting the link.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n2",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n1",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n3",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 7,
+    "line": 5,
+    "variables": [],
+    "explanation": "Reverse the current link to point backwards.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n2",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n1",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n3",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 8,
+    "line": 6,
+    "variables": [],
+    "explanation": "Advance prev pointer.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n2",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n2",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n3",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 9,
+    "line": 7,
+    "variables": [],
+    "explanation": "Advance curr pointer.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n3",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n2",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n3",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 10,
+    "line": 4,
+    "variables": [
+      {
+        "name": "nxt",
+        "value": "n4",
+        "type": "ListNode"
+      }
+    ],
+    "explanation": "Save the next node before overwriting the link.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n3",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n2",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n4",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 11,
+    "line": 5,
+    "variables": [],
+    "explanation": "Reverse the current link to point backwards.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n3",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n2",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n4",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 12,
+    "line": 6,
+    "variables": [],
+    "explanation": "Advance prev pointer.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n3",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n3",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n4",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 13,
+    "line": 7,
+    "variables": [],
+    "explanation": "Advance curr pointer.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n4",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n3",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n4",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 14,
+    "line": 4,
+    "variables": [
+      {
+        "name": "nxt",
+        "value": "n5",
+        "type": "ListNode"
+      }
+    ],
+    "explanation": "Save the next node before overwriting the link.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n5"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n4",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n3",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n5",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 15,
+    "line": 5,
+    "variables": [],
+    "explanation": "Reverse the current link to point backwards.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n3"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n4",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n3",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n5",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 16,
+    "line": 6,
+    "variables": [],
+    "explanation": "Advance prev pointer.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n3"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n4",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n4",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n5",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 17,
+    "line": 7,
+    "variables": [],
+    "explanation": "Advance curr pointer.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n3"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n5",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n4",
+        "color": "#ef4444"
+      },
+      {
+        "name": "nxt",
+        "targetId": "n5",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 18,
+    "line": 4,
+    "variables": [
+      {
+        "name": "nxt",
+        "value": "null",
+        "type": "ListNode"
+      }
+    ],
+    "explanation": "Save the next node before overwriting the link.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n3"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": null
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n5",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n4",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 19,
+    "line": 5,
+    "variables": [],
+    "explanation": "Reverse the current link to point backwards.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n3"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": "n4"
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n5",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n4",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 20,
+    "line": 6,
+    "variables": [],
+    "explanation": "Advance prev pointer.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n3"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": "n4"
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "n5",
+        "color": "#10b981"
+      },
+      {
+        "name": "prev",
+        "targetId": "n5",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 21,
+    "line": 7,
+    "variables": [],
+    "explanation": "Advance curr pointer.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n3"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": "n4"
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "prev",
+        "targetId": "n5",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 22,
+    "line": 9,
+    "variables": [],
+    "explanation": "Return prev as the new head of the reversed list.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": null
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n1"
+        },
+        {
+          "id": "n3",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n4",
+          "value": 4,
+          "nextId": "n3"
+        },
+        {
+          "id": "n5",
+          "value": 5,
+          "nextId": "n4"
+        }
+      ],
+      "headId": "n5"
+    },
+    "pointers": [
+      {
+        "name": "prev",
+        "targetId": "n5",
+        "color": "#ef4444"
+      }
+    ]
+  }
+],
+  externalLinks: [{ platform: 'leetcode', url: 'https://leetcode.com/problems/reverse-linked-list/' }],
   realWorldUseCases: [],
   accessLevel: 'free'
 };
@@ -169,8 +1235,8 @@ const linkedListCycle = {
   constraints: [],
   hints: ['Can you use two pointers, one moving faster than the other?'],
   starterCode: {
-    javascript: 'function hasCycle(head) {\n    let slow = head, fast = head;\n    while (fast && fast.next) {\n        slow = slow.next;\n        fast = fast.next.next;\n        if (slow === fast) return true;\n    }\n    return false;\n}'
-  },
+  "javascript": "/**\n * Definition for singly-linked list.\n * function ListNode(val) {\n *     this.val = val;\n *     this.next = null;\n * }\n */\n/**\n * @param {ListNode} head\n * @return {boolean}\n */\nfunction hasCycle(head) {\n    // Your code here\n}"
+},
   wrapperCode: { javascript: CYCLE_WRAPPER },
   solutions: [
     {
@@ -187,40 +1253,352 @@ const linkedListCycle = {
     { id: '3', input: '[[1], -1]', expected: 'false' }
   ],
   dryRunSteps: [
-    {
-      stepNumber: 1,
-      line: 2,
-      variables: [],
-      explanation: 'Initialize slow and fast pointers to head.',
-      linkedListState: {
-        nodes: [
-          { id: 'n1', value: 3, nextId: 'n2' },
-          { id: 'n2', value: 2, nextId: 'n3' },
-          { id: 'n3', value: 0, nextId: 'n4' },
-          { id: 'n4', value: -4, nextId: 'n2' }
-        ],
-        headId: 'n1'
+  {
+    "stepNumber": 1,
+    "line": 2,
+    "variables": [],
+    "explanation": "Initialize slow and fast pointers to head.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 0,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": -4,
+          "nextId": "n2"
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "slow",
+        "targetId": "n1",
+        "color": "#3b82f6"
       },
-      pointers: [{ name: 'slow', targetId: 'n1', color: '#10b981' }, { name: 'fast', targetId: 'n1', color: '#ef4444' }]
+      {
+        "name": "fast",
+        "targetId": "n1",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 2,
+    "line": 4,
+    "variables": [],
+    "explanation": "Move slow pointer by 1 step.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 0,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": -4,
+          "nextId": "n2"
+        }
+      ],
+      "headId": "n1"
     },
-    {
-      stepNumber: 2,
-      line: 3,
-      variables: [],
-      explanation: 'Move slow pointer.',
-      linkedListState: { nodes: [] },
-      pointers: []
+    "pointers": [
+      {
+        "name": "slow",
+        "targetId": "n2",
+        "color": "#3b82f6"
+      },
+      {
+        "name": "fast",
+        "targetId": "n1",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 3,
+    "line": 5,
+    "variables": [],
+    "explanation": "Move fast pointer by 2 steps.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 0,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": -4,
+          "nextId": "n2"
+        }
+      ],
+      "headId": "n1"
     },
-    {
-      stepNumber: 3,
-      line: 4,
-      variables: [],
-      explanation: 'Move fast pointer.',
-      linkedListState: { nodes: [] },
-      pointers: []
-    }
-  ],
-  externalLinks: [{ title: 'LeetCode', url: 'https://leetcode.com/' }],
+    "pointers": [
+      {
+        "name": "slow",
+        "targetId": "n2",
+        "color": "#3b82f6"
+      },
+      {
+        "name": "fast",
+        "targetId": "n3",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 4,
+    "line": 4,
+    "variables": [],
+    "explanation": "Move slow pointer by 1 step.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 0,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": -4,
+          "nextId": "n2"
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "slow",
+        "targetId": "n3",
+        "color": "#3b82f6"
+      },
+      {
+        "name": "fast",
+        "targetId": "n3",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 5,
+    "line": 5,
+    "variables": [],
+    "explanation": "Move fast pointer by 2 steps (loops back).",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 0,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": -4,
+          "nextId": "n2"
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "slow",
+        "targetId": "n3",
+        "color": "#3b82f6"
+      },
+      {
+        "name": "fast",
+        "targetId": "n2",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 6,
+    "line": 4,
+    "variables": [],
+    "explanation": "Move slow pointer by 1 step.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 0,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": -4,
+          "nextId": "n2"
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "slow",
+        "targetId": "n4",
+        "color": "#3b82f6"
+      },
+      {
+        "name": "fast",
+        "targetId": "n2",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 7,
+    "line": 5,
+    "variables": [],
+    "explanation": "Move fast pointer by 2 steps (loops back to n4).",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 0,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": -4,
+          "nextId": "n2"
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "slow",
+        "targetId": "n4",
+        "color": "#3b82f6"
+      },
+      {
+        "name": "fast",
+        "targetId": "n4",
+        "color": "#ef4444"
+      }
+    ]
+  },
+  {
+    "stepNumber": 8,
+    "line": 6,
+    "variables": [],
+    "explanation": "slow and fast meet! Cycle detected.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "n1",
+          "value": 3,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2,
+          "nextId": "n3"
+        },
+        {
+          "id": "n3",
+          "value": 0,
+          "nextId": "n4"
+        },
+        {
+          "id": "n4",
+          "value": -4,
+          "nextId": "n2"
+        }
+      ],
+      "headId": "n1"
+    },
+    "pointers": [
+      {
+        "name": "slow",
+        "targetId": "n4",
+        "color": "#10b981"
+      },
+      {
+        "name": "fast",
+        "targetId": "n4",
+        "color": "#10b981"
+      }
+    ]
+  }
+],
+  externalLinks: [{ platform: 'leetcode', url: 'https://leetcode.com/problems/linked-list-cycle/' }],
   realWorldUseCases: [],
   accessLevel: 'free'
 };
@@ -247,8 +1625,8 @@ const mergeTwoSortedLists = {
   constraints: [],
   hints: ['Use a dummy node.'],
   starterCode: {
-    javascript: 'function mergeTwoLists(list1, list2) {\n    let dummy = new ListNode(-1);\n    let curr = dummy;\n    while(list1 && list2) {\n        if(list1.val <= list2.val) {\n            curr.next = list1;\n            list1 = list1.next;\n        } else {\n            curr.next = list2;\n            list2 = list2.next;\n        }\n        curr = curr.next;\n    }\n    curr.next = list1 || list2;\n    return dummy.next;\n}'
-  },
+  "javascript": "/**\n * Definition for singly-linked list.\n * function ListNode(val, next) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.next = (next===undefined ? null : next)\n * }\n */\n/**\n * @param {ListNode} list1\n * @param {ListNode} list2\n * @return {ListNode}\n */\nfunction mergeTwoLists(list1, list2) {\n    // Your code here\n}"
+},
   wrapperCode: { javascript: MERGE_WRAPPER },
   solutions: [
     {
@@ -265,40 +1643,77 @@ const mergeTwoSortedLists = {
     { id: '3', input: '[[], [0]]', expected: '[0]' }
   ],
   dryRunSteps: [
-    {
-      stepNumber: 1,
-      line: 2,
-      variables: [],
-      explanation: 'Initialize dummy node.',
-      linkedListState: {
-        nodes: [
-          { id: 'd', value: -1 },
-          { id: 'n1', value: 1, nextId: 'n2' },
-          { id: 'n2', value: 2 },
-          { id: 'm1', value: 1, nextId: 'm2' },
-          { id: 'm2', value: 3 }
-        ]
+  {
+    "stepNumber": 1,
+    "line": 2,
+    "variables": [],
+    "explanation": "Initialize dummy node.",
+    "linkedListState": {
+      "nodes": [
+        {
+          "id": "d",
+          "value": -1
+        },
+        {
+          "id": "n1",
+          "value": 1,
+          "nextId": "n2"
+        },
+        {
+          "id": "n2",
+          "value": 2
+        },
+        {
+          "id": "m1",
+          "value": 1,
+          "nextId": "m2"
+        },
+        {
+          "id": "m2",
+          "value": 3
+        }
+      ]
+    },
+    "pointers": [
+      {
+        "name": "curr",
+        "targetId": "d",
+        "color": "#10b981"
       },
-      pointers: [{ name: 'curr', targetId: 'd', color: '#10b981' }, { name: 'list1', targetId: 'n1', color: '#ef4444' }, { name: 'list2', targetId: 'm1', color: '#3b82f6' }]
+      {
+        "name": "list1",
+        "targetId": "n1",
+        "color": "#ef4444"
+      },
+      {
+        "name": "list2",
+        "targetId": "m1",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "stepNumber": 2,
+    "line": 3,
+    "variables": [],
+    "explanation": "Check if lists are not null.",
+    "linkedListState": {
+      "nodes": []
     },
-    {
-      stepNumber: 2,
-      line: 3,
-      variables: [],
-      explanation: 'Check if lists are not null.',
-      linkedListState: { nodes: [] },
-      pointers: []
+    "pointers": []
+  },
+  {
+    "stepNumber": 3,
+    "line": 4,
+    "variables": [],
+    "explanation": "Compare values.",
+    "linkedListState": {
+      "nodes": []
     },
-    {
-      stepNumber: 3,
-      line: 4,
-      variables: [],
-      explanation: 'Compare values.',
-      linkedListState: { nodes: [] },
-      pointers: []
-    }
-  ],
-  externalLinks: [{ title: 'LeetCode', url: 'https://leetcode.com/' }],
+    "pointers": []
+  }
+],
+  externalLinks: [{ platform: 'leetcode', url: 'https://leetcode.com/problems/merge-two-sorted-lists/' }],
   realWorldUseCases: [],
   accessLevel: 'free'
 };
@@ -373,59 +1788,71 @@ const maxDepth = {
     { id: '3', input: '[[]]', expected: '0' }
   ],
   dryRunSteps: [
-    {
-      stepNumber: 1,
-      line: 2,
-      variables: [],
-      explanation: 'Call maxDepth on root.',
-      treeState: {
-        nodes: [
-          { id: 'n3', value: 3, leftId: 'n9', rightId: 'n20' },
-          { id: 'n9', value: 9 },
-          { id: 'n20', value: 20, leftId: 'n15', rightId: 'n7' },
-          { id: 'n15', value: 15 },
-          { id: 'n7', value: 7 }
-        ],
-        rootId: 'n3'
-      },
-      pointers: [{ name: 'root', targetId: 'n3', color: '#10b981' }]
+  {
+    "stepNumber": 1,
+    "line": 2,
+    "variables": [],
+    "explanation": "Call maxDepth on root.",
+    "treeState": {
+      "nodes": [
+        {
+          "id": "n3",
+          "value": 3,
+          "leftId": "n9",
+          "rightId": "n20"
+        },
+        {
+          "id": "n9",
+          "value": 9
+        },
+        {
+          "id": "n20",
+          "value": 20,
+          "leftId": "n15",
+          "rightId": "n7"
+        },
+        {
+          "id": "n15",
+          "value": 15
+        },
+        {
+          "id": "n7",
+          "value": 7
+        }
+      ],
+      "rootId": "n3"
     },
-    {
-      stepNumber: 2,
-      line: 3,
-      variables: [],
-      explanation: 'Recurse left.',
-      treeState: { nodes: [], rootId: '' },
-      pointers: []
+    "pointers": [
+      {
+        "name": "root",
+        "targetId": "n3",
+        "color": "#10b981"
+      }
+    ]
+  },
+  {
+    "stepNumber": 2,
+    "line": 3,
+    "variables": [],
+    "explanation": "Recurse left.",
+    "treeState": {
+      "nodes": [],
+      "rootId": ""
     },
-    {
-      stepNumber: 3,
-      line: 3,
-      variables: [],
-      explanation: 'Recurse right.',
-      treeState: { nodes: [], rootId: '' },
-      pointers: []
-    }
-  ],
-  realWorldUseCases: [],
-  accessLevel: 'free'
-};
-
-
-const invertTreeWrapper = JS_TREE_WRAPPER + `\nfunction __execute(arr) { return __treeToArray(invertTree(__arrayToTree(arr))); }`;
-const invertTree = {
-  slug: 'invert-binary-tree',
-  title: 'Invert Binary Tree',
-  difficulty: 'Easy',
-  category: 'tree',
-  patterns: ['dfs'],
-  companies: ['Google', 'Mac'],
-  description: 'Given the `root` of a binary tree, invert the tree, and return its root.',
-  examples: [
-    { input: 'root = [4,2,7,1,3,6,9]', output: '[4,7,2,9,6,3,1]' }
-  ],
-  constraints: [],
-  hints: ['Swap left and right children recursively.'],
+    "pointers": []
+  },
+  {
+    "stepNumber": 3,
+    "line": 3,
+    "variables": [],
+    "explanation": "Recurse right.",
+    "treeState": {
+      "nodes": [],
+      "rootId": ""
+    },
+    "pointers": []
+  }
+],
   externalLinks: [
     {
       title: 'LeetCode Invert Binary Tree',
