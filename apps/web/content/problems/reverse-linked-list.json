@@ -1,0 +1,1226 @@
+{
+  "slug": "reverse-linked-list",
+  "title": "Reverse Linked List",
+  "difficulty": "Easy",
+  "category": "linked-list",
+  "patterns": [
+    "two-pointers"
+  ],
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Apple"
+  ],
+  "description": "Given the `head` of a singly linked list, reverse the list, and return *the reversed list*.",
+  "examples": [
+    {
+      "input": "head = [1,2,3,4,5]",
+      "output": "[5,4,3,2,1]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes in the list is the range [0, 5000].",
+    "-5000 <= Node.val <= 5000"
+  ],
+  "hints": [
+    "Can you reverse the links while iterating?"
+  ],
+  "starterCode": {
+    "javascript": "/**\n * Definition for singly-linked list.\n * function ListNode(val, next) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.next = (next===undefined ? null : next)\n * }\n */\n/**\n * @param {ListNode} head\n * @return {ListNode}\n */\nfunction reverseList(head) {\n    // Your code here\n}"
+  },
+  "wrapperCode": {
+    "javascript": "class ListNode { constructor(val, next) { this.val = (val===undefined ? 0 : val); this.next = (next===undefined ? null : next); } }\nfunction __arrayToList(arr) { if(!arr || !arr.length) return null; let head = new ListNode(arr[0]); let curr = head; for(let i=1; i<arr.length; i++) { curr.next = new ListNode(arr[i]); curr = curr.next; } return head; }\nfunction __listToArray(head) { const res = []; let curr = head; let count=0; while(curr && count < 1000) { res.push(curr.val); curr = curr.next; count++; } return res; }\nfunction __execute(arg) { return __listToArray(reverseList(__arrayToList(arg))); }"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "timeComplexity": "O(N)",
+      "spaceComplexity": "O(1)",
+      "explanation": "Iterate through the list, changing the next pointer to point to the previous node.",
+      "code": "function reverseList(head) {\n    let prev = null;\n    let curr = head;\n    while (curr !== null) {\n        let nxt = curr.next;\n        curr.next = prev;\n        prev = curr;\n        curr = nxt;\n    }\n    return prev;\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "id": "1",
+      "input": "[[1,2,3,4,5]]",
+      "expected": "[5,4,3,2,1]"
+    },
+    {
+      "id": "2",
+      "input": "[[1,2]]",
+      "expected": "[2,1]"
+    },
+    {
+      "id": "3",
+      "input": "[[]]",
+      "expected": "[]"
+    }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 2,
+      "variables": [
+        {
+          "name": "prev",
+          "value": "null",
+          "type": "ListNode"
+        },
+        {
+          "name": "curr",
+          "value": "head",
+          "type": "ListNode"
+        }
+      ],
+      "explanation": "Initialize prev to null and curr to head.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n1",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "color": "#ef4444"
+        }
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "line": 4,
+      "variables": [
+        {
+          "name": "nxt",
+          "value": "n2",
+          "type": "ListNode"
+        }
+      ],
+      "explanation": "Save the next node before overwriting the link.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": "n2"
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n1",
+          "color": "#10b981"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n2",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "line": 5,
+      "variables": [],
+      "explanation": "Reverse the current link to point backwards.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n1",
+          "color": "#10b981"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n2",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "line": 6,
+      "variables": [],
+      "explanation": "Advance prev pointer.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n1",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n1",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n2",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "line": 7,
+      "variables": [],
+      "explanation": "Advance curr pointer.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n2",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n1",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n2",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 6,
+      "line": 4,
+      "variables": [
+        {
+          "name": "nxt",
+          "value": "n3",
+          "type": "ListNode"
+        }
+      ],
+      "explanation": "Save the next node before overwriting the link.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n3"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n2",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n1",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n3",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 7,
+      "line": 5,
+      "variables": [],
+      "explanation": "Reverse the current link to point backwards.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n2",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n1",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n3",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 8,
+      "line": 6,
+      "variables": [],
+      "explanation": "Advance prev pointer.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n2",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n2",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n3",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 9,
+      "line": 7,
+      "variables": [],
+      "explanation": "Advance curr pointer.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n3",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n2",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n3",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 10,
+      "line": 4,
+      "variables": [
+        {
+          "name": "nxt",
+          "value": "n4",
+          "type": "ListNode"
+        }
+      ],
+      "explanation": "Save the next node before overwriting the link.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n4"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n3",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n2",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n4",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 11,
+      "line": 5,
+      "variables": [],
+      "explanation": "Reverse the current link to point backwards.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n3",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n2",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n4",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 12,
+      "line": 6,
+      "variables": [],
+      "explanation": "Advance prev pointer.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n3",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n3",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n4",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 13,
+      "line": 7,
+      "variables": [],
+      "explanation": "Advance curr pointer.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n4",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n3",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n4",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 14,
+      "line": 4,
+      "variables": [
+        {
+          "name": "nxt",
+          "value": "n5",
+          "type": "ListNode"
+        }
+      ],
+      "explanation": "Save the next node before overwriting the link.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n5"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n4",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n3",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n5",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 15,
+      "line": 5,
+      "variables": [],
+      "explanation": "Reverse the current link to point backwards.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n3"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n4",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n3",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n5",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 16,
+      "line": 6,
+      "variables": [],
+      "explanation": "Advance prev pointer.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n3"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n4",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n4",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n5",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 17,
+      "line": 7,
+      "variables": [],
+      "explanation": "Advance curr pointer.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n3"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n5",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n4",
+          "color": "#ef4444"
+        },
+        {
+          "name": "nxt",
+          "targetId": "n5",
+          "color": "#3b82f6"
+        }
+      ]
+    },
+    {
+      "stepNumber": 18,
+      "line": 4,
+      "variables": [
+        {
+          "name": "nxt",
+          "value": "null",
+          "type": "ListNode"
+        }
+      ],
+      "explanation": "Save the next node before overwriting the link.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n3"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": null
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n5",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n4",
+          "color": "#ef4444"
+        }
+      ]
+    },
+    {
+      "stepNumber": 19,
+      "line": 5,
+      "variables": [],
+      "explanation": "Reverse the current link to point backwards.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n3"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": "n4"
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n5",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n4",
+          "color": "#ef4444"
+        }
+      ]
+    },
+    {
+      "stepNumber": 20,
+      "line": 6,
+      "variables": [],
+      "explanation": "Advance prev pointer.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n3"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": "n4"
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "curr",
+          "targetId": "n5",
+          "color": "#10b981"
+        },
+        {
+          "name": "prev",
+          "targetId": "n5",
+          "color": "#ef4444"
+        }
+      ]
+    },
+    {
+      "stepNumber": 21,
+      "line": 7,
+      "variables": [],
+      "explanation": "Advance curr pointer.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n3"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": "n4"
+          }
+        ],
+        "headId": "n1"
+      },
+      "pointers": [
+        {
+          "name": "prev",
+          "targetId": "n5",
+          "color": "#ef4444"
+        }
+      ]
+    },
+    {
+      "stepNumber": 22,
+      "line": 9,
+      "variables": [],
+      "explanation": "Return prev as the new head of the reversed list.",
+      "linkedListState": {
+        "nodes": [
+          {
+            "id": "n1",
+            "value": 1,
+            "nextId": null
+          },
+          {
+            "id": "n2",
+            "value": 2,
+            "nextId": "n1"
+          },
+          {
+            "id": "n3",
+            "value": 3,
+            "nextId": "n2"
+          },
+          {
+            "id": "n4",
+            "value": 4,
+            "nextId": "n3"
+          },
+          {
+            "id": "n5",
+            "value": 5,
+            "nextId": "n4"
+          }
+        ],
+        "headId": "n5"
+      },
+      "pointers": [
+        {
+          "name": "prev",
+          "targetId": "n5",
+          "color": "#ef4444"
+        }
+      ]
+    }
+  ],
+  "externalLinks": [
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/reverse-linked-list/"
+    }
+  ],
+  "realWorldUseCases": [],
+  "accessLevel": "free"
+}

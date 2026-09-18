@@ -1,0 +1,130 @@
+{
+  "slug": "maximum-depth-of-binary-tree",
+  "title": "Maximum Depth of Binary Tree",
+  "difficulty": "Easy",
+  "category": "tree",
+  "patterns": [
+    "dfs"
+  ],
+  "companies": [
+    "Amazon",
+    "Microsoft"
+  ],
+  "description": "Given the `root` of a binary tree, return its maximum depth.",
+  "examples": [
+    {
+      "input": "root = [3,9,20,null,null,15,7]",
+      "output": "3"
+    }
+  ],
+  "constraints": [],
+  "hints": [
+    "A binary tree depth is the maximum of left and right depths + 1."
+  ],
+  "externalLinks": [
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/maximum-depth-of-binary-tree/"
+    }
+  ],
+  "starterCode": {
+    "javascript": "/**\n * Definition for a binary tree node.\n * function TreeNode(val, left, right) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.left = (left===undefined ? null : left)\n *     this.right = (right===undefined ? null : right)\n * }\n */\n/**\n * @param {TreeNode} root\n * @return {number}\n */\nfunction maxDepth(root) {\n    // Your code here\n}"
+  },
+  "wrapperCode": {
+    "javascript": "\nclass TreeNode { constructor(val, left, right) { this.val = (val===undefined ? 0 : val); this.left = (left===undefined ? null : left); this.right = (right===undefined ? null : right); } }\nfunction __arrayToTree(arr) {\n    if (!arr.length) return null;\n    let root = new TreeNode(arr[0]);\n    let q = [root];\n    let i = 1;\n    while(i < arr.length) {\n        let curr = q.shift();\n        if (arr[i] !== null) { curr.left = new TreeNode(arr[i]); q.push(curr.left); }\n        i++;\n        if (i < arr.length && arr[i] !== null) { curr.right = new TreeNode(arr[i]); q.push(curr.right); }\n        i++;\n    }\n    return root;\n}\nfunction __treeToArray(root) {\n    if (!root) return [];\n    let res = [];\n    let q = [root];\n    while(q.length > 0) {\n        let curr = q.shift();\n        if (curr) { res.push(curr.val); q.push(curr.left); q.push(curr.right); }\n        else { res.push(null); }\n    }\n    while(res[res.length-1] === null) res.pop();\n    return res;\n}\n\nfunction __execute(arr) { return maxDepth(__arrayToTree(arr)); }"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "timeComplexity": "O(N)",
+      "spaceComplexity": "O(H)",
+      "explanation": "DFS to find depth.",
+      "code": "function maxDepth(root) {\n    if (!root) return 0;\n    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "id": "1",
+      "input": "[[3,9,20,null,null,15,7]]",
+      "expected": "3"
+    },
+    {
+      "id": "2",
+      "input": "[[1,null,2]]",
+      "expected": "2"
+    },
+    {
+      "id": "3",
+      "input": "[[]]",
+      "expected": "0"
+    }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 2,
+      "variables": [],
+      "explanation": "Call maxDepth on root.",
+      "treeState": {
+        "nodes": [
+          {
+            "id": "n3",
+            "value": 3,
+            "leftId": "n9",
+            "rightId": "n20"
+          },
+          {
+            "id": "n9",
+            "value": 9
+          },
+          {
+            "id": "n20",
+            "value": 20,
+            "leftId": "n15",
+            "rightId": "n7"
+          },
+          {
+            "id": "n15",
+            "value": 15
+          },
+          {
+            "id": "n7",
+            "value": 7
+          }
+        ],
+        "rootId": "n3"
+      },
+      "pointers": [
+        {
+          "name": "root",
+          "targetId": "n3",
+          "color": "#10b981"
+        }
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "line": 3,
+      "variables": [],
+      "explanation": "Recurse left.",
+      "treeState": {
+        "nodes": [],
+        "rootId": ""
+      },
+      "pointers": []
+    },
+    {
+      "stepNumber": 3,
+      "line": 3,
+      "variables": [],
+      "explanation": "Recurse right.",
+      "treeState": {
+        "nodes": [],
+        "rootId": ""
+      },
+      "pointers": []
+    }
+  ],
+  "realWorldUseCases": [],
+  "accessLevel": "free"
+}

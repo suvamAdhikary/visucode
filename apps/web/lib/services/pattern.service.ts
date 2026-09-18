@@ -49,7 +49,7 @@ const PATTERNS: Pattern[] = [
           'Merging sorted result lists from multiple indexes while removing duplicates using two pointers.',
       },
     ],
-    problems: ['two-sum-sorted', 'valid-palindrome', 'container-with-most-water', '3sum', 'trapping-rain-water'],
+    problems: ['two-sum-sorted', 'valid-palindrome', 'container-with-most-water', '3sum', 'trapping-rain-water', 'reverse-linked-list', 'linked-list-cycle', 'merge-two-sorted-lists'],
     visualizerType: 'array',
     color: '#06b6d4',
   },
@@ -138,6 +138,39 @@ const PATTERNS: Pattern[] = [
     problems: ['binary-search', 'search-in-rotated-sorted-array', 'find-minimum-rotated-sorted-array', 'koko-eating-bananas', 'find-peak-element'],
     visualizerType: 'array',
     color: '#f59e0b',
+  },
+  {
+    slug: 'dfs',
+    name: 'Depth First Search',
+    description:
+      'Traverse deep into a graph or tree before backtracking. Often implemented using recursion or an explicit stack. Excellent for exploring all paths or finding specific structures like connected components.',
+    pseudocode: `function dfs(node):
+  if node is null:
+    return
+  
+  // pre-order processing
+  dfs(node.left)
+  // in-order processing
+  dfs(node.right)
+  // post-order processing`,
+    timeComplexity: 'O(N)',
+    spaceComplexity: 'O(H)',
+    whenToUse: [
+      'Exploring all possible paths',
+      'Tree traversal (pre/in/post order)',
+      'Finding connected components',
+      'Backtracking problems'
+    ],
+    realWorldUseCases: [
+      {
+        company: 'Meta',
+        scenario: 'DOM Tree Traversal',
+        description: 'Traversing nested DOM elements to render or update UI components efficiently.'
+      }
+    ],
+    problems: ['maximum-depth-of-binary-tree', 'invert-binary-tree'],
+    visualizerType: 'tree',
+    color: '#10b981',
   },
 ];
 

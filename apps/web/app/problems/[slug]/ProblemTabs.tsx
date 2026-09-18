@@ -15,8 +15,6 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
     'visualizer'
   );
 
-  const starterCode =
-    problem.starterCode?.javascript || '// Write your code here\n';
 
   return (
     <div className={styles.tabsContainer}>
@@ -53,8 +51,9 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
           style={{ display: activeTab === 'code' ? 'flex' : 'none' }}
         >
           <CodeSubmit
-            starterCode={starterCode}
-            testCases={problem.testCases || []}
+            starterCode={problem.starterCode?.['javascript'] || ''}
+            wrapperCode={problem.wrapperCode?.['javascript']}
+            testCases={problem.testCases}
           />
         </div>
       </div>

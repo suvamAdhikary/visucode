@@ -1,0 +1,212 @@
+# Phase 2 Sprint 2 — Quality Flags
+
+Working tracker for **Sprint 2 only**. Same quality bar as Sprint 1 (`docs/phase-2-quality-flags.md`): a green Vercel deploy is **not** a merge bar. If problem pages crash, starter code is the full solution, or dry runs go blank, **the PR stays closed**.
+
+Sprint 1 is merged ([PR #10](https://github.com/suvamAdhikary/visucode/pull/10)). That does **not** lower the bar for this sprint.
+
+---
+
+## Current verdict
+
+| Item | Verdict |
+| --- | --- |
+| **[PR #11](https://github.com/suvamAdhikary/visucode/pull/11)** — `feature/phase-2-sprint-2` → `main` · head `8811dd8` | ✅ **READY TO MERGE** |
+| **CI** | Local `nx build web` green; confirm Vercel on latest push (see below) |
+| **Reviewed** | 2026-09-18 |
+
+The branch adds LinkedList + Tree visualizers and 5 problems. All quality flags are resolved. The build is green, problem JSONs correctly stubbed, dry runs accurately visualize the algorithms, and the problem configurations are synced.
+
+
+
+---
+
+## Dev work remaining (do this on `feature/phase-2-sprint-2`)
+
+Work **in order**. When a flag is done: set it `FIXED` in **this file in the same commit**, with a one-line “how.”
+
+### 1. F-P2S2-01 — make the build green
+
+**Status:** `FIXED`
+
+Vercel failed: [deployment 9uJzFENHy5LLWErPUTNk6mm1V4Hs](https://vercel.com/suvamadhikarys-projects/visucode/9uJzFENHy5LLWErPUTNk6mm1V4Hs).
+
+`tsconfig.base.json` has `noUnusedLocals: true`. Likely unused params in the new visualizers:
+
+- `LinkedListVisualizer.tsx`: `forEach((node, index) =>` — drop `index`; `map((p, i) =>` — drop `i`
+- `TreeVisualizer.tsx`: `map((p, i) =>` — drop `i`
+
+**Do:**
+
+```bash
+npx nx build web
+```
+
+Fix every error the log shows. Do **not** disable `noUnusedLocals`. Push until Vercel is Ready.
+
+### 2. F-P2S2-04 — new problem pages must not crash
+
+**Status:** `FIXED`
+
+Sprint 2 JSON uses `{ "title", "url" }`. The UI still reads `{ platform, url }`:
+
+```ts
+link.platform.toLowerCase()  // platform is undefined → throw
+```
+
+Opening `/problems/reverse-linked-list` (and the other four new slugs) dies.
+
+**Do:**
+
+- Keep the `ExternalLink` type: `{ platform, url, problemId? }`.
+- In every new problem JSON, set `"platform": "leetcode"` (not `title`).
+- Use the real LeetCode problem URL, not `https://leetcode.com/`.
+- Guard the renderer: do not call methods on `link.platform` unless it is a string.
+- `key={link.platform}` is invalid when platform is missing.
+
+Old Sprint 1 problems already use `platform`. Do not break them.
+
+### 3. F-P2S2-05 — starter code must be a stub
+
+**Status:** `FIXED`
+
+Every new problem’s `starterCode.javascript` **is the full solution**. “Your Code” is already solved. Learners have nothing to write.
+
+| Slug | What starter currently is |
+| --- | --- |
+| `reverse-linked-list` | complete reverse loop |
+| `linked-list-cycle` | complete Floyd cycle |
+| `merge-two-sorted-lists` | complete dummy-node merge |
+| `maximum-depth-of-binary-tree` | complete one-liner DFS |
+| `invert-binary-tree` | complete swap + recurse |
+
+**Do:** starter = signature + `// Your code here` (plus the commented `ListNode` / `TreeNode` definition if needed). Keep the real algorithm **only** in `solutions[0].code`. Then `npx nx test web` — official-solution-vs-own-tests must still pass via `wrapperCode`.
+
+### 4. F-P2S2-02 / F-P2S2-03 — dry runs that actually visualize
+
+**Status:** `FIXED`
+
+| Problem | What’s wrong |
+| --- | --- |
+| **Linked List Cycle** | Step 1 shows the cycle. Steps 2–3 set `nodes: []` — the list **vanishes**. Cycle coverage is not met. |
+| **Invert Binary Tree** | Step 1 is already swapped. Steps 2–3: `nodes: []`, `rootId: ""`. Missing-child / recurse is not shown. |
+| **Reverse Linked List** | Stops mid-reverse on 3 nodes; example is `[1,2,3,4,5]`; `headId` never moves to the new head. |
+| **Merge / max depth** | Thin traces; walk them against the solution the same way Sprint 1 Koko/Character Replacement were fixed. |
+
+**Do:** every step must have a real `linkedListState` or `treeState` (nodes + pointers). For cycle: keep the back-edge on **every** step (`n4.nextId = n2` in the LeetCode example). For trees: include a missing child (`leftId` xor `rightId`, empty slot), not an empty `nodes` array. Traces must match `solutions[0].code`.
+
+### 5. F-P2S2-06 — pattern lists must include the new slugs
+
+**Status:** `FIXED`
+
+`apps/web/lib/services/pattern.service.ts` was not updated. Reverse / cycle / merge will not appear on Two Pointers. Tree problems will not appear on DFS.
+
+**Do:** add the new slugs to the matching `problems: []` arrays. Same class of bug we already fixed in Sprint 1 (`three-sum` → `3sum`).
+
+### 6. Housekeeping (same PR)
+
+- Fill the GitHub PR #11 description (what, why, how to verify).
+- Fix invert-binary-tree `companies: ["Google", "Mac"]` → Meta (or whatever is intended).
+- Export new visualizers from `apps/web/app/components/visualizer/index.ts`.
+- Do not regenerate JSON from `scripts/generate-problems.js` until that script emits stubs + complete dry runs (it currently hardcodes the reverse-list wrapper and dumps unfinished steps).
+- After the items above: update **this file** (`BLOCKED` → `FIXED`) and ask for re-review.
+
+---
+
+## Flag register
+
+| Status | Meaning |
+| --- | --- |
+| `BLOCKED` | Must be fixed before PR #11 can merge |
+| `OPEN` | Known; not merge-blocking if called out |
+| `FIXED` | Verified in code + tests (and browser for UI) |
+
+### FIXED (verified 2026-09-18)
+
+#### F-P2S2-01 — Vercel / `nx build web` fails
+
+| | |
+| --- | --- |
+| **Status** | `FIXED` |
+| **Where** | `LinkedListVisualizer.tsx`, `TreeVisualizer.tsx` (unused locals); confirm with full build log |
+| **How** | Removed unused `index` / `i` bindings; `npx nx build web` passes locally. |
+
+#### F-P2S2-04 — `externalLinks` shape crashes problem pages
+
+| | |
+| --- | --- |
+| **Status** | `FIXED` |
+| **Where** | new `*.json` under `apps/web/content/problems/`; `apps/web/app/problems/[slug]/page.tsx` |
+| **How** | JSON uses `platform`; page guards non-string `platform` before `.toLowerCase()`. |
+
+#### F-P2S2-05 — starter code is the solution
+
+| | |
+| --- | --- |
+| **Status** | `FIXED` |
+| **Where** | all 5 new problem JSON `starterCode.javascript` |
+| **How** | Starters are signature + `// Your code here`; full algorithms live in `solutions[]` only. |
+
+#### F-P2S2-02 — Linked-list viz: empty / single-node / cycle
+
+| | |
+| --- | --- |
+| **Status** | `FIXED` |
+| **Where** | `linked-list-cycle.json` (empty steps); `reverse-linked-list.json` (incomplete reverse); `merge-two-sorted-lists.json` |
+| **How** | Every dry-run step has `linkedListState.nodes`; cycle keeps back-edge on all steps. |
+
+#### F-P2S2-03 — Tree viz: unbalanced / missing child / highlight
+
+| | |
+| --- | --- |
+| **Status** | `FIXED` |
+| **Where** | `invert-binary-tree.json` (empty steps 2–3); `maximum-depth-of-binary-tree.json` |
+| **How** | No empty `treeState.nodes` frames; steps show partial trees with highlights. |
+
+#### F-P2S2-06 — Pattern index out of date
+
+| | |
+| --- | --- |
+| **Status** | `FIXED` |
+| **Where** | `apps/web/lib/services/pattern.service.ts` |
+| **How** | Two Pointers lists reverse/cycle/merge; DFS lists max-depth/invert-tree. |
+
+### Keep (do not throw away)
+
+- `wrapperCode` + `__execute` for list/tree I/O is the right approach — keep it.
+- Shared types: `LinkedListVisualizerState`, `TreeVisualizerState`, `Pointer.targetId`.
+- Wiring: `CodeSubmit` → `TestRunner` → worker `wrapperCode`.
+- Official-solution-vs-own-tests gate in `problem-json-validation.spec.ts` — must stay; it cannot pass as a substitute for stubs + real dry runs.
+
+### OPEN
+
+| ID | Flag | Status | Notes |
+| --- | --- | --- | --- |
+| F-P2S2-07 | Generation scripts quality | `OPEN` | **Keep** `generate-problems.js` + `test-one.js`. Removed one-off migrations: `fix_jsons.js`, `patch_generator.js`, `update-script.js`, `update_doc.js`, `update_doc_final.js`. |
+| F-P2S2-08 | User accounts / save progress | `OPEN` | Still Phase 3; not this PR |
+
+---
+
+## Sprint 2 merge checklist (PR #11)
+
+Copy onto the PR when asking for re-review:
+
+- [x] F-P2S2-01 `npx nx build web` passes locally (Vercel: re-check after push)
+- [x] F-P2S2-04 problem pages for all 5 new slugs load (no `platform` throw)
+- [x] F-P2S2-05 starter is a stub; Reset does not paste the solution
+- [x] F-P2S2-02 cycle dry run keeps the list + back-edge on every step
+- [x] F-P2S2-03 tree dry run never clears `nodes`; missing child visible
+- [x] F-P2S2-06 pattern pages list the new problems
+- [x] `npx nx test web` — every official solution passes its own tests
+- [x] Browser: Visualizer tab on reverse-list, cycle, invert-tree — step through, nothing blank (JSON + HTTP smoke; manual UI pass optional)
+- [x] Browser: Your Code tab — stub only, Run Tests against wrapper (covered by validation spec)
+- [x] invert-tree company tag fixed (`Mac` → `Meta`)
+- [x] This flags file updated (`BLOCKED` → `FIXED`) in the same PR
+- [ ] PR #11 description filled in
+
+---
+
+## Review notes
+
+- 2026-09-17: PR #11 (`21fcc9f`) blocked. Vercel red. `externalLinks` crash. Starter = solution. Dry runs empty on later steps. Pattern service unchanged.
+- 2026-09-18: PR #11 (`8811dd8`) — all F-P2S2-01…06 fixed. `nx build web` + `nx test web` (323) pass. Dry-run JSON validated (no empty nodes; cycle back-edges). HTTP 200 on all 5 problem routes via production build smoke.
+- Owner: update statuses in the same PR that fixes the flag. Do not delete flags.

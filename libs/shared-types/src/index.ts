@@ -77,7 +77,8 @@ export interface Solution {
 
 export interface Pointer {
     name: string;
-    index: number;
+    index?: number;
+    targetId?: string;
     color: string;
     label?: string;
 }
@@ -99,11 +100,38 @@ export interface ArrayVisualizerState {
     sortedRegion?: { start: number; end: number };
 }
 
+export interface LinkedListNode {
+    id: string; // Unique ID for node identity
+    value: string | number;
+    nextId?: string; // ID of the next node
+}
+
+export interface LinkedListVisualizerState {
+    nodes: LinkedListNode[];
+    headId?: string;
+    highlightIds?: string[];
+}
+
+export interface TreeNode {
+    id: string;
+    value: string | number;
+    leftId?: string;
+    rightId?: string;
+}
+
+export interface TreeVisualizerState {
+    nodes: TreeNode[];
+    rootId?: string;
+    highlightIds?: string[];
+}
+
 export interface DryRunStep {
     stepNumber: number;
     line: number; // Which code line is executing
     variables: Variable[];
     arrayState?: ArrayVisualizerState;
+    linkedListState?: LinkedListVisualizerState;
+    treeState?: TreeVisualizerState;
     explanation: string; // Short — "Moving left pointer from 0 to 1"
     pointers?: Pointer[];
 }
@@ -126,6 +154,7 @@ export interface Problem {
     constraints: string[];
     hints: string[];
     starterCode: Partial<Record<Language, string>>;
+    wrapperCode?: Partial<Record<Language, string>>;
     solutions: Solution[];
     testCases: TestCase[];
     dryRunSteps: DryRunStep[];
@@ -161,6 +190,8 @@ export type LessonType = 'concept' | 'visual' | 'exercise' | 'practice';
 export interface VisualizerState {
     type: VisualizerType;
     array?: ArrayVisualizerState;
+    linkedList?: LinkedListVisualizerState;
+    tree?: TreeVisualizerState;
     pointers?: Pointer[];
     highlightElements?: string[];
 }

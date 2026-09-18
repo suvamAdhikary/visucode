@@ -1,8 +1,8 @@
 import { semanticCompare } from './comparator';
 
-// Web worker expects message: { code: string, functionName: string, testCases: TestCase[] }
+// Web worker expects message: { code: string, functionName: string, testCases: TestCase[], wrapperCode?: string }
 self.onmessage = function (e) {
-  const { code, functionName, testCases } = e.data;
+  const { code, functionName, testCases, wrapperCode } = e.data;
   
   const results = [];
   const overallStart = performance.now();
@@ -20,7 +20,8 @@ self.onmessage = function (e) {
       // Safe evaluation scope inside the worker
       const wrappedCode = `
         ${code}
-        return JSON.stringify(${functionName}(${args.map((_, i) => `arguments[${i}]`).join(', ')}));
+        ${wrapperCode || ''}
+        return JSON.stringify(${wrapperCode ? '__execute' : functionName}(${args.map((_, i) => `arguments[${i}]`).join(', ')}));
       `;
 
       // Evaluate code in worker scope
