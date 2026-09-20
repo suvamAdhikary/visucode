@@ -12,11 +12,30 @@ This document tracks the backlog, epics, and user stories for VisuCode.
 - [x] **Story**: Add test cases to existing 6 problems.
 - [x] **Story**: Add 9 new problems (total 15), complete with dry runs and test cases.
 
-### Sprint 2: Visualizer Expansion & Final Polish (TODO)
-- [ ] **Story**: Implement Linked List visualizer component (nodes, pointers, traversal animations).
-- [ ] **Story**: Implement Tree visualizer component.
-- [ ] **Story**: Add 5 more problems requiring Linked List / Tree visualizers (total 20).
-- [ ] **Story**: Integrate visualizer components seamlessly into the Dry Run viewer.
+### Sprint 2: Visualizer Expansion & Final Polish (DONE)
+- [x] **Story**: Implement Linked List visualizer component (nodes, pointers, traversal animations).
+- [x] **Story**: Implement Tree visualizer component.
+- [x] **Story**: Add 5 more problems requiring Linked List / Tree visualizers (total 20).
+- [x] **Story**: Integrate visualizer components seamlessly into the Dry Run viewer.
+
+### Sprint 3: Linear & Hashing Patterns (TODO)
+*Focus: Arrays & Hashing, Stack / Queue, Greedy / Intervals*
+- [ ] **Story**: Implement Hash Map visualizer component.
+- [ ] **Story**: Implement Stack & Queue visualizer component.
+- [ ] **Story**: Implement 1D Array / Interval number-line visualizer.
+- [ ] **Story**: Add 10 problems covering Hashing, Stacks, Queues, Greedy, and Intervals.
+
+### Sprint 4: Advanced Non-Linear Patterns (TODO)
+*Focus: Graphs, BFS, Heaps / Priority Queue, Tries*
+- [ ] **Story**: Implement Graph visualizer (nodes + edges mapping).
+- [ ] **Story**: Upgrade Tree visualizer to support Tries and Heap (Array-to-Tree) representations.
+- [ ] **Story**: Add 10 problems covering Graphs, BFS, Heaps, and Tries.
+
+### Sprint 5: Complex Paradigms (TODO)
+*Focus: Dynamic Programming (1D & 2D), Backtracking*
+- [ ] **Story**: Implement 1D and 2D Grid visualizer for DP tables.
+- [ ] **Story**: Implement Recursion Call Stack visualizer for Backtracking.
+- [ ] **Story**: Add 10 problems covering 1D DP, 2D DP, and Backtracking.
 
 ## Epic 2: Phase 3 - User System & Progress Tracking
 **Status**: TODO
