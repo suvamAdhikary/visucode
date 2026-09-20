@@ -1,0 +1,98 @@
+{
+  "slug": "valid-parentheses",
+  "title": "Valid Parentheses",
+  "difficulty": "Easy",
+  "category": "stack",
+  "patterns": [],
+  "companies": [
+    "Amazon",
+    "Facebook"
+  ],
+  "description": "Given a string `s` containing just the characters `(`, `)`, `{`, `}`, `[` and `]`, determine if the input string is valid.",
+  "examples": [
+    {
+      "input": "s = \"()[]{}\"",
+      "output": "true"
+    }
+  ],
+  "constraints": [],
+  "hints": [
+    "Use a stack to push open brackets."
+  ],
+  "starterCode": {
+    "javascript": "function isValid(s) {\n    // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function isValid(s) {\n    const stack = [];\n    const map = { \")\": \"(\", \"}\": \"{\", \"]\": \"[\" };\n    for (const char of s) {\n        if (!map[char]) stack.push(char);\n        else if (stack.pop() !== map[char]) return false;\n    }\n    return stack.length === 0;\n}",
+      "timeComplexity": "O(N)",
+      "spaceComplexity": "O(N)"
+    }
+  ],
+  "testCases": [
+    {
+      "id": "1",
+      "input": "[\"()\"]",
+      "expected": "true"
+    }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 2,
+      "variables": [],
+      "explanation": "Initialize empty stack.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": []
+      }
+    },
+    {
+      "stepNumber": 2,
+      "line": 5,
+      "variables": [
+        {
+          "name": "char",
+          "value": "\"(\"",
+          "type": "string"
+        }
+      ],
+      "explanation": "Push open bracket onto stack.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": [
+          "\"(\""
+        ],
+        "highlightIndices": [
+          0
+        ]
+      }
+    },
+    {
+      "stepNumber": 3,
+      "line": 6,
+      "variables": [
+        {
+          "name": "char",
+          "value": "\")\"",
+          "type": "string"
+        }
+      ],
+      "explanation": "Match close bracket. Pop from stack.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": [],
+        "highlightIndices": []
+      }
+    }
+  ],
+  "externalLinks": [
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/valid-parentheses/"
+    }
+  ],
+  "realWorldUseCases": [],
+  "accessLevel": "free"
+}

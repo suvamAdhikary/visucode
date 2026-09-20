@@ -1,0 +1,73 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.title {
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #9ca3af);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.timeline {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  min-height: 150px;
+  border-bottom: 2px solid var(--color-border, #4b5563);
+  padding-bottom: 30px; /* space for axis labels */
+}
+
+.interval {
+  position: absolute;
+  height: 24px;
+  background-color: var(--color-primary, #3b82f6);
+  border: 1px solid var(--color-primary-dark, #1e3a8a);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.axisLabel {
+  position: absolute;
+  bottom: 5px;
+  transform: translateX(-50%);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #9ca3af);
+}
+
+.axisTick {
+  position: absolute;
+  bottom: 25px;
+  width: 2px;
+  height: 6px;
+  background-color: var(--color-border, #4b5563);
+  transform: translateX(-50%);
+}
+
+.empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-text-muted, #9ca3af);
+  font-style: italic;
+  font-size: 0.9rem;
+}

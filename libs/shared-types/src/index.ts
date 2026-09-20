@@ -125,6 +125,35 @@ export interface TreeVisualizerState {
     highlightIds?: string[];
 }
 
+export interface HashMapEntry {
+    key: string;
+    value: string | number;
+}
+
+export interface HashMapVisualizerState {
+    entries: HashMapEntry[];
+    highlightKeys?: string[];
+}
+
+export interface StackQueueVisualizerState {
+    type: 'stack' | 'queue';
+    items: (string | number)[];
+    highlightIndices?: number[];
+}
+
+export interface IntervalItem {
+    id: string;
+    start: number;
+    end: number;
+    color?: string; // Optional custom color for merging highlights
+}
+
+export interface IntervalVisualizerState {
+    intervals: IntervalItem[];
+    rangeStart?: number; // Minimum X axis bound
+    rangeEnd?: number; // Maximum X axis bound
+}
+
 export interface DryRunStep {
     stepNumber: number;
     line: number; // Which code line is executing
@@ -132,6 +161,9 @@ export interface DryRunStep {
     arrayState?: ArrayVisualizerState;
     linkedListState?: LinkedListVisualizerState;
     treeState?: TreeVisualizerState;
+    hashMapState?: HashMapVisualizerState;
+    stackQueueState?: StackQueueVisualizerState;
+    intervalState?: IntervalVisualizerState;
     explanation: string; // Short — "Moving left pointer from 0 to 1"
     pointers?: Pointer[];
 }
