@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { PatternSlug } from '@visucode/shared-types';
 import { getPattern, listPatterns } from '../../../lib/services/pattern.service';
-import { getProblemSummaries } from '../../../lib/services/problem.service';
+import { getProblemSummariesForPattern } from '../../../lib/services/problem.service';
 import styles from './page.module.css';
 
 // Generate static params for all known patterns
@@ -52,7 +52,10 @@ export default async function PatternDetailPage({
 
   if (!pattern) notFound();
 
-  const problems = getProblemSummaries(pattern.problems);
+  const problems = getProblemSummariesForPattern(
+    slug as PatternSlug,
+    pattern.problems
+  );
   const pseudocodeLines = pattern.pseudocode.split('\n');
 
   return (

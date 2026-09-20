@@ -286,7 +286,7 @@ Do not ask for merge until every box is checked:
 
 **Active tracker:** [`docs/phase-2-sprint-3-quality-flags.md`](./phase-2-sprint-3-quality-flags.md)
 
-**[PR #12](https://github.com/suvamAdhikary/visucode/pull/12) is `BLOCKED`.** Do not merge. Work the Sprint 3 file, not this section.
+**[PR #12](https://github.com/suvamAdhikary/visucode/pull/12) is `BLOCKED`.** Head `612289b`. Remaining: revert `next-env.d.ts`; Two Sum `PROBLEM_INDEX.patterns` must match JSON. Scope is **3 problems** this sprint.
 
 ---
 
@@ -306,4 +306,5 @@ Do not ask for merge until every box is checked:
 - 2026-09-16: PR #8 blocked (judging, dry runs, hidden errors, freeze, generated files).
 - 2026-09-16: PR #10 (`7b4b732`) re-reviewed. Product logic mostly fixed; remaining blockers are Worker sync fallback, missing comparator tests, `next-env.d.ts` / `file:///` paths. Preview was SSO-gated; freeze behavior still needs a browser check after the fallback is removed.
 - 2026-09-20: PR #12 (`b9979ef`) blocked. See `docs/phase-2-sprint-3-quality-flags.md`.
+- 2026-09-20: PR #12 (`612289b`) re-reviewed. 3-problem scope accepted. Still blocked on `next-env.d.ts` + Two Sum catalog pattern. Multi-pattern rule documented.
 - Owner of this tracker: update statuses in the same PR that fixes the flag.

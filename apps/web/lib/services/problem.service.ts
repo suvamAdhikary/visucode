@@ -15,6 +15,8 @@ const PROBLEM_INDEX: Array<{
   title: string;
   difficulty: Difficulty;
   category: Category;
+  // A problem can belong to multiple patterns. Keep this array in sync with
+  // the JSON `patterns` field so catalog filters and pattern pages agree.
   patterns: PatternSlug[];
   companies: string[];
   accessLevel: 'free' | 'premium';
@@ -319,7 +321,7 @@ export function getProblemsByPattern(): Record<string, typeof PROBLEM_INDEX> {
 
 /**
  * Get basic problem info for a list of slugs (used by pattern detail pages)
- * Returns null for problems not yet in the index (shown as "Coming Soon")
+ * Returns exists:false for slugs not yet in the index (shown as "Coming Soon")
  */
 export function getProblemSummaries(
   slugs: string[]
@@ -336,4 +338,21 @@ export function getProblemSummaries(
       .join(' ');
     return { slug, title, difficulty: 'Medium' as Difficulty, exists: false };
   });
+}
+
+/**
+ * Problems for a pattern page. Source of truth is PROBLEM_INDEX.patterns[]
+ * (a problem with several patterns appears on every matching page). Extra
+ * slugs from pattern.service stay as "Coming Soon" until they are indexed.
+ */
+export function getProblemSummariesForPattern(
+  patternSlug: PatternSlug,
+  extraSlugs: string[] = []
+): Array<{ slug: string; title: string; difficulty: Difficulty; exists: boolean }> {
+  const fromIndex = PROBLEM_INDEX.filter((p) =>
+    p.patterns.includes(patternSlug)
+  ).map((p) => p.slug);
+  const seen = new Set(fromIndex);
+  const extras = extraSlugs.filter((s) => !seen.has(s));
+  return getProblemSummaries([...fromIndex, ...extras]);
 }
