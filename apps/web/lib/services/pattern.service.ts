@@ -172,6 +172,59 @@ const PATTERNS: Pattern[] = [
     visualizerType: 'tree',
     color: '#10b981',
   },
+  {
+    slug: 'hash-map',
+    name: 'Hash Map',
+    description: 'Use a hash map or dictionary to store key-value pairs for O(1) average time complexity lookups.',
+    pseudocode: `function solve(arr):
+  map = new Map()
+  for item in arr:
+    map.set(item.key, item.value)
+  return map`,
+    timeComplexity: 'O(N)',
+    spaceComplexity: 'O(N)',
+    whenToUse: ['Fast lookups required', 'Counting frequencies', 'Mapping relationships'],
+    realWorldUseCases: [],
+    problems: ['two-sum'],
+    visualizerType: 'hash-map',
+    color: '#ec4899',
+  },
+  {
+    slug: 'stack',
+    name: 'Stack',
+    description: 'A Last-In-First-Out (LIFO) data structure. Useful for parsing, evaluating expressions, and tracking state that needs to be reversed.',
+    pseudocode: `function solve(str):
+  stack = []
+  for char in str:
+    stack.push(char)
+  return stack`,
+    timeComplexity: 'O(N)',
+    spaceComplexity: 'O(N)',
+    whenToUse: ['Parsing expressions', 'Matching parentheses', 'Reversing sequences'],
+    realWorldUseCases: [],
+    problems: ['valid-parentheses'],
+    visualizerType: 'stack-queue',
+    color: '#3b82f6',
+  },
+  {
+    slug: 'greedy',
+    name: 'Greedy',
+    description: 'Make the locally optimal choice at each stage with the hope of finding a global optimum. Often requires sorting the input first.',
+    pseudocode: `function solve(intervals):
+  intervals.sort()
+  res = []
+  for interval in intervals:
+    if condition(interval):
+      res.push(interval)
+  return res`,
+    timeComplexity: 'O(N log N)',
+    spaceComplexity: 'O(1)',
+    whenToUse: ['Optimization problems', 'Interval merging/scheduling', 'Local optimum leads to global optimum'],
+    realWorldUseCases: [],
+    problems: ['merge-intervals'],
+    visualizerType: 'interval',
+    color: '#f43f5e',
+  }
 ];
 
 /**

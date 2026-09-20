@@ -1,0 +1,193 @@
+{
+  "slug": "valid-parentheses",
+  "title": "Valid Parentheses",
+  "difficulty": "Easy",
+  "category": "stack",
+  "patterns": [
+    "stack"
+  ],
+  "companies": [
+    "Meta",
+    "Amazon"
+  ],
+  "description": "Given a string `s` containing just the characters `'('`, `')'`, `'{'`, `'}'`, `'['` and `']'`, determine if the input string is valid.",
+  "examples": [
+    {
+      "input": "s = \"()[]{}\"",
+      "output": "true"
+    }
+  ],
+  "constraints": [],
+  "hints": [
+    "Use a stack to keep track of opening brackets."
+  ],
+  "starterCode": {
+    "javascript": "function isValid(s) {\n    // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function isValid(s) {\n    const stack = [];\n    const pairs = { ')': '(', ']': '[', '}': '{' };\n    for (let char of s) {\n        if (!pairs[char]) stack.push(char);\n        else if (stack.pop() !== pairs[char]) return false;\n    }\n    return stack.length === 0;\n}",
+      "timeComplexity": "O(N)",
+      "spaceComplexity": "O(N)"
+    }
+  ],
+  "testCases": [
+    {
+      "id": "1",
+      "input": "[\"()[]{}\"]",
+      "expected": "true"
+    },
+    {
+      "id": "2",
+      "input": "[\"(]\"]",
+      "expected": "false"
+    },
+    {
+      "id": "3",
+      "input": "[\"([)]\"]",
+      "expected": "false"
+    }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 2,
+      "variables": [],
+      "explanation": "Initialize an empty stack.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": []
+      }
+    },
+    {
+      "stepNumber": 2,
+      "line": 5,
+      "variables": [
+        {
+          "name": "char",
+          "value": "\"( \"",
+          "type": "string"
+        }
+      ],
+      "explanation": "Character '(' is an opening bracket. Push to stack.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": [
+          "("
+        ],
+        "highlightIndices": [
+          0
+        ]
+      }
+    },
+    {
+      "stepNumber": 3,
+      "line": 6,
+      "variables": [
+        {
+          "name": "char",
+          "value": "\") \"",
+          "type": "string"
+        }
+      ],
+      "explanation": "Character ')' is a closing bracket. Pop from stack and check if it matches '('. It does.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": []
+      }
+    },
+    {
+      "stepNumber": 4,
+      "line": 5,
+      "variables": [
+        {
+          "name": "char",
+          "value": "\"[ \"",
+          "type": "string"
+        }
+      ],
+      "explanation": "Character '[' is an opening bracket. Push to stack.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": [
+          "["
+        ],
+        "highlightIndices": [
+          0
+        ]
+      }
+    },
+    {
+      "stepNumber": 5,
+      "line": 6,
+      "variables": [
+        {
+          "name": "char",
+          "value": "\"] \"",
+          "type": "string"
+        }
+      ],
+      "explanation": "Character ']' is a closing bracket. Pop and match with '['. It matches.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": []
+      }
+    },
+    {
+      "stepNumber": 6,
+      "line": 5,
+      "variables": [
+        {
+          "name": "char",
+          "value": "\"{ \"",
+          "type": "string"
+        }
+      ],
+      "explanation": "Character '{' is an opening bracket. Push to stack.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": [
+          "{"
+        ],
+        "highlightIndices": [
+          0
+        ]
+      }
+    },
+    {
+      "stepNumber": 7,
+      "line": 6,
+      "variables": [
+        {
+          "name": "char",
+          "value": "\"} \"",
+          "type": "string"
+        }
+      ],
+      "explanation": "Character '}' is a closing bracket. Pop and match with '{'. It matches.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": []
+      }
+    },
+    {
+      "stepNumber": 8,
+      "line": 8,
+      "variables": [],
+      "explanation": "Loop completes. Stack is empty, so all brackets were properly closed. Return true.",
+      "stackQueueState": {
+        "type": "stack",
+        "items": []
+      }
+    }
+  ],
+  "externalLinks": [
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/valid-parentheses/"
+    }
+  ],
+  "realWorldUseCases": [],
+  "accessLevel": "free"
+}
