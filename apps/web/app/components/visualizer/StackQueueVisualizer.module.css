@@ -79,7 +79,6 @@
   background-color: var(--color-accent, #10b981);
   color: #fff;
   border-color: #059669;
-  transform: scale(1.05);
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
 }
 

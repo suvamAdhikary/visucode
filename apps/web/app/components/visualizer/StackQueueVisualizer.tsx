@@ -9,6 +9,13 @@ interface StackQueueVisualizerProps {
 export const StackQueueVisualizer: React.FC<StackQueueVisualizerProps> = ({ state }) => {
   const { type, items, highlightIndices = [] } = state;
 
+  const formatValue = (val: string | number) => {
+    if (typeof val === 'string' && val.startsWith('"') && val.endsWith('"')) {
+      return val.slice(1, -1);
+    }
+    return typeof val === 'string' ? val : JSON.stringify(val);
+  };
+
   return (
     <div className={styles.container}>
       <h3 className={styles.title}>{type === 'stack' ? 'Stack' : 'Queue'}</h3>
@@ -24,9 +31,7 @@ export const StackQueueVisualizer: React.FC<StackQueueVisualizerProps> = ({ stat
                 key={`${item}-${idx}`} 
                 className={`${styles.item} ${isHighlighted ? styles.highlighted : ''}`}
               >
-                {typeof item === 'string' && item.startsWith('"') 
-                    ? item 
-                    : JSON.stringify(item)}
+                {formatValue(item)}
               </div>
             );
           })

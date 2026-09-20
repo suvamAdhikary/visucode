@@ -199,6 +199,33 @@ const PROBLEM_INDEX: Array<{
     companies: ['Google', 'Mac'],
     accessLevel: 'free',
   },
+  {
+    slug: 'two-sum',
+    title: 'Two Sum',
+    difficulty: 'Easy',
+    category: 'hash-map',
+    patterns: ['two-pointers'],
+    companies: ['Amazon', 'Google', 'Meta'],
+    accessLevel: 'free',
+  },
+  {
+    slug: 'valid-parentheses',
+    title: 'Valid Parentheses',
+    difficulty: 'Easy',
+    category: 'stack',
+    patterns: ['stack'],
+    companies: ['Meta', 'Amazon'],
+    accessLevel: 'free',
+  },
+  {
+    slug: 'merge-intervals',
+    title: 'Merge Intervals',
+    difficulty: 'Medium',
+    category: 'array',
+    patterns: ['greedy'],
+    companies: ['Google', 'Amazon'],
+    accessLevel: 'free',
+  },
   // More problems will be added here as content is created
 ];
 

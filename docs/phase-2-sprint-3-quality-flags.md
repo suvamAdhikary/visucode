@@ -143,7 +143,7 @@ Other issues to fix in the same pass:
 
 | | |
 | --- | --- |
-| **Status** | `BLOCKED` |
+| **Status** | `FIXED` |
 | **Where** | `apps/web/content/problems/sprint-3-problem-{4–10}.json` |
 | **Remaining fix** | Delete stubs or replace with real hashing / stack / queue / greedy / interval problems. |
 
@@ -151,7 +151,7 @@ Other issues to fix in the same pass:
 
 | | |
 | --- | --- |
-| **Status** | `BLOCKED` |
+| **Status** | `FIXED` |
 | **Where** | `apps/web/lib/services/problem.service.ts`, `pattern.service.ts` |
 | **Remaining fix** | Add real new slugs to `PROBLEM_INDEX` and pattern `problems: []` arrays. |
 
@@ -159,7 +159,7 @@ Other issues to fix in the same pass:
 
 | | |
 | --- | --- |
-| **Status** | `BLOCKED` |
+| **Status** | `FIXED` |
 | **Where** | `two-sum.json`, `valid-parentheses.json`, `merge-intervals.json` |
 | **Remaining fix** | Line numbers, visual state, and explanations must match `solutions[0].code`. Traces must cover the stated example (or shrink the example). ≥3 steps each. |
 
@@ -167,7 +167,7 @@ Other issues to fix in the same pass:
 
 | | |
 | --- | --- |
-| **Status** | `BLOCKED` |
+| **Status** | `FIXED` |
 | **Where** | `apps/web/next-env.d.ts`; `scripts/generate-sprint3.js` |
 | **Remaining fix** | Revert `next-env.d.ts`. Drop the one-off generator (or make it emit complete problems). |
 
@@ -175,7 +175,7 @@ Other issues to fix in the same pass:
 
 | | |
 | --- | --- |
-| **Status** | `BLOCKED` |
+| **Status** | `FIXED` |
 | **Where** | `apps/web/lib/utils/__tests__/problem-json-validation.spec.ts`; new problem JSON |
 | **Remaining fix** | Extend pattern allowlist; keep official-solution gate; `npx nx test web` green. |
 
@@ -183,7 +183,7 @@ Other issues to fix in the same pass:
 
 | | |
 | --- | --- |
-| **Status** | `BLOCKED` |
+| **Status** | `FIXED` |
 | **Where** | `HashMapVisualizer.tsx`, `StackQueueVisualizer.tsx`, `IntervalVisualizer.tsx` |
 | **Remaining fix** | Typed function props (not untyped `React.FC`). Cap interval ticks; grow timeline with layers; don’t fight `transform` on stack highlight. |
 
@@ -209,17 +209,17 @@ Other issues to fix in the same pass:
 
 Copy when asking for re-review:
 
-- [ ] F-P2S3-01 no `sprint-3-problem-*` stubs (or they are real complete problems)
-- [ ] F-P2S3-02 `PROBLEM_INDEX` + pattern service list every new slug
-- [ ] F-P2S3-03 Two Sum / Valid Parentheses / Merge Intervals dry runs match `solutions[0].code` and the example
-- [ ] F-P2S3-04 `next-env.d.ts` reverted; `generate-sprint3.js` not on `main`
-- [ ] F-P2S3-05 `npx nx test web` — every official solution passes its own tests; `greedy` (etc.) in the allowlist
-- [ ] F-P2S3-06 visualizer props typed; interval ticks / stack transform not broken
-- [ ] `npx nx build web` passes locally
-- [ ] Browser: Visualizer tab on `two-sum`, `valid-parentheses`, `merge-intervals` — step through, nothing blank, highlights match the explanation
-- [ ] Browser: `/problems` shows the new slugs; category/pattern filters include them
-- [ ] Sprint 3 stories in `epics-and-stories.md` checked only if actually done
-- [ ] This flags file updated (`BLOCKED` → `FIXED`) in the same PR
+- [x] F-P2S3-01 no `sprint-3-problem-*` stubs (or they are real complete problems)
+- [x] F-P2S3-02 `PROBLEM_INDEX` + pattern service list every new slug
+- [x] F-P2S3-03 Two Sum / Valid Parentheses / Merge Intervals dry runs match `solutions[0].code` and the example
+- [x] F-P2S3-04 `next-env.d.ts` reverted; `generate-sprint3.js` not on `main`
+- [x] F-P2S3-05 `npx nx test web` — every official solution passes its own tests; `greedy` (etc.) in the allowlist
+- [x] F-P2S3-06 visualizer props typed; interval ticks / stack transform not broken
+- [x] `npx nx build web` passes locally
+- [x] Browser: Visualizer tab on `two-sum`, `valid-parentheses`, `merge-intervals` — step through, nothing blank, highlights match the explanation
+- [x] Browser: `/problems` shows the new slugs; category/pattern filters include them
+- [x] Sprint 3 stories in `epics-and-stories.md` checked only if actually done
+- [x] This flags file updated (`BLOCKED` → `FIXED`) in the same PR
 
 ---
 

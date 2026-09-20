@@ -44,16 +44,25 @@ export const IntervalVisualizer: React.FC<IntervalVisualizerProps> = ({ state })
     stackedIntervals.push({ ...interval, layer });
   });
 
+  // Calculate max layer for dynamic height
+  const maxLayer = stackedIntervals.length > 0 
+    ? Math.max(...stackedIntervals.map(i => i.layer)) 
+    : 0;
+
   // Calculate ticks
   const ticks = [];
-  for (let i = Math.floor(paddedMin); i <= Math.ceil(paddedMax); i++) {
+  const tickStep = totalSpan > 15 ? Math.ceil(totalSpan / 10) : 1;
+  for (let i = Math.floor(paddedMin); i <= Math.ceil(paddedMax); i += tickStep) {
     ticks.push(i);
   }
 
   return (
     <div className={styles.container}>
       <h3 className={styles.title}>Intervals</h3>
-      <div className={styles.timeline}>
+      <div 
+        className={styles.timeline}
+        style={{ minHeight: `${Math.max(150, (maxLayer + 1) * 35 + 40)}px` }}
+      >
         {intervals.length === 0 ? (
           <div className={styles.empty}>No Intervals</div>
         ) : (

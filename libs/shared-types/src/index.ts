@@ -34,7 +34,9 @@ export type PatternSlug =
     | 'topological-sort'
     | 'union-find'
     | 'trie'
-    | 'monotonic-stack';
+    | 'monotonic-stack'
+    | 'stack'
+    | 'hash-map';
 
 export type Language = 'javascript' | 'python' | 'typescript' | 'go' | 'java' | 'cpp';
 
@@ -42,7 +44,7 @@ export type AccessLevel = 'free' | 'premium';
 
 export type UserRole = 'learner' | 'interviewer' | 'admin' | 'premium';
 
-export type VisualizerType = 'array' | 'linked-list' | 'tree' | 'graph' | 'matrix';
+export type VisualizerType = 'array' | 'linked-list' | 'tree' | 'graph' | 'matrix' | 'hash-map' | 'stack-queue' | 'interval';
 
 // ============================================
 // Problem Types

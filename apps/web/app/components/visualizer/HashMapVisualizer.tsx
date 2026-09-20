@@ -9,6 +9,14 @@ interface HashMapVisualizerProps {
 export const HashMapVisualizer: React.FC<HashMapVisualizerProps> = ({ state }) => {
   const { entries, highlightKeys = [] } = state;
 
+  // Helper to safely strip quotes from stringified values
+  const formatValue = (val: string | number) => {
+    if (typeof val === 'string' && val.startsWith('"') && val.endsWith('"')) {
+      return val.slice(1, -1);
+    }
+    return typeof val === 'string' ? val : JSON.stringify(val);
+  };
+
   return (
     <div className={styles.container}>
       <h3 className={styles.title}>Hash Map</h3>
@@ -30,14 +38,10 @@ export const HashMapVisualizer: React.FC<HashMapVisualizerProps> = ({ state }) =
                 className={`${styles.row} ${isHighlighted ? styles.highlightedRow : ''}`}
               >
                 <div className={`${styles.cell} ${styles.keyCell}`}>
-                  {typeof entry.key === 'string' && entry.key.startsWith('"') 
-                    ? entry.key 
-                    : JSON.stringify(entry.key)}
+                  {formatValue(entry.key)}
                 </div>
                 <div className={styles.cell}>
-                  {typeof entry.value === 'string' && entry.value.startsWith('"') 
-                    ? entry.value 
-                    : JSON.stringify(entry.value)}
+                  {formatValue(entry.value)}
                 </div>
               </div>
             );

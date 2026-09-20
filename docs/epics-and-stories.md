@@ -23,7 +23,7 @@ This document tracks the backlog, epics, and user stories for VisuCode.
 - [ ] **Story**: Implement Hash Map visualizer component.
 - [ ] **Story**: Implement Stack & Queue visualizer component.
 - [ ] **Story**: Implement 1D Array / Interval number-line visualizer.
-- [ ] **Story**: Add 10 problems covering Hashing, Stacks, Queues, Greedy, and Intervals.
+- [ ] **Story**: Add 3 core problems covering Hashing, Stacks, and Intervals.
 
 ### Sprint 4: Advanced Non-Linear Patterns (TODO)
 *Focus: Graphs, BFS, Heaps / Priority Queue, Tries*
