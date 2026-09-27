@@ -77,7 +77,7 @@
   "dryRunSteps": [
     {
       "stepNumber": 1,
-      "line": 34,
+      "line": 36,
       "explanation": "Iterate num = 3 and num = 2. Push into min-heap. Size = 2 (matches k = 2).",
       "variables": [
         { "name": "num", "value": "2", "type": "number" },
@@ -152,7 +152,7 @@
     },
     {
       "stepNumber": 6,
-      "line": 39,
+      "line": 41,
       "explanation": "All numbers processed. The top of the min-heap (heap[0]) is 5, the 2nd largest element.",
       "variables": [
         { "name": "return", "value": "5", "type": "number" }

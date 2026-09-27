@@ -178,7 +178,7 @@
     },
     {
       "stepNumber": 5,
-      "line": 16,
+      "line": 17,
       "explanation": "Queue is empty. All nodes and edges copied. Return cloned Node 1.",
       "variables": [
         { "name": "queue", "value": "[]", "type": "Array" },
