@@ -280,7 +280,13 @@ Do not ask for merge until every box is checked:
 
 **Active tracker:** [`docs/phase-2-sprint-2-quality-flags.md`](./phase-2-sprint-2-quality-flags.md)
 
-**[PR #11](https://github.com/suvamAdhikary/visucode/pull/11) is `BLOCKED`.** Do not merge. Work the Sprint 2 file, not this section.
+---
+
+## Sprint 3 — Hash map / stack-queue / interval visualizers + 3 problems
+
+**Active tracker:** [`docs/phase-2-sprint-3-quality-flags.md`](./phase-2-sprint-3-quality-flags.md)
+
+**[PR #12](https://github.com/suvamAdhikary/visucode/pull/12) is `READY FOR MERGE`.** Head `5083bdc`. Scope is **3 problems** this sprint. Extra problems later with BE.
 
 ---
 
@@ -299,4 +305,7 @@ Do not ask for merge until every box is checked:
 
 - 2026-09-16: PR #8 blocked (judging, dry runs, hidden errors, freeze, generated files).
 - 2026-09-16: PR #10 (`7b4b732`) re-reviewed. Product logic mostly fixed; remaining blockers are Worker sync fallback, missing comparator tests, `next-env.d.ts` / `file:///` paths. Preview was SSO-gated; freeze behavior still needs a browser check after the fallback is removed.
+- 2026-09-20: PR #12 (`b9979ef`) blocked. See `docs/phase-2-sprint-3-quality-flags.md`.
+- 2026-09-20: PR #12 (`612289b`) re-reviewed. 3-problem scope accepted. Still blocked on `next-env.d.ts` + Two Sum catalog pattern. Multi-pattern rule documented.
+- 2026-09-27: PR #12 (`5083bdc`) ready to merge. `next-env.d.ts` matches main; Two Sum index is `hash-map`. See Sprint 3 file.
 - Owner of this tracker: update statuses in the same PR that fixes the flag.

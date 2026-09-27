@@ -1,0 +1,221 @@
+{
+  "slug": "merge-intervals",
+  "title": "Merge Intervals",
+  "difficulty": "Medium",
+  "category": "array",
+  "patterns": [
+    "greedy"
+  ],
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "description": "Given an array of `intervals` where `intervals[i] = [starti, endi]`, merge all overlapping intervals.",
+  "examples": [
+    {
+      "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+      "output": "[[1,6],[8,10],[15,18]]"
+    }
+  ],
+  "constraints": [],
+  "hints": [
+    "Sort intervals by their start times first."
+  ],
+  "starterCode": {
+    "javascript": "function merge(intervals) {\n    // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "code": "function merge(intervals) {\n    if (!intervals.length) return [];\n    intervals.sort((a, b) => a[0] - b[0]);\n    const res = [intervals[0]];\n    for (let i = 1; i < intervals.length; i++) {\n        const last = res[res.length - 1];\n        const curr = intervals[i];\n        if (curr[0] <= last[1]) last[1] = Math.max(last[1], curr[1]);\n        else res.push(curr);\n    }\n    return res;\n}",
+      "timeComplexity": "O(N log N)",
+      "spaceComplexity": "O(1)"
+    }
+  ],
+  "testCases": [
+    {
+      "id": "1",
+      "input": "[[[1,3],[2,6],[8,10],[15,18]]]",
+      "expected": "[[1,6],[8,10],[15,18]]"
+    },
+    {
+      "id": "2",
+      "input": "[[[1,4],[4,5]]]",
+      "expected": "[[1,5]]"
+    },
+    {
+      "id": "3",
+      "input": "[[[1,4],[0,4]]]",
+      "expected": "[[0,4]]"
+    }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 3,
+      "variables": [],
+      "explanation": "Sort the intervals by their start time. They are already sorted.",
+      "intervalState": {
+        "intervals": [
+          {
+            "id": "1",
+            "start": 1,
+            "end": 3,
+            "label": "[1,3]"
+          },
+          {
+            "id": "2",
+            "start": 2,
+            "end": 6,
+            "label": "[2,6]"
+          },
+          {
+            "id": "3",
+            "start": 8,
+            "end": 10,
+            "label": "[8,10]"
+          },
+          {
+            "id": "4",
+            "start": 15,
+            "end": 18,
+            "label": "[15,18]"
+          }
+        ]
+      }
+    },
+    {
+      "stepNumber": 2,
+      "line": 4,
+      "variables": [],
+      "explanation": "Initialize the result array with the first interval [1, 3].",
+      "intervalState": {
+        "intervals": [
+          {
+            "id": "1",
+            "start": 1,
+            "end": 3,
+            "label": "[1,3]",
+            "color": "var(--color-accent)"
+          },
+          {
+            "id": "2",
+            "start": 2,
+            "end": 6,
+            "label": "[2,6]"
+          },
+          {
+            "id": "3",
+            "start": 8,
+            "end": 10,
+            "label": "[8,10]"
+          },
+          {
+            "id": "4",
+            "start": 15,
+            "end": 18,
+            "label": "[15,18]"
+          }
+        ]
+      }
+    },
+    {
+      "stepNumber": 3,
+      "line": 8,
+      "variables": [],
+      "explanation": "Next interval [2, 6] starts at 2, which is <= the last interval's end (3). So we merge them by taking the max end: Math.max(3, 6) = 6.",
+      "intervalState": {
+        "intervals": [
+          {
+            "id": "1",
+            "start": 1,
+            "end": 6,
+            "label": "[1,6] (Merged)",
+            "color": "var(--color-accent)"
+          },
+          {
+            "id": "3",
+            "start": 8,
+            "end": 10,
+            "label": "[8,10]"
+          },
+          {
+            "id": "4",
+            "start": 15,
+            "end": 18,
+            "label": "[15,18]"
+          }
+        ]
+      }
+    },
+    {
+      "stepNumber": 4,
+      "line": 9,
+      "variables": [],
+      "explanation": "Next interval [8, 10] starts at 8, which is > the last interval's end (6). No overlap, so we push it to the result.",
+      "intervalState": {
+        "intervals": [
+          {
+            "id": "1",
+            "start": 1,
+            "end": 6,
+            "label": "[1,6]",
+            "color": "var(--color-accent)"
+          },
+          {
+            "id": "3",
+            "start": 8,
+            "end": 10,
+            "label": "[8,10]",
+            "color": "var(--color-accent)"
+          },
+          {
+            "id": "4",
+            "start": 15,
+            "end": 18,
+            "label": "[15,18]"
+          }
+        ]
+      }
+    },
+    {
+      "stepNumber": 5,
+      "line": 9,
+      "variables": [],
+      "explanation": "Next interval [15, 18] starts at 15, which is > the last interval's end (10). No overlap, so we push it to the result.",
+      "intervalState": {
+        "intervals": [
+          {
+            "id": "1",
+            "start": 1,
+            "end": 6,
+            "label": "[1,6]",
+            "color": "var(--color-accent)"
+          },
+          {
+            "id": "3",
+            "start": 8,
+            "end": 10,
+            "label": "[8,10]",
+            "color": "var(--color-accent)"
+          },
+          {
+            "id": "4",
+            "start": 15,
+            "end": 18,
+            "label": "[15,18]",
+            "color": "var(--color-accent)"
+          }
+        ]
+      }
+    }
+  ],
+  "externalLinks": [
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/merge-intervals/"
+    }
+  ],
+  "realWorldUseCases": [],
+  "accessLevel": "free"
+}

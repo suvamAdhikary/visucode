@@ -33,6 +33,9 @@ describe('Problem JSON Validation', () => {
     'find-minimum-rotated-sorted-array',
     'koko-eating-bananas',
     'find-peak-element',
+    'two-sum',
+    'valid-parentheses',
+    'merge-intervals',
   ];
 
   it('should have all expected problem files', () => {
@@ -84,6 +87,9 @@ describe('Problem JSON Validation', () => {
         'dfs',
         'bfs',
         'dynamic-programming',
+        'greedy',
+        'stack',
+        'hash-map',
       ];
       const patterns = problem.patterns as string[];
       expect(patterns.length).toBeGreaterThan(0);

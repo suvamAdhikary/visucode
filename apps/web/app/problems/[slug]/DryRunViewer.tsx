@@ -11,6 +11,9 @@ import type { Problem } from '@visucode/shared-types';
 import { ArrayVisualizer } from '../../components/visualizer/ArrayVisualizer';
 import { LinkedListVisualizer } from '../../components/visualizer/LinkedListVisualizer';
 import { TreeVisualizer } from '../../components/visualizer/TreeVisualizer';
+import { HashMapVisualizer } from '../../components/visualizer/HashMapVisualizer';
+import { StackQueueVisualizer } from '../../components/visualizer/StackQueueVisualizer';
+import { IntervalVisualizer } from '../../components/visualizer/IntervalVisualizer';
 import { StepController } from '../../components/visualizer/StepController';
 import { VariableInspector } from '../../components/visualizer/VariableInspector';
 import { CodeViewer } from '../../components/editor/CodeViewer';
@@ -95,6 +98,21 @@ export function DryRunViewer({ problem }: DryRunViewerProps) {
             treeState={step.treeState}
             pointers={step.pointers}
             accentColor={accentColor}
+          />
+        )}
+        {step?.hashMapState && (
+          <HashMapVisualizer
+            state={step.hashMapState}
+          />
+        )}
+        {step?.stackQueueState && (
+          <StackQueueVisualizer
+            state={step.stackQueueState}
+          />
+        )}
+        {step?.intervalState && (
+          <IntervalVisualizer
+            state={step.intervalState}
           />
         )}
       </div>
