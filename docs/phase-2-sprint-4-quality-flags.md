@@ -89,4 +89,23 @@ None. All merge blockers resolved.
 - [x] `problem-json-validation.spec.ts` pattern allowlist updated
 - [x] `npx nx test web` all passing (413/413)
 - [x] `npx nx build web` succeeds with 0 errors
-- [x] Live UI verification of new visualizers and pattern pages
+- [x] Live UI visual verification in browser completed (Graph, Heap, Trie, pattern routes)
+
+---
+
+## Past PR Review Comments Regression Prevention Audit
+
+| Historical Flag | Review Comment / Risk | How Prevented in Sprint 4 | Status |
+| --- | --- | --- | --- |
+| **F-P2S3-04 / F-P2S1-05** | `next-env.d.ts` dev churn (`./.next/dev/types/routes.d.ts`) | Reverted to exact `origin/main` (`./.next/types/routes.d.ts`). 0 diff vs `main`. | ✅ VERIFIED |
+| **F-P2S1-07** | Local machine paths or scratch files committed | No scratch files, zero `file:///` or machine-specific paths in committed markdown/docs. | ✅ VERIFIED |
+| **F-P2S2-04** | Malformed `externalLinks` causing crash | All problems use standard `{ platform: "leetcode", url: "https://leetcode.com/problems/..." }` format with valid problem URLs. | ✅ VERIFIED |
+| **F-P2S2-05** | `starterCode` full solution leak | `starterCode` is strictly a signature stub (`// Your code here`). Full solutions reside only in `solutions[0].code`. | ✅ VERIFIED |
+| **F-P2S3-01** | Placeholder / stub problems | Exactly the 3 scoped problems implemented with full explanations, solutions, test cases, and dry-run steps. Zero placeholder files. | ✅ VERIFIED |
+| **F-P2S3-02 / F-P2S3-10** | Pattern array dual-write mismatch | `PROBLEM_INDEX.patterns` in `problem.service.ts` exactly matches the JSON `patterns` array for all 3 problems. Multi-pattern array integrity maintained. | ✅ VERIFIED |
+| **F-P2S3-03** | Dry-run line numbers pointing to declarations/empty lines | All dry run steps audited and aligned directly with executable statement line numbers in `solutions[0].code`. | ✅ VERIFIED |
+| **F-P2S2-02 / F-P2S2-03** | Dry run states vanishing halfway through | Every step preserves complete structural state (`graphState`, `heapState`, `trieState`) showing step-by-step state transitions without empty arrays. | ✅ VERIFIED |
+| **F-P2S3-06** | Visualizer typing & layout overflow | Visualizers are strictly typed (`React.FC<...Props>`), responsive SVG/CSS layouts with zero layout shifts or broken transforms. | ✅ VERIFIED |
+| **F-P2S3-08** | Infinite pulse animations without `prefers-reduced-motion` | New visualizer CSS modules contain zero infinite pulse animations; discrete state transitions only. | ✅ VERIFIED |
+| **F-P2S3-05** | Official solutions failing test cases | All official solutions passed all test cases via `problem-json-validation.spec.ts` (413/413 tests passed). | ✅ VERIFIED |
+
