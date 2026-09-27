@@ -1,0 +1,208 @@
+{
+  "slug": "implement-trie-prefix-tree",
+  "title": "Implement Trie (Prefix Tree)",
+  "difficulty": "Medium",
+  "category": "tree",
+  "patterns": [
+    "trie"
+  ],
+  "companies": [
+    "Google",
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Twitter"
+  ],
+  "description": "A **trie** (pronounced as \"try\") or **prefix tree** is a tree data structure used to efficiently store and retrieve keys in a dataset of strings. There are various applications of this data structure, such as autocomplete and spellchecker.\n\nImplement the Trie class:\n- `Trie()` Initializes the trie object.\n- `void insert(String word)` Inserts the string `word` into the trie.\n- `boolean search(String word)` Returns `true` if the string `word` is in the trie (i.e., was inserted before), and `false` otherwise.\n- `boolean startsWith(String prefix)` Returns `true` if there is a previously inserted string `word` that has the prefix `prefix`, and `false` otherwise.",
+  "examples": [
+    {
+      "input": "commands = [\"Trie\", \"insert\", \"search\", \"search\", \"startsWith\", \"insert\", \"search\"], args = [[], [\"apple\"], [\"apple\"], [\"app\"], [\"app\"], [\"app\"], [\"app\"]]",
+      "output": "[null, null, true, false, true, null, true]",
+      "explanation": "Trie trie = new Trie();\ntrie.insert(\"apple\");\ntrie.search(\"apple\");   // return True\ntrie.search(\"app\");     // return False\ntrie.startsWith(\"app\"); // return True\ntrie.insert(\"app\");\ntrie.search(\"app\");     // return True"
+    }
+  ],
+  "constraints": [
+    "1 <= word.length, prefix.length <= 2000",
+    "word and prefix consist only of lowercase English letters.",
+    "At most 3 * 10^4 calls in total will be made to insert, search, and startsWith."
+  ],
+  "hints": [
+    "Each node has a map of child nodes by character and a boolean flag indicating if it ends a complete word.",
+    "For startsWith, traverse the prefix. If every character is present, return true even if isEndOfWord is false.",
+    "For search, traverse the word and ensure the final node has isEndOfWord set to true."
+  ],
+  "externalLinks": [
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/implement-trie-prefix-tree/"
+    }
+  ],
+  "starterCode": {
+    "javascript": "function Trie() {\n    this.children = {};\n    this.isEnd = false;\n}\n\n/** \n * @param {string} word\n * @return {void}\n */\nTrie.prototype.insert = function(word) {\n    // Your code here\n};\n\n/** \n * @param {string} word\n * @return {boolean}\n */\nTrie.prototype.search = function(word) {\n    // Your code here\n};\n\n/** \n * @param {string} prefix\n * @return {boolean}\n */\nTrie.prototype.startsWith = function(prefix) {\n    // Your code here\n};"
+  },
+  "wrapperCode": {
+    "javascript": "function __execute(commands, args) {\n    let trie = null;\n    const res = [];\n    for (let i = 0; i < commands.length; i++) {\n        const cmd = commands[i];\n        const arg = args[i];\n        if (cmd === 'Trie') {\n            trie = new Trie();\n            res.push(null);\n        } else if (cmd === 'insert') {\n            trie.insert(arg[0]);\n            res.push(null);\n        } else if (cmd === 'search') {\n            res.push(trie.search(arg[0]));\n        } else if (cmd === 'startsWith') {\n            res.push(trie.startsWith(arg[0]));\n        }\n    }\n    return res;\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "timeComplexity": "O(L) per operation",
+      "spaceComplexity": "O(N * L)",
+      "explanation": "Store characters in a tree hierarchy where each edge represents a letter. Maintain an isEnd flag to distinguish complete words from prefixes.",
+      "code": "function Trie() {\n    this.children = {};\n    this.isEnd = false;\n}\n\nTrie.prototype.insert = function(word) {\n    let curr = this;\n    for (const ch of word) {\n        if (!curr.children[ch]) {\n            curr.children[ch] = new Trie();\n        }\n        curr = curr.children[ch];\n    }\n    curr.isEnd = true;\n};\n\nTrie.prototype.search = function(word) {\n    let curr = this;\n    for (const ch of word) {\n        if (!curr.children[ch]) return false;\n        curr = curr.children[ch];\n    }\n    return curr.isEnd === true;\n};\n\nTrie.prototype.startsWith = function(prefix) {\n    let curr = this;\n    for (const ch of prefix) {\n        if (!curr.children[ch]) return false;\n        curr = curr.children[ch];\n    }\n    return true;\n};"
+    }
+  ],
+  "testCases": [
+    {
+      "id": "tc1",
+      "input": "[[\"Trie\",\"insert\",\"search\",\"search\",\"startsWith\",\"insert\",\"search\"], [[],[\"apple\"],[\"apple\"],[\"app\"],[\"app\"],[\"app\"],[\"app\"]]]",
+      "expected": "[null,null,true,false,true,null,true]"
+    },
+    {
+      "id": "tc2",
+      "input": "[[\"Trie\",\"insert\",\"search\",\"startsWith\"], [[],[\"hello\"],[\"hell\"],[\"hel\"]]]",
+      "expected": "[null,null,false,true]"
+    },
+    {
+      "id": "tc3",
+      "input": "[[\"Trie\",\"search\",\"startsWith\"], [[],[\"a\"],[\"a\"]]]",
+      "expected": "[null,false,false]"
+    }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 1,
+      "explanation": "Initialize Trie root with empty children map.",
+      "variables": [
+        { "name": "root", "value": "TrieNode(root)", "type": "Trie" }
+      ],
+      "trieState": {
+        "rootId": "root",
+        "nodes": [
+          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": {} }
+        ],
+        "activeNodeId": "root"
+      }
+    },
+    {
+      "stepNumber": 2,
+      "line": 6,
+      "explanation": "insert(\"apple\"): add nodes for 'a', 'p', 'p', 'l', 'e'. Set isEndOfWord = true on 'e'.",
+      "variables": [
+        { "name": "word", "value": "\"apple\"", "type": "string" },
+        { "name": "curr.isEnd", "value": "true", "type": "boolean" }
+      ],
+      "trieState": {
+        "rootId": "root",
+        "matchedPrefix": "apple",
+        "activeNodeId": "e",
+        "nodes": [
+          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
+          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
+          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
+          { "id": "p2", "char": "p", "isEndOfWord": false, "childrenIds": { "l": "l" } },
+          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
+          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+        ]
+      }
+    },
+    {
+      "stepNumber": 3,
+      "line": 17,
+      "explanation": "search(\"apple\"): traverse down root -> a -> p -> p -> l -> e. Node 'e' has isEnd = true. Return true.",
+      "variables": [
+        { "name": "search", "value": "\"apple\"", "type": "string" },
+        { "name": "return", "value": "true", "type": "boolean" }
+      ],
+      "trieState": {
+        "rootId": "root",
+        "matchedPrefix": "apple",
+        "activeNodeId": "e",
+        "nodes": [
+          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
+          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
+          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
+          { "id": "p2", "char": "p", "isEndOfWord": false, "childrenIds": { "l": "l" } },
+          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
+          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+        ]
+      }
+    },
+    {
+      "stepNumber": 4,
+      "line": 17,
+      "explanation": "search(\"app\"): traverse root -> a -> p -> p. Node 'p' exists but isEnd = false. Return false.",
+      "variables": [
+        { "name": "search", "value": "\"app\"", "type": "string" },
+        { "name": "curr.isEnd", "value": "false", "type": "boolean" },
+        { "name": "return", "value": "false", "type": "boolean" }
+      ],
+      "trieState": {
+        "rootId": "root",
+        "matchedPrefix": "app",
+        "activeNodeId": "p2",
+        "nodes": [
+          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
+          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
+          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
+          { "id": "p2", "char": "p", "isEndOfWord": false, "childrenIds": { "l": "l" } },
+          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
+          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+        ]
+      }
+    },
+    {
+      "stepNumber": 5,
+      "line": 26,
+      "explanation": "startsWith(\"app\"): traverse root -> a -> p -> p. All characters exist in path. Return true.",
+      "variables": [
+        { "name": "prefix", "value": "\"app\"", "type": "string" },
+        { "name": "return", "value": "true", "type": "boolean" }
+      ],
+      "trieState": {
+        "rootId": "root",
+        "matchedPrefix": "app",
+        "activeNodeId": "p2",
+        "nodes": [
+          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
+          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
+          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
+          { "id": "p2", "char": "p", "isEndOfWord": false, "childrenIds": { "l": "l" } },
+          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
+          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+        ]
+      }
+    },
+    {
+      "stepNumber": 6,
+      "line": 14,
+      "explanation": "insert(\"app\"): traverse root -> a -> p -> p. Mark isEndOfWord = true on 'p'. Now search(\"app\") returns true.",
+      "variables": [
+        { "name": "word", "value": "\"app\"", "type": "string" },
+        { "name": "curr.isEnd", "value": "true", "type": "boolean" }
+      ],
+      "trieState": {
+        "rootId": "root",
+        "matchedPrefix": "app",
+        "activeNodeId": "p2",
+        "nodes": [
+          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
+          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
+          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
+          { "id": "p2", "char": "p", "isEndOfWord": true, "childrenIds": { "l": "l" } },
+          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
+          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+        ]
+      }
+    }
+  ],
+  "realWorldUseCases": [
+    {
+      "company": "Chrome",
+      "scenario": "URL Omnibox History & Suggestions",
+      "description": "Fast keystroke-by-keystroke prefix lookups using an in-memory Trie data structure."
+    }
+  ],
+  "accessLevel": "free"
+}

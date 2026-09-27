@@ -7,3 +7,6 @@ export { TreeVisualizer } from './TreeVisualizer';
 export { HashMapVisualizer } from './HashMapVisualizer';
 export { StackQueueVisualizer } from './StackQueueVisualizer';
 export { IntervalVisualizer } from './IntervalVisualizer';
+export { GraphVisualizer } from './GraphVisualizer';
+export { TrieVisualizer } from './TrieVisualizer';
+export { HeapVisualizer } from './HeapVisualizer';

@@ -224,6 +224,88 @@ const PATTERNS: Pattern[] = [
     problems: ['merge-intervals'],
     visualizerType: 'interval',
     color: '#f43f5e',
+  },
+  {
+    slug: 'bfs',
+    name: 'Breadth-First Search',
+    description: 'Explore a graph or tree level by level using a queue. Guarantees finding the shortest path on unweighted graphs.',
+    pseudocode: `function bfs(startNode):
+  queue = [startNode]
+  visited = new Set([startNode])
+  
+  while queue.length > 0:
+    node = queue.shift()
+    for neighbor in node.neighbors:
+      if neighbor not in visited:
+        visited.add(neighbor)
+        queue.push(neighbor)`,
+    timeComplexity: 'O(V + E)',
+    spaceComplexity: 'O(V)',
+    whenToUse: ['Shortest path in unweighted graphs', 'Level-order traversal', 'Finding nearest neighbors'],
+    realWorldUseCases: [
+      {
+        company: 'LinkedIn',
+        scenario: 'Connection Degrees',
+        description: 'Finding 1st, 2nd, and 3rd degree professional connections using level-order graph search.'
+      }
+    ],
+    problems: ['clone-graph'],
+    visualizerType: 'graph',
+    color: '#38bdf8',
+  },
+  {
+    slug: 'trie',
+    name: 'Trie (Prefix Tree)',
+    description: 'A tree-like data structure used to store a dynamic set or associative array where the keys are usually strings. Efficient for prefix-based searches and auto-completion.',
+    pseudocode: `class TrieNode:
+  children = {}
+  isEndOfWord = false
+
+function insert(word):
+  node = root
+  for char in word:
+    if char not in node.children:
+      node.children[char] = new TrieNode()
+    node = node.children[char]
+  node.isEndOfWord = true`,
+    timeComplexity: 'O(L) per operation',
+    spaceComplexity: 'O(N * L)',
+    whenToUse: ['Autocomplete and typeahead search', 'Spell checkers', 'Prefix matching IP routing'],
+    realWorldUseCases: [
+      {
+        company: 'Google',
+        scenario: 'Search Autocomplete',
+        description: 'Suggesting search queries in real-time as users type based on frequency and prefix matching in a Trie.'
+      }
+    ],
+    problems: ['implement-trie-prefix-tree'],
+    visualizerType: 'trie',
+    color: '#c084fc',
+  },
+  {
+    slug: 'heap',
+    name: 'Heap / Priority Queue',
+    description: 'A specialized tree-based data structure that satisfies the heap property. In a min-heap, the root is the minimum element, enabling O(1) retrieval and O(log N) insertion/deletion.',
+    pseudocode: `function solve(nums, k):
+  minHeap = new MinHeap()
+  for num in nums:
+    minHeap.push(num)
+    if minHeap.size() > k:
+      minHeap.pop()
+  return minHeap.peek()`,
+    timeComplexity: 'O(N log K)',
+    spaceComplexity: 'O(K)',
+    whenToUse: ['Top K elements', 'Merge K sorted streams', 'Task scheduling with priorities'],
+    realWorldUseCases: [
+      {
+        company: 'Uber',
+        scenario: 'Nearest Driver Dispatch',
+        description: 'Maintaining a priority queue of closest available drivers to dispatch the nearest driver efficiently.'
+      }
+    ],
+    problems: ['kth-largest-element-in-an-array'],
+    visualizerType: 'heap',
+    color: '#f59e0b',
   }
 ];
 

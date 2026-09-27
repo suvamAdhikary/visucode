@@ -25,11 +25,12 @@ This document tracks the backlog, epics, and user stories for VisuCode.
 - [x] **Story**: Implement 1D Array / Interval number-line visualizer.
 - [x] **Story**: Add 3 core problems covering Hashing, Stacks, and Intervals.
 
-### Sprint 4: Advanced Non-Linear Patterns (TODO)
+### Sprint 4: Advanced Non-Linear Patterns (DONE)
 *Focus: Graphs, BFS, Heaps / Priority Queue, Tries*
-- [ ] **Story**: Implement Graph visualizer (nodes + edges mapping).
-- [ ] **Story**: Upgrade Tree visualizer to support Tries and Heap (Array-to-Tree) representations.
-- [ ] **Story**: Add 10 problems covering Graphs, BFS, Heaps, and Tries.
+- [x] **Story**: Implement Graph visualizer (nodes + edges mapping).
+- [x] **Story**: Implement Trie visualizer (prefix tree nodes + char transitions).
+- [x] **Story**: Implement Heap visualizer (1D array indexing + complete binary tree hierarchy).
+- [x] **Story**: Add 3 core problems covering Graphs, Heaps, and Tries (Clone Graph, Kth Largest Element, Implement Trie).
 
 ### Sprint 5: Complex Paradigms (TODO)
 *Focus: Dynamic Programming (1D & 2D), Backtracking*
