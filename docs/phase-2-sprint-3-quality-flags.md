@@ -12,11 +12,11 @@ Sprint 2 is tracked in [`docs/phase-2-sprint-2-quality-flags.md`](./phase-2-spri
 
 | Item | Verdict |
 | --- | --- |
-| **[PR #12](https://github.com/suvamAdhikary/visucode/pull/12)** — `feature/phase-2-sprint-3` → `main` | **READY FOR MERGE — all flags fixed** |
-| **CI** | Vercel preview Ready — **not a product pass**. Confirm `npx nx test web` locally. |
-| **Reviewed** | 2026-09-20 (initial `b9979ef`) · 2026-09-20 (re-review `612289b`) · 2026-09-27 (final fixes) |
+| **[PR #12](https://github.com/suvamAdhikary/visucode/pull/12)** — `feature/phase-2-sprint-3` → `main` · head `5083bdc` | **READY FOR MERGE** |
+| **CI** | Vercel preview Ready. Confirm `npx nx test web` locally before merge. |
+| **Reviewed** | 2026-09-20 (`b9979ef`) · 2026-09-20 (`612289b`) · 2026-09-27 (`5083bdc`) |
 
-`612289b` fixed placeholders, catalog wiring, dry runs, validation allowlist, and visualizer typing. `next-env.d.ts` reverted and Two Sum catalog `patterns` synchronized with JSON.
+`5083bdc` cleared the last two blockers: `next-env.d.ts` matches `main` (`./.next/types/routes.d.ts`, not in the PR diff) and Two Sum `PROBLEM_INDEX.patterns` is `['hash-map']` (same as `two-sum.json`). Earlier `612289b` already fixed placeholders, dry runs, allowlist, and visualizer typing.
 
 Preview: [visucode-git-feature-phase-2-sprint-3-…](https://visucode-git-feature-phase-2-sprint-3-suvamadhikarys-projects.vercel.app)
 
@@ -168,5 +168,5 @@ Copy when asking for re-review:
 
 - 2026-09-20: PR #12 (`b9979ef`) blocked. 7/10 problems are placeholders. `PROBLEM_INDEX` unchanged. Dry-run mismatches. `next-env.d.ts` + generator. Untyped visualizers.
 - 2026-09-20: PR #12 (`612289b`) re-reviewed. Placeholders gone; 3 problems accepted. Dry runs, allowlist, visualizer typing fixed. Still blocked: `next-env.d.ts`, Two Sum index vs JSON pattern. Multi-pattern: types/UI already arrays; pattern pages now union the index.
-- 2026-09-27: Final review passed. `next-env.d.ts` reverted, Two Sum `patterns` aligned to `['hash-map']`, roadmap updated. All blockers resolved. PR #12 ready to merge.
+- 2026-09-27: `5083bdc` claimed the last two flags fixed. Independent re-review confirmed: `next-env.d.ts` identical to `main`; Two Sum catalog is `hash-map`. Parent tracker was still saying BLOCKED at `612289b` — flip that. PR #12 ready to merge.
 - Owner: update statuses in the same PR that fixes the flag. Do not delete flags.
