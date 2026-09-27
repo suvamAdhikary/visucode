@@ -206,7 +206,7 @@ const PROBLEM_INDEX: Array<{
     title: 'Two Sum',
     difficulty: 'Easy',
     category: 'hash-map',
-    patterns: ['two-pointers'],
+    patterns: ['hash-map'],
     companies: ['Amazon', 'Google', 'Meta'],
     accessLevel: 'free',
   },

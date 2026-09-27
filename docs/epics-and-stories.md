@@ -18,12 +18,12 @@ This document tracks the backlog, epics, and user stories for VisuCode.
 - [x] **Story**: Add 5 more problems requiring Linked List / Tree visualizers (total 20).
 - [x] **Story**: Integrate visualizer components seamlessly into the Dry Run viewer.
 
-### Sprint 3: Linear & Hashing Patterns (TODO)
+### Sprint 3: Linear & Hashing Patterns (DONE)
 *Focus: Arrays & Hashing, Stack / Queue, Greedy / Intervals*
-- [ ] **Story**: Implement Hash Map visualizer component.
-- [ ] **Story**: Implement Stack & Queue visualizer component.
-- [ ] **Story**: Implement 1D Array / Interval number-line visualizer.
-- [ ] **Story**: Add 3 core problems covering Hashing, Stacks, and Intervals.
+- [x] **Story**: Implement Hash Map visualizer component.
+- [x] **Story**: Implement Stack & Queue visualizer component.
+- [x] **Story**: Implement 1D Array / Interval number-line visualizer.
+- [x] **Story**: Add 3 core problems covering Hashing, Stacks, and Intervals.
 
 ### Sprint 4: Advanced Non-Linear Patterns (TODO)
 *Focus: Graphs, BFS, Heaps / Priority Queue, Tries*
