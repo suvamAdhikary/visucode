@@ -36,7 +36,9 @@ export type PatternSlug =
     | 'trie'
     | 'monotonic-stack'
     | 'stack'
-    | 'hash-map';
+    | 'hash-map'
+    | 'heap'
+    | 'graph';
 
 export type Language = 'javascript' | 'python' | 'typescript' | 'go' | 'java' | 'cpp';
 
@@ -44,7 +46,7 @@ export type AccessLevel = 'free' | 'premium';
 
 export type UserRole = 'learner' | 'interviewer' | 'admin' | 'premium';
 
-export type VisualizerType = 'array' | 'linked-list' | 'tree' | 'graph' | 'matrix' | 'hash-map' | 'stack-queue' | 'interval';
+export type VisualizerType = 'array' | 'linked-list' | 'tree' | 'graph' | 'matrix' | 'hash-map' | 'stack-queue' | 'interval' | 'trie' | 'heap';
 
 // ============================================
 // Problem Types
@@ -156,6 +158,51 @@ export interface IntervalVisualizerState {
     rangeEnd?: number; // Maximum X axis bound
 }
 
+export interface GraphNode {
+    id: string;
+    label: string;
+    x?: number; // Normalized coordinate 0-100 for SVG positioning
+    y?: number;
+}
+
+export interface GraphEdge {
+    source: string;
+    target: string;
+    weight?: number | string;
+    directed?: boolean;
+    highlighted?: boolean;
+}
+
+export interface GraphVisualizerState {
+    nodes: GraphNode[];
+    edges: GraphEdge[];
+    activeNodeId?: string;
+    visitedNodeIds?: string[];
+    queueNodeIds?: string[]; // Frontier / Queue in BFS
+}
+
+export interface TrieNode {
+    id: string;
+    char: string;
+    isEndOfWord: boolean;
+    childrenIds: Record<string, string>; // char -> child node id
+}
+
+export interface TrieVisualizerState {
+    nodes: TrieNode[];
+    rootId: string;
+    activeNodeId?: string;
+    matchedPrefix?: string;
+}
+
+export interface HeapVisualizerState {
+    elements: (number | string)[];
+    heapType: 'min' | 'max';
+    highlightIndices?: number[];
+    compareIndices?: [number, number];
+    swapIndices?: [number, number];
+}
+
 export interface DryRunStep {
     stepNumber: number;
     line: number; // Which code line is executing
@@ -166,6 +213,9 @@ export interface DryRunStep {
     hashMapState?: HashMapVisualizerState;
     stackQueueState?: StackQueueVisualizerState;
     intervalState?: IntervalVisualizerState;
+    graphState?: GraphVisualizerState;
+    trieState?: TrieVisualizerState;
+    heapState?: HeapVisualizerState;
     explanation: string; // Short — "Moving left pointer from 0 to 1"
     pointers?: Pointer[];
 }

@@ -228,6 +228,33 @@ const PROBLEM_INDEX: Array<{
     companies: ['Google', 'Amazon'],
     accessLevel: 'free',
   },
+  {
+    slug: 'clone-graph',
+    title: 'Clone Graph',
+    difficulty: 'Medium',
+    category: 'graph',
+    patterns: ['bfs', 'graph'],
+    companies: ['Meta', 'Amazon', 'Google', 'Microsoft'],
+    accessLevel: 'free',
+  },
+  {
+    slug: 'kth-largest-element-in-an-array',
+    title: 'Kth Largest Element in an Array',
+    difficulty: 'Medium',
+    category: 'heap',
+    patterns: ['heap'],
+    companies: ['Amazon', 'Meta', 'Google', 'Apple', 'Microsoft'],
+    accessLevel: 'free',
+  },
+  {
+    slug: 'implement-trie-prefix-tree',
+    title: 'Implement Trie (Prefix Tree)',
+    difficulty: 'Medium',
+    category: 'tree',
+    patterns: ['trie'],
+    companies: ['Google', 'Amazon', 'Microsoft', 'Meta', 'Twitter'],
+    accessLevel: 'free',
+  },
   // More problems will be added here as content is created
 ];
 

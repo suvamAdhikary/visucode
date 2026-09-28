@@ -36,6 +36,9 @@ describe('Problem JSON Validation', () => {
     'two-sum',
     'valid-parentheses',
     'merge-intervals',
+    'clone-graph',
+    'kth-largest-element-in-an-array',
+    'implement-trie-prefix-tree',
   ];
 
   it('should have all expected problem files', () => {
@@ -90,6 +93,9 @@ describe('Problem JSON Validation', () => {
         'greedy',
         'stack',
         'hash-map',
+        'heap',
+        'trie',
+        'graph',
       ];
       const patterns = problem.patterns as string[];
       expect(patterns.length).toBeGreaterThan(0);

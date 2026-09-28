@@ -1,0 +1,175 @@
+{
+  "slug": "kth-largest-element-in-an-array",
+  "title": "Kth Largest Element in an Array",
+  "difficulty": "Medium",
+  "category": "heap",
+  "patterns": [
+    "heap"
+  ],
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Google",
+    "Apple",
+    "Microsoft"
+  ],
+  "description": "Given an integer array `nums` and an integer `k`, return the `k`-th largest element in the array.\n\nNote that it is the `k`-th largest element in the sorted order, not the `k`-th distinct element.",
+  "examples": [
+    {
+      "input": "nums = [3,2,1,5,6,4], k = 2",
+      "output": "5",
+      "explanation": "The 2nd largest element in sorted order [1,2,3,4,5,6] is 5."
+    },
+    {
+      "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+      "output": "4"
+    }
+  ],
+  "constraints": [
+    "1 <= k <= nums.length <= 10^5",
+    "-10^4 <= nums[i] <= 10^4"
+  ],
+  "hints": [
+    "Maintain a min-heap of size k as you iterate through the array.",
+    "If the heap size exceeds k, pop the minimum element.",
+    "After iterating through all elements, the top of the min-heap is the kth largest element."
+  ],
+  "externalLinks": [
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/kth-largest-element-in-an-array/"
+    }
+  ],
+  "starterCode": {
+    "javascript": "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nfunction findKthLargest(nums, k) {\n    // Your code here\n}"
+  },
+  "solutions": [
+    {
+      "language": "javascript",
+      "timeComplexity": "O(N log K)",
+      "spaceComplexity": "O(K)",
+      "explanation": "Use a Min-Heap of capacity k. Insert each element into the heap. When the heap size exceeds k, remove the smallest element. The remaining top element is the kth largest.",
+      "code": "function findKthLargest(nums, k) {\n    const heap = [];\n\n    function push(val) {\n        heap.push(val);\n        let i = heap.length - 1;\n        while (i > 0) {\n            let p = Math.floor((i - 1) / 2);\n            if (heap[p] > heap[i]) {\n                [heap[p], heap[i]] = [heap[i], heap[p]];\n                i = p;\n            } else break;\n        }\n    }\n\n    function pop() {\n        if (heap.length <= 1) return heap.pop();\n        const min = heap[0];\n        heap[0] = heap.pop();\n        let i = 0;\n        while (true) {\n            let left = 2 * i + 1;\n            let right = 2 * i + 2;\n            let smallest = i;\n            if (left < heap.length && heap[left] < heap[smallest]) smallest = left;\n            if (right < heap.length && heap[right] < heap[smallest]) smallest = right;\n            if (smallest !== i) {\n                [heap[i], heap[smallest]] = [heap[smallest], heap[i]];\n                i = smallest;\n            } else break;\n        }\n        return min;\n    }\n\n    for (const num of nums) {\n        push(num);\n        if (heap.length > k) {\n            pop();\n        }\n    }\n    return heap[0];\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "id": "tc1",
+      "input": "[[3,2,1,5,6,4], 2]",
+      "expected": "5"
+    },
+    {
+      "id": "tc2",
+      "input": "[[3,2,3,1,2,4,5,5,6], 4]",
+      "expected": "4"
+    },
+    {
+      "id": "tc3",
+      "input": "[[1], 1]",
+      "expected": "1"
+    },
+    {
+      "id": "tc4",
+      "input": "[[7,10,4,3,20,15], 3]",
+      "expected": "10"
+    }
+  ],
+  "dryRunSteps": [
+    {
+      "stepNumber": 1,
+      "line": 36,
+      "explanation": "Iterate num = 3 and num = 2. Push into min-heap. Size = 2 (matches k = 2).",
+      "variables": [
+        { "name": "num", "value": "2", "type": "number" },
+        { "name": "heap", "value": "[2, 3]", "type": "Array" },
+        { "name": "k", "value": "2", "type": "number" }
+      ],
+      "heapState": {
+        "elements": [2, 3],
+        "heapType": "min",
+        "highlightIndices": [0, 1]
+      }
+    },
+    {
+      "stepNumber": 2,
+      "line": 36,
+      "explanation": "Push num = 1. Heap is [1, 3, 2]. Size exceeds k (3 > 2), pop minimum root (1). Heap becomes [2, 3].",
+      "variables": [
+        { "name": "num", "value": "1", "type": "number" },
+        { "name": "popped", "value": "1", "type": "number" },
+        { "name": "heap", "value": "[2, 3]", "type": "Array" }
+      ],
+      "heapState": {
+        "elements": [2, 3],
+        "heapType": "min",
+        "highlightIndices": [0]
+      }
+    },
+    {
+      "stepNumber": 3,
+      "line": 36,
+      "explanation": "Push num = 5. Heap is [2, 3, 5]. Size exceeds k (3 > 2), pop minimum root (2). Heap becomes [3, 5].",
+      "variables": [
+        { "name": "num", "value": "5", "type": "number" },
+        { "name": "popped", "value": "2", "type": "number" },
+        { "name": "heap", "value": "[3, 5]", "type": "Array" }
+      ],
+      "heapState": {
+        "elements": [3, 5],
+        "heapType": "min",
+        "highlightIndices": [0, 1]
+      }
+    },
+    {
+      "stepNumber": 4,
+      "line": 36,
+      "explanation": "Push num = 6. Heap is [3, 5, 6]. Size exceeds k, pop minimum root (3). Heap becomes [5, 6].",
+      "variables": [
+        { "name": "num", "value": "6", "type": "number" },
+        { "name": "popped", "value": "3", "type": "number" },
+        { "name": "heap", "value": "[5, 6]", "type": "Array" }
+      ],
+      "heapState": {
+        "elements": [5, 6],
+        "heapType": "min",
+        "highlightIndices": [0, 1]
+      }
+    },
+    {
+      "stepNumber": 5,
+      "line": 36,
+      "explanation": "Push num = 4. Heap is [4, 6, 5]. Size exceeds k, pop minimum root (4). Heap remains [5, 6].",
+      "variables": [
+        { "name": "num", "value": "4", "type": "number" },
+        { "name": "popped", "value": "4", "type": "number" },
+        { "name": "heap", "value": "[5, 6]", "type": "Array" }
+      ],
+      "heapState": {
+        "elements": [5, 6],
+        "heapType": "min",
+        "highlightIndices": [0]
+      }
+    },
+    {
+      "stepNumber": 6,
+      "line": 41,
+      "explanation": "All numbers processed. The top of the min-heap (heap[0]) is 5, the 2nd largest element.",
+      "variables": [
+        { "name": "return", "value": "5", "type": "number" }
+      ],
+      "heapState": {
+        "elements": [5, 6],
+        "heapType": "min",
+        "highlightIndices": [0]
+      }
+    }
+  ],
+  "realWorldUseCases": [
+    {
+      "company": "Twitter",
+      "scenario": "Trending Topics Leaderboard",
+      "description": "Streaming billions of tweets and maintaining top K hashtags using a bounded min-heap."
+    }
+  ],
+  "accessLevel": "free"
+}

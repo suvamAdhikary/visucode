@@ -14,6 +14,9 @@ import { TreeVisualizer } from '../../components/visualizer/TreeVisualizer';
 import { HashMapVisualizer } from '../../components/visualizer/HashMapVisualizer';
 import { StackQueueVisualizer } from '../../components/visualizer/StackQueueVisualizer';
 import { IntervalVisualizer } from '../../components/visualizer/IntervalVisualizer';
+import { GraphVisualizer } from '../../components/visualizer/GraphVisualizer';
+import { TrieVisualizer } from '../../components/visualizer/TrieVisualizer';
+import { HeapVisualizer } from '../../components/visualizer/HeapVisualizer';
 import { StepController } from '../../components/visualizer/StepController';
 import { VariableInspector } from '../../components/visualizer/VariableInspector';
 import { CodeViewer } from '../../components/editor/CodeViewer';
@@ -29,6 +32,14 @@ const PATTERN_COLORS: Record<string, string> = {
   'two-pointers': '#06b6d4',
   'sliding-window': '#a855f7',
   'binary-search': '#f59e0b',
+  'dfs': '#10b981',
+  'bfs': '#38bdf8',
+  'graph': '#0284c7',
+  'trie': '#c084fc',
+  'heap': '#f59e0b',
+  'hash-map': '#ec4899',
+  'stack': '#3b82f6',
+  'greedy': '#f43f5e',
 };
 
 export function DryRunViewer({ problem }: DryRunViewerProps) {
@@ -113,6 +124,27 @@ export function DryRunViewer({ problem }: DryRunViewerProps) {
         {step?.intervalState && (
           <IntervalVisualizer
             state={step.intervalState}
+          />
+        )}
+        {step?.graphState && (
+          <GraphVisualizer
+            graphState={step.graphState}
+            pointers={step.pointers}
+            accentColor={accentColor}
+          />
+        )}
+        {step?.trieState && (
+          <TrieVisualizer
+            trieState={step.trieState}
+            pointers={step.pointers}
+            accentColor={accentColor}
+          />
+        )}
+        {step?.heapState && (
+          <HeapVisualizer
+            heapState={step.heapState}
+            pointers={step.pointers}
+            accentColor={accentColor}
           />
         )}
       </div>
