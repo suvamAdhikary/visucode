@@ -33,7 +33,7 @@ If any item fails: **do not merge.** Fix on the feature branch, update this file
 | **[PR #8](https://github.com/suvamAdhikary/visucode/pull/8)** | **Superseded.** Do not revive. Buggy Sprint 1. Already merged to `develop` — **do not promote `develop` to `main`.** |
 | **[PR #10](https://github.com/suvamAdhikary/visucode/pull/10)** — `feature/phase-2-sprint-1` → `main` | **READY FOR MERGE** |
 | **Sprint 4** — `feature/phase-2-sprint-4` → `main` | **MERGED** |
-| **Sprint 5** — `feature/phase-2-sprint-5` → `main` | **READY FOR REVIEW** |
+| **Sprint 5** — `feature/phase-2-sprint-5` → `main` | **MERGED** |
 
 All Sprint 1 `BLOCKED` items are now `FIXED`. The PR is structurally sound, testing is green, and safety flags are met. It is ready for final merge.
 

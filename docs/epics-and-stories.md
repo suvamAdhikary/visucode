@@ -3,7 +3,7 @@
 This document tracks the backlog, epics, and user stories for VisuCode.
 
 ## Epic 1: Phase 2 - Advanced Content & Test Runner
-**Status**: IN PROGRESS
+**Status**: DONE
 
 ### Sprint 1: Code Test Runner & Core Problem Set (DONE)
 - [x] **Story**: Implement Monaco editor for user code submission.

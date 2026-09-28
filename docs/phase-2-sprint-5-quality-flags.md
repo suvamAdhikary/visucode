@@ -16,7 +16,7 @@ Working tracker for **Sprint 5 only**. Same quality bar as Sprints 1–4 (`docs/
 
 | Item | Verdict |
 | --- | --- |
-| **Branch** — `feature/phase-2-sprint-5` → `main` | **READY FOR REVIEW** |
+| **Branch** — `feature/phase-2-sprint-5` → `main` | **MERGED** |
 | **CI** | 458/458 tests passing (`npx nx test web`), build passing (`npx nx build web`) |
 | **Reviewed & Verified** | All endpoints return 200, zero 404 pattern badges, 0 diff on `next-env.d.ts` |
 
