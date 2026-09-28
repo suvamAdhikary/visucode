@@ -1,12 +1,12 @@
 # Phase 2 Sprint 4 — Quality Flags
 
-Working tracker for **Sprint 4 only**. Same quality bar as Sprints 1–3: a green Vercel deploy is **not** a merge bar. All solutions must pass their own tests, visualizers must be typed and responsive, and problems must have full test cases and accurate dry-run steps.
+Working tracker for **Sprint 4 only**. Same quality bar as Sprints 1–3 (`docs/phase-2-quality-flags.md`): a green Vercel deploy is **not** a merge bar.
 
-**Scope this PR:**
-1. **Graph visualizer** (SVG node/edge layout, active/visited/queue states).
-2. **Trie visualizer** (hierarchical prefix tree, end-of-word markers, path match).
-3. **Heap visualizer** (dual view: 1D array indexing + complete binary tree).
-4. **Core problem implementations** covering Graph/BFS, Heap, and Trie (Clone Graph, Kth Largest Element in an Array, Implement Trie).
+Sprint 3 is tracked in [`docs/phase-2-sprint-3-quality-flags.md`](./phase-2-sprint-3-quality-flags.md). That does **not** lower the bar for this sprint.
+
+**Scope this PR:** 3 core problems (Clone Graph, Kth Largest Element in an Array, Implement Trie) + Graph / Trie / Heap visualizers. Extra graph/heap/trie problems later with BE. Do not block merge on problem count.
+
+The file that shipped on this branch at `854cf9c` was a **self-checklist** (`READY FOR MERGE — all flags fixed`, 413/413, “live UI verification”). This file is the **independent** review of head `3d6ec26`. Treat the old checkboxes as untrusted until a flag below is `FIXED`.
 
 ---
 
@@ -14,9 +14,28 @@ Working tracker for **Sprint 4 only**. Same quality bar as Sprints 1–3: a gree
 
 | Item | Verdict |
 | --- | --- |
-| **Branch** — `feature/phase-2-sprint-4` → `main` | **READY FOR MERGE — all flags fixed** |
-| **CI** | Tests 413/413 passed (`npx nx test web`), build passed (`npx nx build web`) |
-| **Reviewed & Verified** | 2026-09-28 |
+| **[PR #13](https://github.com/suvamAdhikary/visucode/pull/13)** — `feature/phase-2-sprint-4` → `main` · head `3d6ec26` | **BLOCKED** |
+| **CI** | Vercel preview Ready — **not a product pass**. Independent: `problem-json-validation.spec.ts` **392/392 passed** (includes official solutions for every JSON, including the 3 new problems). Full `npx nx test web` not re-run. |
+| **Reviewed** | 2026-09-28 (`3d6ec26`) |
+
+`3d6ec26` is a real Sprint 4: typed Graph / Trie / Heap visualizers, DryRunViewer wiring, 3 full problem JSONs, catalog + allowlist, `next-env.d.ts` not in the diff. Merge is still blocked: Clone Graph is tagged `graph`, and that badge 404s.
+
+Preview URL is SSO-gated (same as earlier sprints). Do not treat “Vercel Ready” as UI verification.
+
+---
+
+## Dev work (Sprint 4)
+
+### 1. F-P2S4-07 — `graph` pattern badge 404s **BLOCKED**
+
+Clone Graph JSON and `PROBLEM_INDEX` both have `patterns: ['bfs', 'graph']`. The problem page renders each pattern as a link to `/patterns/${p}` (`apps/web/app/problems/[slug]/page.tsx`). `listPatterns()` has **bfs / trie / heap**, not **graph**. `getPattern('graph')` is `null` → `notFound()`.
+
+**Do one of:**
+
+- Add a `slug: 'graph'` entry to `pattern.service.ts` (name, color, `visualizerType: 'graph'`, `problems: ['clone-graph']`), **or**
+- Drop `'graph'` from Clone Graph JSON **and** `PROBLEM_INDEX` (keep `bfs` only) if Graph is not a pattern page this sprint.
+
+Do not leave a clickable `graph` badge on a page this PR ships.
 
 ---
 
@@ -24,88 +43,114 @@ Working tracker for **Sprint 4 only**. Same quality bar as Sprints 1–3: a gree
 
 | Status | Meaning |
 | --- | --- |
-| `BLOCKED` | Must be fixed before PR can merge |
+| `BLOCKED` | Must be fixed before PR #13 can merge |
 | `OPEN` | Known; not merge-blocking if called out |
-| `FIXED` | Verified in code + tests (and browser for UI) |
+| `FIXED` | Verified in **this** review (code; tests/browser when noted) |
 
-### BLOCKED — active work items
+### BLOCKED — still must fix before merge
 
-None. All merge blockers resolved.
+#### F-P2S4-07 — Pattern page missing for tagged slug
 
-### FIXED (verified in code & tests)
+| | |
+| --- | --- |
+| **Status** | `BLOCKED` |
+| **Where** | `clone-graph.json`, `problem.service.ts`, `pattern.service.ts`, `app/problems/[slug]/page.tsx` |
+| **Why** | Multi-pattern arrays are correct; the Graph **page** was never added. `/patterns/bfs` works. `/patterns/graph` 404s. Catalog filter `?pattern=graph` still lists Clone Graph via `PROBLEM_INDEX`. |
+
+### FIXED (verified 2026-09-28, head `3d6ec26`)
 
 #### F-P2S4-01 — Shared types for Sprint 4 visualizers
+
 | | |
 | --- | --- |
 | **Status** | `FIXED` |
 | **Where** | `libs/shared-types/src/index.ts` |
-| **How** | Added `GraphVisualizerState`, `TrieVisualizerState`, `HeapVisualizerState` to `DryRunStep` and extended `PatternSlug` & `VisualizerType`. |
+| **How** | `GraphVisualizerState`, `TrieVisualizerState`, `HeapVisualizerState` on `DryRunStep`. `PatternSlug` includes `bfs` / `trie` / `heap` / `graph`. `VisualizerType` includes `graph` / `trie` / `heap`. |
 
-#### F-P2S4-02 — Implement GraphVisualizer component
+#### F-P2S4-02 — GraphVisualizer implemented
+
 | | |
 | --- | --- |
 | **Status** | `FIXED` |
-| **Where** | `apps/web/app/components/visualizer/GraphVisualizer.tsx` |
-| **How** | SVG rendering of nodes & edges with active, visited, and queue/frontier styling. Fully typed props. |
+| **Where** | `GraphVisualizer.tsx` + `.module.css` |
+| **How** | Typed `React.FC<GraphVisualizerProps>`. SVG nodes/edges, active / visited / queue, circular fallback layout. |
 
-#### F-P2S4-03 — Implement TrieVisualizer component
+#### F-P2S4-03 — TrieVisualizer implemented
+
 | | |
 | --- | --- |
 | **Status** | `FIXED` |
-| **Where** | `apps/web/app/components/visualizer/TrieVisualizer.tsx` |
-| **How** | Prefix tree node hierarchy with char labels, `isEndOfWord` badges, active prefix highlight. |
+| **Where** | `TrieVisualizer.tsx` + `.module.css` |
+| **How** | Typed props. Nested prefix tree, `isEndOfWord` badge, `matchedPrefix` banner. |
 
-#### F-P2S4-04 — Implement HeapVisualizer component
+#### F-P2S4-04 — HeapVisualizer implemented
+
 | | |
 | --- | --- |
 | **Status** | `FIXED` |
-| **Where** | `apps/web/app/components/visualizer/HeapVisualizer.tsx` |
-| **How** | Dual array-and-tree view with parent/child indices and min/max heap comparison indicators. |
+| **Where** | `HeapVisualizer.tsx` + `.module.css` |
+| **How** | Typed props. 1D array cells + level-grouped binary tree. Min/max badge. |
 
-#### F-P2S4-05 — Wire visualizers into DryRunViewer & pattern colors
+#### F-P2S4-05 — DryRunViewer wiring
+
 | | |
 | --- | --- |
 | **Status** | `FIXED` |
-| **Where** | `apps/web/app/problems/[slug]/DryRunViewer.tsx` |
-| **How** | Render new visualizer components when respective state is present on active step; added pattern colors. |
+| **Where** | `DryRunViewer.tsx`, `visualizer/index.ts` |
+| **How** | Renders Graph / Trie / Heap when the active step has `graphState` / `trieState` / `heapState`. Pattern colors for `bfs` / `graph` / `trie` / `heap`. |
 
-#### F-P2S4-06 — Add Sprint 4 problem content & catalog wiring
+#### F-P2S4-06 — Problem content + catalog
+
 | | |
 | --- | --- |
-| **Status** | `FIXED` |
-| **Where** | `apps/web/content/problems/`, `problem.service.ts`, `pattern.service.ts` |
-| **How** | Created `clone-graph.json`, `kth-largest-element-in-an-array.json`, and `implement-trie-prefix-tree.json`. Wired into `PROBLEM_INDEX` and pattern service. |
+| **Status** | `FIXED` *(catalog match; official-solution run still confirm locally)* |
+| **Where** | `clone-graph.json`, `kth-largest-element-in-an-array.json`, `implement-trie-prefix-tree.json`, `problem.service.ts`, `pattern.service.ts`, `problem-json-validation.spec.ts` |
+| **How** | Three full problems (starter stub, solution, ≥3 tests, ≥5 dry-run steps, wrapper where needed). `PROBLEM_INDEX.patterns` matches JSON. Allowlist includes `bfs` / `heap` / `trie` / `graph`. bfs / trie / heap pattern pages list the matching problem. No `next-env.d.ts` in the PR (`./.next/types/routes.d.ts` matches `main`). Official solutions passed in `problem-json-validation.spec.ts` (392/392). |
 
----
+Kth Largest dry-run heap states match the min-heap of size `k=2` on `[3,2,1,5,6,4]` (ends `[5,6]`, return `5`). Trie dry-run matches insert/search/startsWith on `apple` / `app`. Clone Graph BFS queue sizes match the solution until the skipped last dequeue (see OPEN).
 
-## Sprint 4 merge checklist
+### Keep (do not throw away)
 
-- [x] F-P2S4-01 Shared types defined
-- [x] F-P2S4-02 `GraphVisualizer` implemented and styled
-- [x] F-P2S4-03 `TrieVisualizer` implemented and styled
-- [x] F-P2S4-04 `HeapVisualizer` implemented and styled
-- [x] F-P2S4-05 `DryRunViewer` integration complete
-- [x] F-P2S4-06 Problem content complete and passes tests
-- [x] `problem-json-validation.spec.ts` pattern allowlist updated
-- [x] `npx nx test web` all passing (413/413)
-- [x] `npx nx build web` succeeds with 0 errors
-- [x] Live UI visual verification in browser completed (Graph, Heap, Trie, pattern routes)
+- `patterns: PatternSlug[]` — never collapse to a single string.
+- `getProblemSummariesForPattern` unions `PROBLEM_INDEX` (multi-pattern).
+- Official-solution-vs-own-tests gate; Clone Graph and Trie **must** keep `wrapperCode` (`__execute`).
+- Graph / Trie / Heap state on every dry-run step (do not drop viz halfway).
 
----
+### OPEN — not merge-blocking if called out
 
-## Past PR Review Comments Regression Prevention Audit
-
-| Historical Flag | Review Comment / Risk | How Prevented in Sprint 4 | Status |
+| ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| **F-P2S3-04 / F-P2S1-05** | `next-env.d.ts` dev churn (`./.next/dev/types/routes.d.ts`) | Reverted to exact `origin/main` (`./.next/types/routes.d.ts`). 0 diff vs `main`. | ✅ VERIFIED |
-| **F-P2S1-07** | Local machine paths or scratch files committed | No scratch files, zero `file:///` or machine-specific paths in committed markdown/docs. | ✅ VERIFIED |
-| **F-P2S2-04** | Malformed `externalLinks` causing crash | All problems use standard `{ platform: "leetcode", url: "https://leetcode.com/problems/..." }` format with valid problem URLs. | ✅ VERIFIED |
-| **F-P2S2-05** | `starterCode` full solution leak | `starterCode` is strictly a signature stub (`// Your code here`). Full solutions reside only in `solutions[0].code`. | ✅ VERIFIED |
-| **F-P2S3-01** | Placeholder / stub problems | Exactly the 3 scoped problems implemented with full explanations, solutions, test cases, and dry-run steps. Zero placeholder files. | ✅ VERIFIED |
-| **F-P2S3-02 / F-P2S3-10** | Pattern array dual-write mismatch | `PROBLEM_INDEX.patterns` in `problem.service.ts` exactly matches the JSON `patterns` array for all 3 problems. Multi-pattern array integrity maintained. | ✅ VERIFIED |
-| **F-P2S3-03** | Dry-run line numbers pointing to declarations/empty lines | All dry run steps audited and aligned directly with executable statement line numbers in `solutions[0].code`. | ✅ VERIFIED |
-| **F-P2S2-02 / F-P2S2-03** | Dry run states vanishing halfway through | Every step preserves complete structural state (`graphState`, `heapState`, `trieState`) showing step-by-step state transitions without empty arrays. | ✅ VERIFIED |
-| **F-P2S3-06** | Visualizer typing & layout overflow | Visualizers are strictly typed (`React.FC<...Props>`), responsive SVG/CSS layouts with zero layout shifts or broken transforms. | ✅ VERIFIED |
-| **F-P2S3-08** | Infinite pulse animations without `prefers-reduced-motion` | New visualizer CSS modules contain zero infinite pulse animations; discrete state transitions only. | ✅ VERIFIED |
-| **F-P2S3-05** | Official solutions failing test cases | All official solutions passed all test cases via `problem-json-validation.spec.ts` (413/413 tests passed). | ✅ VERIFIED |
+| F-P2S4-08 | Clone Graph dry-run skips Node 3 | `OPEN` | After step 4 queue is `[Node(3)]`. Step 5 jumps to empty queue + return. Teach the last dequeue or leave as a known skip. |
+| F-P2S4-09 | Clone Graph step 1 line | `OPEN` | `line: 3` is `const clones = new Map()`. Queue + first clone are lines 4–5. |
+| F-P2S4-10 | Clone Graph step 4 highlight | `OPEN` | Node 4 neighbors are 1 and 3; only edge `3–4` is highlighted. |
+| F-P2S4-11 | Heap tree has no parent–child edges | `OPEN` | Levels + indices only; no SVG links for `i → 2i+1, 2i+2`. |
+| F-P2S4-12 | Unused visualizer props | `OPEN` | `pointers` unused on all three. `accentColor` unused on Heap and Trie (Graph uses it for arrowheads). |
+| F-P2S4-13 | Trie dry-run omits last example op | `OPEN` | Example ends with `search("app")` after `insert("app")`. Step 6 stops at insert. |
+| F-P2S4-14 | Extra graph / heap / trie problems | `OPEN` | Same deal as Sprint 3: grow counts with BE. |
 
+---
+
+## Sprint 4 merge checklist (PR #13)
+
+Copy when asking for re-review:
+
+- [ ] F-P2S4-07 `/patterns/graph` exists **or** Clone Graph is not tagged `graph`
+- [x] F-P2S4-01 types on `DryRunStep`
+- [x] F-P2S4-02 GraphVisualizer typed + SVG
+- [x] F-P2S4-03 TrieVisualizer typed + prefix tree
+- [x] F-P2S4-04 HeapVisualizer typed + array and levels
+- [x] F-P2S4-05 DryRunViewer integration
+- [x] F-P2S4-06 3 real problems; JSON `patterns[]` = `PROBLEM_INDEX`; allowlist updated; no `next-env.d.ts`
+- [x] `problem-json-validation.spec.ts` 392/392 (official solutions included); full `npx nx test web` not re-run this review
+- [ ] Browser: Clone Graph / Kth Largest / Implement Trie dry runs render the new visualizers
+- [ ] Browser: `/patterns/bfs` lists Clone Graph; `/patterns/heap` lists Kth Largest; `/patterns/trie` lists Implement Trie
+- [ ] Browser: Clone Graph pattern badges do not 404
+- [x] Sprint 4 stories in `epics-and-stories.md` checked for 3 visualizers + 3 problems
+- [ ] This flags file matches the code (`BLOCKED` only for unfinished items)
+
+---
+
+## Review notes
+
+- 2026-09-28: PR #13 (`3d6ec26` = `854cf9c` + line-number fix). Independent review. Visualizers, catalog match, and `next-env` are fine. **Blocked** on `graph` pattern 404. Vercel preview SSO-gated. Branch tracker had self-marked READY — replaced.
+- Owner: update statuses in the same PR that fixes the flag. Do not delete flags.

@@ -290,6 +290,14 @@ Do not ask for merge until every box is checked:
 
 ---
 
+## Sprint 4 — Graph / Trie / Heap visualizers + 3 problems
+
+**Active tracker:** [`docs/phase-2-sprint-4-quality-flags.md`](./phase-2-sprint-4-quality-flags.md)
+
+**[PR #13](https://github.com/suvamAdhikary/visucode/pull/13) is `BLOCKED`.** Head `3d6ec26`. Scope is **3 problems** this sprint. Clone Graph is tagged `graph` but `/patterns/graph` 404s.
+
+---
+
 ## Later Phase 2 *(unscheduled)*
 
 | ID | Flag | Status | Notes |
@@ -308,4 +316,5 @@ Do not ask for merge until every box is checked:
 - 2026-09-20: PR #12 (`b9979ef`) blocked. See `docs/phase-2-sprint-3-quality-flags.md`.
 - 2026-09-20: PR #12 (`612289b`) re-reviewed. 3-problem scope accepted. Still blocked on `next-env.d.ts` + Two Sum catalog pattern. Multi-pattern rule documented.
 - 2026-09-27: PR #12 (`5083bdc`) ready to merge. `next-env.d.ts` matches main; Two Sum index is `hash-map`. See Sprint 3 file.
+- 2026-09-28: PR #13 (`3d6ec26`) blocked. Graph / Trie / Heap visualizers and 3 problems are real; `next-env` clean. Clone Graph `graph` badge 404s. See Sprint 4 file. Branch tracker had self-marked READY — independent review replaced it.
 - Owner of this tracker: update statuses in the same PR that fixes the flag.
