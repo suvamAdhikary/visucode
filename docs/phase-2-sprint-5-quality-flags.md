@@ -74,6 +74,12 @@ Working tracker for **Sprint 5 only**. Same quality bar as Sprints 1–4 (`docs/
 | **Where** | `apps/web/content/problems/`, `problem.service.ts`, `problem-json-validation.spec.ts` |
 | **How** | Created `coin-change.json`, `longest-common-subsequence.json`, and `subsets.json` with stub starter codes, official solutions, full test cases, exact line-numbered dry runs. Wired into `PROBLEM_INDEX` and validation allowlist. |
 
+### OPEN — not merge-blocking if called out
+
+| ID | Flag | Status | Notes |
+| --- | --- | --- | --- |
+| F-P2S5-07 | Additional DP / Backtracking problem volume | `OPEN` | 3 core foundational problems implemented (`coin-change`, `longest-common-subsequence`, `subsets`). Catalog grows further in Phase 4 / backend migration. |
+
 ---
 
 ## Sprint 5 merge checklist
