@@ -177,10 +177,33 @@
     {
       "stepNumber": 6,
       "line": 14,
-      "explanation": "insert(\"app\"): traverse root -> a -> p -> p. Mark isEndOfWord = true on 'p'. Now search(\"app\") returns true.",
+      "explanation": "insert(\"app\"): traverse root -> a -> p -> p. Mark isEndOfWord = true on 'p'. Now search(\"app\") will return true.",
       "variables": [
         { "name": "word", "value": "\"app\"", "type": "string" },
         { "name": "curr.isEnd", "value": "true", "type": "boolean" }
+      ],
+      "trieState": {
+        "rootId": "root",
+        "matchedPrefix": "app",
+        "activeNodeId": "p2",
+        "nodes": [
+          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
+          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
+          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
+          { "id": "p2", "char": "p", "isEndOfWord": true, "childrenIds": { "l": "l" } },
+          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
+          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+        ]
+      }
+    },
+    {
+      "stepNumber": 7,
+      "line": 23,
+      "explanation": "search(\"app\"): traverse root -> a -> p -> p. Node 'p' now has isEndOfWord = true. Return true.",
+      "variables": [
+        { "name": "search", "value": "\"app\"", "type": "string" },
+        { "name": "curr.isEnd", "value": "true", "type": "boolean" },
+        { "name": "return", "value": "true", "type": "boolean" }
       ],
       "trieState": {
         "rootId": "root",

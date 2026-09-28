@@ -124,9 +124,9 @@ Kth Largest dry-run heap states match the min-heap of size `k=2` on `[3,2,1,5,6,
 | F-P2S4-08 | Clone Graph dry-run skips Node 3 | `FIXED` | Added step 5 for Node 3 dequeue. Complete 6-step BFS trace. |
 | F-P2S4-09 | Clone Graph step 1 line | `FIXED` | Adjusted to `line: 5` where first clone and queue are initialized. |
 | F-P2S4-10 | Clone Graph step 4 highlight | `FIXED` | Highlights both edges `1–4` and `3–4`. |
-| F-P2S4-11 | Heap tree has no parent–child edges | `OPEN` | Levels + indices only; no SVG links for `i → 2i+1, 2i+2`. |
+| F-P2S4-11 | Heap tree has no parent–child edges | `FIXED` | SVG connector lines dynamically rendered from parent $i$ to children $2i+1, 2i+2$ with compare/swap highlights. |
 | F-P2S4-12 | Unused visualizer props | `FIXED` | Wired `pointers` and `accentColor` into `HeapVisualizer`, `TrieVisualizer`, and `GraphVisualizer`. |
-| F-P2S4-13 | Trie dry-run omits last example op | `OPEN` | Example ends with `search("app")` after `insert("app")`. Step 6 stops at insert. |
+| F-P2S4-13 | Trie dry-run omits last example op | `FIXED` | Added step 7 executing the final `search("app")` returning `true`. |
 | F-P2S4-14 | Extra graph / heap / trie problems | `OPEN` | Same deal as Sprint 3: grow counts with BE. |
 
 ---
@@ -139,7 +139,7 @@ Copy when asking for re-review:
 - [x] F-P2S4-01 types on `DryRunStep`
 - [x] F-P2S4-02 GraphVisualizer typed + SVG
 - [x] F-P2S4-03 TrieVisualizer typed + prefix tree
-- [x] F-P2S4-04 HeapVisualizer typed + array and levels
+- [x] F-P2S4-04 HeapVisualizer typed + array and levels with SVG parent–child connector edges
 - [x] F-P2S4-05 DryRunViewer integration
 - [x] F-P2S4-06 3 real problems; JSON `patterns[]` = `PROBLEM_INDEX`; allowlist updated; no `next-env.d.ts`
 - [x] `problem-json-validation.spec.ts` and full `npx nx test web` all passing (413/413 passed)
@@ -154,5 +154,6 @@ Copy when asking for re-review:
 ## Review notes
 
 - 2026-09-28: PR #13 (`3d6ec26` = `854cf9c` + line-number fix). Independent review. Visualizers, catalog match, and `next-env` are fine. **Blocked** on `graph` pattern 404. Vercel preview SSO-gated. Branch tracker had self-marked READY — replaced.
-- 2026-09-28: Re-review after fixes. Added `slug: 'graph'` to `pattern.service.ts`, statically generating `/patterns/graph`. Fixed Clone Graph dry-run step 1 line number, added Node 3 dequeue step, highlighted connecting edges, and wired `pointers`/`accentColor` props into all 3 visualizers. Full test suite (413/413) and build (19 static pages) green. `next-env.d.ts` identical to `main`. **PR #13 is READY FOR MERGE.**
+- 2026-09-28: Re-review after fixes. Added `slug: 'graph'` to `pattern.service.ts`, statically generating `/patterns/graph`. Fixed Clone Graph dry-run step 1 line number, added Node 3 dequeue step, highlighted connecting edges, and wired `pointers`/`accentColor` props into all 3 visualizers. Full test suite (413/413) and build (19 static pages) green. `next-env.d.ts` identical to `main`.
+- 2026-09-28: Resolved OPEN visual polish items: implemented SVG parent–child edges for HeapVisualizer binary tree (`F-P2S4-11`), and added step 7 completing the final `search("app")` operation for Trie (`F-P2S4-13`). Zero unresolved merge blockers. **PR #13 is READY FOR MERGE.**
 - Owner: update statuses in the same PR that fixes the flag. Do not delete flags.
