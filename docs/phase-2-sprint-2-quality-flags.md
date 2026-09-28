@@ -182,7 +182,7 @@ Every new problem’s `starterCode.javascript` **is the full solution**. “Your
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
 | F-P2S2-07 | Generation scripts quality | `OPEN` | **Keep** `generate-problems.js` + `test-one.js`. Removed one-off migrations: `fix_jsons.js`, `patch_generator.js`, `update-script.js`, `update_doc.js`, `update_doc_final.js`. |
-| F-P2S2-08 | User accounts / save progress | `OPEN` | Still Phase 3; not this PR |
+| F-P2S2-08 | User accounts / save progress | `OPEN` | Phase 3. Tracker: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md) |
 
 ---
 

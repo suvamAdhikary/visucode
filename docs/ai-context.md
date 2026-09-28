@@ -9,13 +9,13 @@ An interactive DSA learning platform with animated step-by-step visualizations a
 - **Framework**: Next.js 16 (App Router)
 - **Monorepo**: Nx
 - **State Management**: Zustand
-- **Code Editor**: Monaco Editor (client-side execution via sandboxed `new Function()`)
-- **Data**: Local JSON files (Phase 1 & 2), designed to be seamlessly swapped for GraphQL later.
+- **Code Editor**: Monaco Editor (client-side Worker test runner)
+- **Data**: Local JSON + `PROBLEM_INDEX` dual-write (Phase 1 & 2). GraphQL swap is Phase 4, one service file per entity.
 
-## Current Status (As of Phase 2 Sprint 1)
-- **Phase 1 (MVP)**: Completely finished. Interactive Dry Run viewer, basic routing, Zustand stores are implemented.
-- **Phase 2 Sprint 1**: Completely finished. Added Code Test Runner UI, sandbox code execution (`test-executor.ts`), and expanded the problem set to 15 problems total.
-- **Phase 2 Sprint 2**: Up next. Remaining problems (to hit 20 total), Linked List visualizer, Tree visualizer.
+## Current Status (As of Phase 2 Sprint 5 merged)
+- **Phase 1 (MVP)**: Done. Dry Run viewer, learn pages, problem browser, Zustand, Vercel.
+- **Phase 2**: Done (Sprints 1–5). Test runner, pattern pages, HashMap / Stack-Queue / Interval / Graph / Trie / Heap / DP-table / Backtracking visualizers, core problem set. Extra volume deferred to Phase 4.
+- **Phase 3**: Next. User progress + identity. Plan: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md) and Epic 2 in [`docs/epics-and-stories.md`](./epics-and-stories.md). Sprint 1 = localStorage progress via `progress.service`; Sprint 2 = Auth.js v5; Sprint 3 = optional premium UI.
 
 ## Key Directories
 - `apps/web/app`: Next.js App Router pages (Server & Client components).
@@ -27,4 +27,5 @@ An interactive DSA learning platform with animated step-by-step visualizations a
 - `docs/`: Contains project plans, quality flags, and epics.
 
 ## Quality Standards
-Refer to `docs/phase-2-quality-flags.md` for specific rules regarding strict type safety, visual feedback, and testing.
+- Phase 2: [`docs/phase-2-quality-flags.md`](./phase-2-quality-flags.md)
+- Phase 3: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md) — same merge bar (judging, `next-env`, service layer, Vercel is not a pass)

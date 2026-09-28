@@ -41,15 +41,36 @@ This document tracks the backlog, epics, and user stories for VisuCode.
 ## Epic 2: Phase 3 - User System & Progress Tracking
 **Status**: TODO
 
-- [ ] **Story**: Implement anonymous progress tracking using `localStorage` (mark problems as completed).
-- [ ] **Story**: Integrate NextAuth.js for GitHub/Google authentication.
-- [ ] **Story**: Add user profile page with completion stats.
-- [ ] **Story**: Implement premium content gating for advanced patterns.
+Quality tracker: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md). Do not add problem JSON here — extra catalog volume is Phase 4.
+
+Reuse existing types (`UserProgress`, `UserPreferences`) and `visucode_uid`. UI must go through a service adapter, same as `getProblem()`.
+
+### Sprint 1: Anonymous progress (TODO)
+*Focus: localStorage completions + profile. No auth, no database.*
+- [ ] **Story**: Add `progress.service.ts` (`getProgress`, `markProblemComplete`, `markLessonComplete`) with a localStorage adapter keyed by `visucode_uid`.
+- [ ] **Story**: Mark a problem complete from the problem page (after tests pass and/or explicit Mark done). Idempotent; survives refresh.
+- [ ] **Story**: Show completed state on problem catalog and pattern pages.
+- [ ] **Story**: Profile page with completion stats from `UserProgress` (not a second store).
+
+### Sprint 2: Identity (TODO)
+*Start only after Sprint 1 is merge-ready. Auth.js (NextAuth v5) on Next.js 16, not Auth v4.*
+- [ ] **Story**: GitHub + Google sign-in / sign-out in the header; session on the profile page.
+- [ ] **Story**: First login merges anonymous `completedProblems` / `completedLessons` onto the account (union by default). Prove with a test.
+- [ ] **Story**: Persistence choice written in the auth PR — **A:** JWT + keep progress local until Phase 4, or **B:** thin Prisma `User` table only (problems stay JSON). Do not add GraphQL for problems here.
+
+### Sprint 3: Premium UI (TODO, skippable)
+*Only if some JSON is actually marked `premium`. Today every problem is `free`. Real entitlement is Phase 4.*
+- [ ] **Story**: Mark a small explicit set of problems `accessLevel: 'premium'`.
+- [ ] **Story**: Free / signed-out users see a gate (not a 404). Copy states the paywall is preview until Phase 4.
+- [ ] **Story**: If all content stays free until the backend, skip this sprint (`WONTFIX` in the flags file).
 
 ## Epic 3: Phase 4 - Backend Migration
 **Status**: TODO
 
-- [ ] **Story**: Setup PostgreSQL database and Prisma ORM.
+Extra problems deferred from Phase 2 Sprints 3–5 land here with the content pipeline. Do not pull that work into Phase 3.
+
+- [ ] **Story**: Setup PostgreSQL database and Prisma ORM (users + progress if Sprint 2 chose option A).
 - [ ] **Story**: Create a GraphQL API to serve problem and lesson data.
-- [ ] **Story**: Swap `problem.service.ts` to fetch from GraphQL instead of local JSON.
+- [ ] **Story**: Swap `problem.service.ts` to fetch from GraphQL instead of local JSON. Drop `PROBLEM_INDEX` dual-write.
 - [ ] **Story**: Implement Redis caching for high-traffic read operations.
+- [ ] **Story**: Grow problem volume past the Phase 2 core set (see `F-P2S5-07` and sibling OPEN flags).

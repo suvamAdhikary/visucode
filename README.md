@@ -77,10 +77,10 @@ graph TB
             LOGGER["logger<br/>Structured logging"]
         end
     end
-    subgraph "Data (Phase 1)"
+    subgraph "Data (Phase 1–3)"
         JSON["Local JSON files"]
     end
-    subgraph "Data (Phase 2+)"
+    subgraph "Data (Phase 4)"
         GQL["GraphQL API"]
     end
 
@@ -199,8 +199,10 @@ Deployed on **Vercel** with automatic deploys on push to `main`.
 ### Branch Strategy
 
 ```
-feature/* → develop (integration) → main (production)
+feature/phase-3-sprint-N → main (production)
 ```
+
+Phase 2 PRs targeted `main`. `develop` still contains superseded Sprint 1 (`#8`) — **do not fast-forward `main` from `develop`.** Reset `develop` to `main` before using it as an integration branch.
 
 - Push to `main` → auto-deploy to [visucode.vercel.app](https://visucode.vercel.app)
 - PRs generate preview URLs
@@ -219,17 +221,20 @@ feature/* → develop (integration) → main (production)
 - [x] Zustand stores (visualizer + preferences)
 - [x] Vercel deployment
 
-### Phase 2 — Content & Patterns (Sprint 1 Completed)
+### Phase 2 — Content & Patterns ✅
 
-- [x] Pattern detail pages (`/patterns/two-pointers`)
-- [x] 15+ problems across 5 patterns
-- [x] Monaco code editor integration (with Code Test Runner)
+- [x] Pattern detail pages
+- [x] Core problems across two-pointers, sliding window, binary search, lists/trees, hashing, stack, intervals, graph/BFS, heap, trie, DP, backtracking
+- [x] Monaco + client test runner
+- [x] Visualizers: array, linked list, tree, hash map, stack/queue, interval, graph, trie, heap, DP table, backtracking
 
 ### Phase 3 — User System
 
-- [ ] Anonymous progress tracking (localStorage)
-- [ ] Auth (NextAuth.js)
-- [ ] Premium content gating
+Plan: [`docs/phase-3-quality-flags.md`](docs/phase-3-quality-flags.md)
+
+- [ ] Sprint 1: anonymous progress (`progress.service` + localStorage) and profile stats
+- [ ] Sprint 2: Auth.js (GitHub / Google) and merge anonymous progress
+- [ ] Sprint 3: premium UI only if JSON is marked premium (skip otherwise; real entitlement is Phase 4)
 
 ### Phase 4 — Backend
 

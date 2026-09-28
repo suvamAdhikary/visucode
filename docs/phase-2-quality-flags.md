@@ -2,6 +2,8 @@
 
 Living tracker for **every Phase 2 sprint**. A green build, a green Vercel deploy, or “it runs locally” is **not** a merge bar. If the product can mark a correct answer wrong, freeze the tab, leak hidden tests, or teach a dry run that does not match the code, **the PR stays closed**.
 
+Phase 2 Sprints 1–5 are merged. **Phase 3 plan:** [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md). Do not add extra problem JSON or auth work here.
+
 ---
 
 ## Quality bar (non-negotiable)
@@ -319,8 +321,8 @@ Do not ask for merge until every box is checked:
 | --- | --- | --- | --- |
 | F-P2X-01 | Real sandbox (not just Worker timeout) | `OPEN` | iframe / origin isolation if we ever execute untrusted code beyond the owner’s browser |
 | F-P2X-02 | Semantic comparator as a real module | `OPEN` | `comparator.ts` exists; still needs the unit tests in remaining work, then this can move to `FIXED` |
-| F-P2X-03 | PRs target `develop`, not `main` | `OPEN` | README: `feature → develop → main`. #8 and #10 targeted `main`. `develop` has buggy #8; do not fast-forward `main` from `develop`. |
-| F-P2X-04 | README Phase 2 checkboxes are stale | `OPEN` | Pattern pages + Monaco already shipped; still listed as unchecked |
+| F-P2X-03 | PRs target `develop`, not `main` | `WONTFIX` | Documented 2026-09-28: Phase 2 PRs targeted `main`; `develop` has buggy #8. Phase 3 default is `feature/phase-3-sprint-N` → `main`. Reset `develop` before using it as integration. |
+| F-P2X-04 | README Phase 2 checkboxes are stale | `FIXED` | README Phase 2 marked complete; Phase 3 sprints listed. See 2026-09-28 plan docs. |
 
 ---
 
@@ -332,4 +334,5 @@ Do not ask for merge until every box is checked:
 - 2026-09-20: PR #12 (`612289b`) re-reviewed. 3-problem scope accepted. Still blocked on `next-env.d.ts` + Two Sum catalog pattern. Multi-pattern rule documented.
 - 2026-09-27: PR #12 (`5083bdc`) ready to merge. `next-env.d.ts` matches main; Two Sum index is `hash-map`. See Sprint 3 file.
 - 2026-09-28: PR #13 (`3d6ec26`) blocked. Graph / Trie / Heap visualizers and 3 problems are real; `next-env` clean. Clone Graph `graph` badge 404s. See Sprint 4 file. Branch tracker had self-marked READY — independent review replaced it.
+- 2026-09-28: Phase 2 Sprint 5 merged. Phase 3 plan written (`docs/phase-3-quality-flags.md`). `F-P2X-03` `WONTFIX` (stay on `main`). `F-P2X-04` `FIXED` (README Phase 2 complete).
 - Owner of this tracker: update statuses in the same PR that fixes the flag.
