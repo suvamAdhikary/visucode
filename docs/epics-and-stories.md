@@ -38,10 +38,35 @@ This document tracks the backlog, epics, and user stories for VisuCode.
 - [x] **Story**: Implement State Space Tree & Recursion Call Stack visualizer for Backtracking (`BacktrackingVisualizer`).
 - [x] **Story**: Add core problems covering 1D DP, 2D DP, and Backtracking (Coin Change, Longest Common Subsequence, Subsets).
 
-## Epic 2: Phase 3 - User System & Progress Tracking
+## Epic 2: Live Dry Run
 **Status**: TODO
 
-Quality tracker: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md). Do not add problem JSON here — extra catalog volume is Phase 4.
+Quality tracker: [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). ADR: [`docs/ADR/002-live-dry-run-tracer.md`](./ADR/002-live-dry-run-tracer.md).
+
+Classroom loop: write JS, write an input, step through **that** execution. Authored JSON dry runs stay as “Official dry run.” Do not start Auth.js until Sprint 1 of this epic is merge-ready. JavaScript only — tracer follows the runtime.
+
+### Sprint 1: Tracer + playground stepper (TODO)
+*Focus: instrument user JS, Worker + step cap, line + variables. No visualizer heuristics yet.*
+- [ ] **Story**: Parse user JS (Acorn); insert `__vc.step(line, locals)` after statements.
+- [ ] **Story**: Execute in a Worker with timeout and step cap 500. Kill playground `new Function` on the UI thread (`F-P2S1-10`).
+- [ ] **Story**: Decouple `DryRunViewer` from `Problem` so it accepts `{ code, dryRunSteps }`.
+- [ ] **Story**: Playground UI: editor | input | stepper. Line highlight on user code + variable inspector.
+- [ ] **Story**: CI fixture — two-pointers on `[1,3,5,7,9], 12` yields real `left` / `right` values.
+
+### Sprint 2: On-the-go visuals (TODO)
+*Start only after Sprint 1 is merge-ready. Snapshot → existing visualizers.*
+- [ ] **Story**: 1D arrays → `arrayState`; numeric locals `i` / `j` / `left` / `right` / `lo` / `hi` / `mid` that are valid indices → pointers.
+- [ ] **Story**: 2D arrays → `dpTableState` (grid).
+- [ ] **Story**: Plain objects / `Map` / class instances (fields) → hash-map or object inspector. Explanations stay factual (`left = 3`).
+
+### Sprint 3: Structure heuristics + problem page (TODO)
+- [ ] **Story**: `{ next }` chains → linked-list visualizer; `{ left, right }` nodes → tree visualizer.
+- [ ] **Story**: Problem page tab “Dry run my code” (starter/user code + example input). Official JSON dry run unchanged.
+
+## Epic 3: Phase 3 - User System & Progress Tracking
+**Status**: TODO
+
+Start after Live Dry Run Sprint 1 is merge-ready. Auth.js still waits until this epic’s own Sprint 1 is ready. Quality tracker: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md). Do not add problem JSON here — extra catalog volume is Phase 4. Flag IDs stay `F-P3S*`.
 
 Reuse existing types (`UserProgress`, `UserPreferences`) and `visucode_uid`. UI must go through a service adapter, same as `getProblem()`.
 
@@ -64,10 +89,10 @@ Reuse existing types (`UserProgress`, `UserPreferences`) and `visucode_uid`. UI 
 - [ ] **Story**: Free / signed-out users see a gate (not a 404). Copy states the paywall is preview until Phase 4.
 - [ ] **Story**: If all content stays free until the backend, skip this sprint (`WONTFIX` in the flags file).
 
-## Epic 3: Phase 4 - Backend Migration
+## Epic 4: Phase 4 - Backend Migration
 **Status**: TODO
 
-Extra problems deferred from Phase 2 Sprints 3–5 land here with the content pipeline. Do not pull that work into Phase 3.
+Extra problems deferred from Phase 2 Sprints 3–5 land here with the content pipeline. Do not pull that work into Live Dry Run or Phase 3.
 
 - [ ] **Story**: Setup PostgreSQL database and Prisma ORM (users + progress if Sprint 2 chose option A).
 - [ ] **Story**: Create a GraphQL API to serve problem and lesson data.

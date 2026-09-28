@@ -4,7 +4,9 @@ Living tracker for **every Phase 3 sprint**. Same merge bar as Phase 2 (`docs/ph
 
 Phase 3 is **user / progress**, not more problem JSON. Extra catalog volume stays Phase 4 (`F-P2S5-07`).
 
-**Active epic:** [`docs/epics-and-stories.md`](./epics-and-stories.md) Epic 2.
+**Do not start Auth.js until Live Dry Run Sprint 1 is merge-ready.** Tracker: [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). ADR: [`docs/ADR/002-live-dry-run-tracer.md`](./ADR/002-live-dry-run-tracer.md).
+
+**Active epic:** [`docs/epics-and-stories.md`](./epics-and-stories.md) Epic 3 (this file). Live Dry Run is Epic 2.
 
 ---
 
@@ -34,7 +36,8 @@ If any item fails: **do not merge.**
 
 | Item | Verdict |
 | --- | --- |
-| **Phase 3** | **NOT STARTED.** Plan only. Do not open Sprint 2 until Sprint 1 `BLOCKED` flags are `FIXED`. |
+| **Phase 3** | **NOT STARTED.** Plan only. Sequenced after Live Dry Run Sprint 1. Do not open this Sprint 2 until this Sprint 1 `BLOCKED` flags are `FIXED`. |
+| **Live Dry Run** | Next product work. [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). |
 | **Phase 2** | Done (Sprints 1–5). Trackers under `docs/phase-2-*-quality-flags.md`. |
 
 ---
@@ -42,6 +45,8 @@ If any item fails: **do not merge.**
 ## Sequencing (do not skip)
 
 ```
+Live Dry Run Sprint 1  (tracer + playground stepper)  ← next; cuts ahead of Auth.js
+    ↓
 Sprint 1  localStorage progress + profile (no auth, no DB)
     ↓
 Sprint 2  Auth.js (GitHub / Google) + merge anonymous progress
@@ -135,7 +140,7 @@ If there is no premium content to mark: **skip this sprint.** Set `F-P3S3-01` `W
 | Extra DP / graph / heap / … problems | Phase 4 (`F-P2S5-07` and siblings) |
 | GraphQL / Prisma for **problems** | Phase 4 |
 | Redis | Phase 4 |
-| Playground runner (`F-P2S1-10`) | Later; not user-system |
+| Live dry run / playground tracer (`F-P2S1-10`) | Live Dry Run epic (`docs/phase-live-dry-run-quality-flags.md`) |
 | Real code sandbox (`F-P2X-01`) | Later |
 | WASM canvas (`Phase 5`) | Phase 5 |
 
@@ -164,4 +169,5 @@ Phase 3 default: `feature/phase-3-sprint-N` → `main`. Use `develop` only after
 ## Review notes
 
 - 2026-09-28: Plan written after Phase 2 Sprint 5 merged. Independent of any Phase 3 code.
+- 2026-09-28: Live Dry Run epic inserted ahead of Auth.js. Phase 3 flag IDs unchanged.
 - Owner: update statuses in the same PR that fixes the flag. Do not delete flags.

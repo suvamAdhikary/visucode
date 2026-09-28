@@ -3,19 +3,21 @@
 This document provides context for any AI assistant or developer working on the `visucode` project. It serves as a persistent anchor for the project's state, architecture, and current goals.
 
 ## What is VisuCode?
-An interactive DSA learning platform with animated step-by-step visualizations and a code test runner.
+An interactive DSA learning platform: authored dry runs for taught solutions, and a **live tracer** so learners write JS, write an input, and step through **their** execution.
 
 ## Architecture Highlights
 - **Framework**: Next.js 16 (App Router)
 - **Monorepo**: Nx
 - **State Management**: Zustand
-- **Code Editor**: Monaco Editor (client-side Worker test runner)
+- **Code Editor**: Monaco Editor (client-side Worker test runner; live dry run is a second Worker tracer)
 - **Data**: Local JSON + `PROBLEM_INDEX` dual-write (Phase 1 & 2). GraphQL swap is Phase 4, one service file per entity.
+- **Dry run**: Authored `dryRunSteps` JSON for official solutions. Live dry run generates the same `DryRunStep` shape from instrumented JS ([ADR-002](./ADR/002-live-dry-run-tracer.md)).
 
-## Current Status (As of Phase 2 Sprint 5 merged)
+## Current Status (As of Live Dry Run plan)
 - **Phase 1 (MVP)**: Done. Dry Run viewer, learn pages, problem browser, Zustand, Vercel.
-- **Phase 2**: Done (Sprints 1–5). Test runner, pattern pages, HashMap / Stack-Queue / Interval / Graph / Trie / Heap / DP-table / Backtracking visualizers, core problem set. Extra volume deferred to Phase 4.
-- **Phase 3**: Next. User progress + identity. Plan: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md) and Epic 2 in [`docs/epics-and-stories.md`](./epics-and-stories.md). Sprint 1 = localStorage progress via `progress.service`; Sprint 2 = Auth.js v5; Sprint 3 = optional premium UI.
+- **Phase 2**: Done (Sprints 1–5). Test runner, pattern pages, visualizers, core problem set. Extra volume deferred to Phase 4.
+- **Next — Live Dry Run**: Plan only. [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). JS AST tracer → `DryRunStep[]` → existing viewer. Cuts ahead of Auth.js.
+- **Phase 3 (user system)**: After Live Dry Run Sprint 1. [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md). Flag IDs stay `F-P3S*`.
 
 ## Key Directories
 - `apps/web/app`: Next.js App Router pages (Server & Client components).
@@ -28,4 +30,5 @@ An interactive DSA learning platform with animated step-by-step visualizations a
 
 ## Quality Standards
 - Phase 2: [`docs/phase-2-quality-flags.md`](./phase-2-quality-flags.md)
-- Phase 3: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md) — same merge bar (judging, `next-env`, service layer, Vercel is not a pass)
+- Live Dry Run: [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md) — tracer snapshots match execution; Worker + step cap; no LLM
+- Phase 3: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md) — same merge bar (progress, `next-env`, service layer, Vercel is not a pass)

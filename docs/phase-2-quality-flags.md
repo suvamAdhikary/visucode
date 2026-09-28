@@ -2,7 +2,7 @@
 
 Living tracker for **every Phase 2 sprint**. A green build, a green Vercel deploy, or “it runs locally” is **not** a merge bar. If the product can mark a correct answer wrong, freeze the tab, leak hidden tests, or teach a dry run that does not match the code, **the PR stays closed**.
 
-Phase 2 Sprints 1–5 are merged. **Phase 3 plan:** [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md). Do not add extra problem JSON or auth work here.
+Phase 2 Sprints 1–5 are merged. **Next:** Live Dry Run — [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). **Phase 3 (user system, after LDR Sprint 1):** [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md). Do not add extra problem JSON or auth work here.
 
 ---
 
@@ -237,7 +237,7 @@ Treat the missing test as part of F-P2S1-01/02 remaining work, not a new flag.
 | **Status** | `OPEN` |
 | **Where** | `apps/web/app/playground/` |
 
-Sprint plan said Playground **or** problem page. Only problem pages got Run Tests. Defer to a later sprint; do not mark Playground done.
+Playground is Run + console (`new Function` on the UI thread), not a dry run. Owned by **Live Dry Run** Sprint 1: [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md) (`F-LDR-S1-01`). Do not mark Playground done until that Worker stepper ships.
 
 #### F-P2S1-11 — Accessibility gaps on new UI
 
@@ -335,4 +335,5 @@ Do not ask for merge until every box is checked:
 - 2026-09-27: PR #12 (`5083bdc`) ready to merge. `next-env.d.ts` matches main; Two Sum index is `hash-map`. See Sprint 3 file.
 - 2026-09-28: PR #13 (`3d6ec26`) blocked. Graph / Trie / Heap visualizers and 3 problems are real; `next-env` clean. Clone Graph `graph` badge 404s. See Sprint 4 file. Branch tracker had self-marked READY — independent review replaced it.
 - 2026-09-28: Phase 2 Sprint 5 merged. Phase 3 plan written (`docs/phase-3-quality-flags.md`). `F-P2X-03` `WONTFIX` (stay on `main`). `F-P2X-04` `FIXED` (README Phase 2 complete).
+- 2026-09-28: Live Dry Run epic added ahead of Auth.js. `F-P2S1-10` points at `docs/phase-live-dry-run-quality-flags.md`.
 - Owner of this tracker: update statuses in the same PR that fixes the flag.

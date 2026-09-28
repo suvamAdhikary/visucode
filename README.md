@@ -199,10 +199,10 @@ Deployed on **Vercel** with automatic deploys on push to `main`.
 ### Branch Strategy
 
 ```
-feature/phase-3-sprint-N → main (production)
+feature/live-dry-run-sprint-N → main (production)
 ```
 
-Phase 2 PRs targeted `main`. `develop` still contains superseded Sprint 1 (`#8`) — **do not fast-forward `main` from `develop`.** Reset `develop` to `main` before using it as an integration branch.
+Live Dry Run is next. Then `feature/phase-3-sprint-N` for user-system. Phase 2 PRs targeted `main`. `develop` still contains superseded Sprint 1 (`#8`) — **do not fast-forward `main` from `develop`.** Reset `develop` to `main` before using it as an integration branch.
 
 - Push to `main` → auto-deploy to [visucode.vercel.app](https://visucode.vercel.app)
 - PRs generate preview URLs
@@ -228,9 +228,18 @@ Phase 2 PRs targeted `main`. `develop` still contains superseded Sprint 1 (`#8`)
 - [x] Monaco + client test runner
 - [x] Visualizers: array, linked list, tree, hash map, stack/queue, interval, graph, trie, heap, DP table, backtracking
 
+### Next — Live Dry Run
+
+Plan: [`docs/phase-live-dry-run-quality-flags.md`](docs/phase-live-dry-run-quality-flags.md) · ADR: [`docs/ADR/002-live-dry-run-tracer.md`](docs/ADR/002-live-dry-run-tracer.md)
+
+- [ ] Sprint 1: JS tracer (Worker + step cap) and playground stepper (line + variables)
+- [ ] Sprint 2: on-the-go 1D / 2D / object visuals from snapshots
+- [ ] Sprint 3: list/tree heuristics and problem page “Dry run my code”
+- Authored JSON dry runs stay as the official solution tape
+
 ### Phase 3 — User System
 
-Plan: [`docs/phase-3-quality-flags.md`](docs/phase-3-quality-flags.md)
+After Live Dry Run Sprint 1. Plan: [`docs/phase-3-quality-flags.md`](docs/phase-3-quality-flags.md)
 
 - [ ] Sprint 1: anonymous progress (`progress.service` + localStorage) and profile stats
 - [ ] Sprint 2: Auth.js (GitHub / Google) and merge anonymous progress
