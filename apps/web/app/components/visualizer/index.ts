@@ -12,3 +12,4 @@ export { TrieVisualizer } from './TrieVisualizer';
 export { HeapVisualizer } from './HeapVisualizer';
 export { DpTableVisualizer } from './DpTableVisualizer';
 export { BacktrackingVisualizer } from './BacktrackingVisualizer';
+export { DryRunViewer } from './DryRunViewer';
