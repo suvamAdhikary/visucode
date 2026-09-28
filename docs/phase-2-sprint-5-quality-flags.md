@@ -72,13 +72,15 @@ Working tracker for **Sprint 5 only**. Same quality bar as Sprints 1–4 (`docs/
 | --- | --- |
 | **Status** | `FIXED` |
 | **Where** | `apps/web/content/problems/`, `problem.service.ts`, `problem-json-validation.spec.ts` |
-| **How** | Created `coin-change.json`, `longest-common-subsequence.json`, and `subsets.json` with stub starter codes, official solutions, full test cases, exact line-numbered dry runs. Wired into `PROBLEM_INDEX` and validation allowlist. |
+| **How** | Created `coin-change.json`, `longest-common-subsequence.json`, and `subsets.json` with stub starter codes, official solutions, full test cases, exact line-numbered dry runs. Wired into `PROBLEM_INDEX` and validation allowlist. Worked examples matching the dry-run inputs (`coins=[1,2,5], amount=5`; `text1="abc", text2="ac"`; `nums=[1,2]`) are explicitly included in each problem's `examples`. |
 
-### OPEN — not merge-blocking if called out
+### OPEN / RESOLVED polish items
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
 | F-P2S5-07 | Additional DP / Backtracking problem volume | `OPEN` | 3 core foundational problems implemented (`coin-change`, `longest-common-subsequence`, `subsets`). Catalog grows further in Phase 4 / backend migration. |
+| F-P2S5-08 | LCS dry-run fills `dp[3][1]` without step | `FIXED` | Added dedicated step 6 in `longest-common-subsequence.json` computing `dp[3][1] = max(dp[2][1], dp[3][0]) = 1` on mismatch before step 7 (`dp[3][2] = 2`). |
+| F-P2S5-09 | Dry runs use concise representative inputs | `FIXED` | Concise inputs are selected so 7–8 step interactive walkthroughs remain readable. Each input is explicitly listed in the problem's `examples` array. |
 
 ---
 

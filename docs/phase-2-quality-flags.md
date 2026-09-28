@@ -32,6 +32,8 @@ If any item fails: **do not merge.** Fix on the feature branch, update this file
 | --- | --- |
 | **[PR #8](https://github.com/suvamAdhikary/visucode/pull/8)** | **Superseded.** Do not revive. Buggy Sprint 1. Already merged to `develop` — **do not promote `develop` to `main`.** |
 | **[PR #10](https://github.com/suvamAdhikary/visucode/pull/10)** — `feature/phase-2-sprint-1` → `main` | **READY FOR MERGE** |
+| **Sprint 4** — `feature/phase-2-sprint-4` → `main` | **MERGED** |
+| **Sprint 5** — `feature/phase-2-sprint-5` → `main` | **READY FOR REVIEW** |
 
 All Sprint 1 `BLOCKED` items are now `FIXED`. The PR is structurally sound, testing is green, and safety flags are met. It is ready for final merge.
 
@@ -294,7 +296,20 @@ Do not ask for merge until every box is checked:
 
 **Active tracker:** [`docs/phase-2-sprint-4-quality-flags.md`](./phase-2-sprint-4-quality-flags.md)
 
-**[PR #13](https://github.com/suvamAdhikary/visucode/pull/13) is `READY FOR MERGE`.** All merge blockers resolved (`F-P2S4-07` fixed with `graph` pattern page added). Scope is **3 problems** this sprint. Extra problems later with BE.
+**[PR #13](https://github.com/suvamAdhikary/visucode/pull/13) is `READY FOR MERGE` / `MERGED`.** All merge blockers resolved (`F-P2S4-07` fixed with `graph` pattern page added). Scope is **3 problems** this sprint. Extra problems later with BE.
+
+---
+
+## Sprint 5 — DP Table & Backtracking visualizers + 3 problems
+
+**Active tracker:** [`docs/phase-2-sprint-5-quality-flags.md`](./phase-2-sprint-5-quality-flags.md)
+
+**Feature branch `feature/phase-2-sprint-5` is `READY FOR REVIEW`.**
+- Scope is **3 core problems**: `coin-change` (1D DP), `longest-common-subsequence` (2D DP), and `subsets` (Backtracking). Extra problems later with BE.
+- Dry runs use concise representative inputs matching the problem examples (`coins=[1,2,5], amount=5`; `text1="abc", text2="ac"`; `nums=[1,2]`).
+- Full subproblem coverage in LCS dry-run (all 8 cells/steps including `dp[3][1]` explicitly traced).
+- Both `dynamic-programming` and `backtracking` registered in `pattern.service.ts` (0 pattern badge 404s).
+- All 458 tests pass (`npx nx test web`), production build succeeds with 0 errors, and `apps/web/next-env.d.ts` has 0 diff vs `origin/main`.
 
 ---
 

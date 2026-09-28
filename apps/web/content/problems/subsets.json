@@ -25,6 +25,11 @@
       "input": "nums = [0]",
       "output": "[[],[0]]",
       "explanation": "A single element array has two subsets: the empty set and the single element set."
+    },
+    {
+      "input": "nums = [1,2]",
+      "output": "[[],[1],[2],[1,2]]",
+      "explanation": "All 4 subsets of [1, 2]: empty set [], singletons [1] and [2], and pair [1, 2]. This matches the step-by-step decision tree dry run."
     }
   ],
   "constraints": [

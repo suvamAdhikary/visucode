@@ -29,6 +29,11 @@
       "input": "coins = [1], amount = 0",
       "output": "0",
       "explanation": "Amount 0 requires 0 coins."
+    },
+    {
+      "input": "coins = [1,2,5], amount = 5",
+      "output": "1",
+      "explanation": "Amount 5 requires only 1 coin (5-cent coin). This matches the step-by-step dry-run visualization."
     }
   ],
   "constraints": [
