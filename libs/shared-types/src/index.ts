@@ -18,6 +18,7 @@ export type Category =
     | 'queue'
     | 'heap'
     | 'dynamic-programming'
+    | 'backtracking'
     | 'math'
     | 'bit-manipulation';
 
@@ -46,7 +47,7 @@ export type AccessLevel = 'free' | 'premium';
 
 export type UserRole = 'learner' | 'interviewer' | 'admin' | 'premium';
 
-export type VisualizerType = 'array' | 'linked-list' | 'tree' | 'graph' | 'matrix' | 'hash-map' | 'stack-queue' | 'interval' | 'trie' | 'heap';
+export type VisualizerType = 'array' | 'linked-list' | 'tree' | 'graph' | 'matrix' | 'hash-map' | 'stack-queue' | 'interval' | 'trie' | 'heap' | 'dp-table' | 'backtracking';
 
 // ============================================
 // Problem Types
@@ -203,6 +204,31 @@ export interface HeapVisualizerState {
     swapIndices?: [number, number];
 }
 
+export interface DpTableVisualizerState {
+    grid: (number | string | null)[][];
+    rowHeaders?: string[];
+    colHeaders?: string[];
+    activeCell?: [number, number];
+    highlightCells?: [number, number][];
+    computedCells?: [number, number][];
+    formula?: string;
+}
+
+export interface BacktrackingNode {
+    id: string;
+    label: string;
+    state: 'active' | 'success' | 'backtrack' | 'pruned' | 'normal';
+    parentId?: string;
+    depth: number;
+}
+
+export interface BacktrackingVisualizerState {
+    nodes: BacktrackingNode[];
+    currentPath: string[];
+    solutionsFound?: string[];
+    activeNodeId?: string;
+}
+
 export interface DryRunStep {
     stepNumber: number;
     line: number; // Which code line is executing
@@ -216,6 +242,8 @@ export interface DryRunStep {
     graphState?: GraphVisualizerState;
     trieState?: TrieVisualizerState;
     heapState?: HeapVisualizerState;
+    dpTableState?: DpTableVisualizerState;
+    backtrackingState?: BacktrackingVisualizerState;
     explanation: string; // Short — "Moving left pointer from 0 to 1"
     pointers?: Pointer[];
 }

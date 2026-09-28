@@ -329,6 +329,64 @@ function insert(word):
     problems: ['kth-largest-element-in-an-array'],
     visualizerType: 'heap',
     color: '#f59e0b',
+  },
+  {
+    slug: 'dynamic-programming',
+    name: 'Dynamic Programming',
+    description: 'Solve complex problems by breaking them down into simpler subproblems, storing results of subproblems to avoid redundant computations (optimal substructure and overlapping subproblems).',
+    pseudocode: `function solveDP(n):
+  dp = Array(n + 1)
+  dp[0] = base_case
+  for i from 1 to n:
+    dp[i] = transition(dp[i - 1], ...)
+  return dp[n]`,
+    timeComplexity: 'O(N) to O(N * M)',
+    spaceComplexity: 'O(N) to O(N * M)',
+    whenToUse: [
+      'Optimization (minimize / maximize)',
+      'Counting combinations or distinct paths',
+      'Overlapping subproblems and optimal substructure',
+    ],
+    realWorldUseCases: [
+      {
+        company: 'Google Maps',
+        scenario: 'Shortest Route Optimization',
+        description: 'Computing multi-stop routing and traffic-cost minimization using dynamic programming algorithms.'
+      }
+    ],
+    problems: ['coin-change', 'longest-common-subsequence'],
+    visualizerType: 'dp-table',
+    color: '#ec4899',
+  },
+  {
+    slug: 'backtracking',
+    name: 'Backtracking',
+    description: 'An algorithmic technique that considers searching every possible combination to solve a computational problem. It builds candidates incrementally and abandons (backtracks) a candidate as soon as it cannot lead to a valid solution.',
+    pseudocode: `function backtrack(candidate, state):
+  if isSolution(candidate):
+    output(candidate)
+    return
+  for choice in choices(state):
+    makeChoice(choice)
+    backtrack(candidate, state)
+    undoChoice(choice)`,
+    timeComplexity: 'O(2^N) or O(N!)',
+    spaceComplexity: 'O(N)',
+    whenToUse: [
+      'Generating all subsets, permutations, or combinations',
+      'Constraint satisfaction problems (Sudoku, N-Queens)',
+      'Exhaustive search with pruning',
+    ],
+    realWorldUseCases: [
+      {
+        company: 'Uber',
+        scenario: 'Multi-Stop Pool Routing',
+        description: 'Finding valid passenger combination routes and pickup sequences using pruned combinatorial search.'
+      }
+    ],
+    problems: ['subsets'],
+    visualizerType: 'backtracking',
+    color: '#f43f5e',
   }
 ];
 

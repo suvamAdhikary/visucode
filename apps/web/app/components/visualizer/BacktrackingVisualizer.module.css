@@ -1,0 +1,236 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.25rem;
+  backdrop-filter: blur(12px);
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #fb7185;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.legend {
+  display: flex;
+  gap: 0.85rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dotActive {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f43f5e;
+}
+
+.dotSuccess {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.dotBacktrack {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e11d48;
+}
+
+/* Call Stack / Path Tray */
+.pathSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+}
+
+.pathLabel {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pathList {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pathItem {
+  background: #0f172a;
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.pathArrow {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+/* Tree Section */
+.treeArea {
+  min-height: 220px;
+  border-radius: 8px;
+  background: radial-gradient(circle at center, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.7) 100%);
+  padding: 1.25rem;
+  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.levelRow {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.nodeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  background: #1e293b;
+  border: 1.5px solid #334155;
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f8fafc;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.nodeActive {
+  background: #881337;
+  border-color: #f43f5e;
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.5);
+  color: #ffffff;
+}
+
+.nodeSuccess {
+  background: #064e3b;
+  border-color: #10b981;
+  color: #a7f3d0;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.nodeBacktrack {
+  background: #4c0519;
+  border-color: #fb7185;
+  color: #fecdd3;
+}
+
+.nodePruned {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: #475569;
+  color: #64748b;
+  text-decoration: line-through;
+}
+
+.stateTag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.tagActive {
+  background: rgba(244, 63, 94, 0.25);
+  color: #fda4af;
+}
+
+.tagSuccess {
+  background: rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+}
+
+.tagBacktrack {
+  background: rgba(225, 29, 72, 0.25);
+  color: #f43f5e;
+}
+
+/* Solutions Drawer */
+.solutionsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.solutionsLabel {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.solutionsRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.solutionChip {
+  background: #0f172a;
+  border: 1px solid #10b981;
+  color: #34d399;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+}

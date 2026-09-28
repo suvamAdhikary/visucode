@@ -32,11 +32,11 @@ This document tracks the backlog, epics, and user stories for VisuCode.
 - [x] **Story**: Implement Heap visualizer (1D array indexing + complete binary tree hierarchy).
 - [x] **Story**: Add 3 core problems covering Graphs, Heaps, and Tries (Clone Graph, Kth Largest Element, Implement Trie).
 
-### Sprint 5: Complex Paradigms (TODO)
+### Sprint 5: Complex Paradigms (DONE)
 *Focus: Dynamic Programming (1D & 2D), Backtracking*
-- [ ] **Story**: Implement 1D and 2D Grid visualizer for DP tables.
-- [ ] **Story**: Implement Recursion Call Stack visualizer for Backtracking.
-- [ ] **Story**: Add 10 problems covering 1D DP, 2D DP, and Backtracking.
+- [x] **Story**: Implement 1D and 2D Grid visualizer for DP tables (`DpTableVisualizer`).
+- [x] **Story**: Implement State Space Tree & Recursion Call Stack visualizer for Backtracking (`BacktrackingVisualizer`).
+- [x] **Story**: Add core problems covering 1D DP, 2D DP, and Backtracking (Coin Change, Longest Common Subsequence, Subsets).
 
 ## Epic 2: Phase 3 - User System & Progress Tracking
 **Status**: TODO

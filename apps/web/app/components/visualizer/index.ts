@@ -10,3 +10,5 @@ export { IntervalVisualizer } from './IntervalVisualizer';
 export { GraphVisualizer } from './GraphVisualizer';
 export { TrieVisualizer } from './TrieVisualizer';
 export { HeapVisualizer } from './HeapVisualizer';
+export { DpTableVisualizer } from './DpTableVisualizer';
+export { BacktrackingVisualizer } from './BacktrackingVisualizer';

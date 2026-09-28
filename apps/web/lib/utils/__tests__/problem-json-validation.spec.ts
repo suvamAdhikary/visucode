@@ -39,6 +39,9 @@ describe('Problem JSON Validation', () => {
     'clone-graph',
     'kth-largest-element-in-an-array',
     'implement-trie-prefix-tree',
+    'coin-change',
+    'longest-common-subsequence',
+    'subsets',
   ];
 
   it('should have all expected problem files', () => {
@@ -96,6 +99,7 @@ describe('Problem JSON Validation', () => {
         'heap',
         'trie',
         'graph',
+        'backtracking',
       ];
       const patterns = problem.patterns as string[];
       expect(patterns.length).toBeGreaterThan(0);

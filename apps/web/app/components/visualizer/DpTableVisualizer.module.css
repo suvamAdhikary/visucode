@@ -1,0 +1,177 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.25rem;
+  backdrop-filter: blur(12px);
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(236, 72, 153, 0.15);
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  color: #f472b6;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.formulaBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+}
+
+.formulaLabel {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.formulaCode {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.legend {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dotActive {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: #ec4899;
+}
+
+.dotDependency {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: #0284c7;
+}
+
+.dotComputed {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: #334155;
+}
+
+/* Grid Area */
+.gridWrapper {
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.table {
+  border-collapse: separate;
+  border-spacing: 6px;
+  user-select: none;
+}
+
+.cornerCell {
+  width: 44px;
+  height: 32px;
+  background: transparent;
+}
+
+.headerCell {
+  min-width: 44px;
+  height: 32px;
+  padding: 0.25rem 0.5rem;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: #94a3b8;
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.cell {
+  min-width: 44px;
+  height: 44px;
+  background: #1e293b;
+  border: 1.5px solid #334155;
+  border-radius: 8px;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #f8fafc;
+  text-align: center;
+  transition: all 0.2s ease;
+  padding: 0.25rem;
+}
+
+.cellEmpty {
+  color: #475569;
+  background: rgba(15, 23, 42, 0.4);
+  border-style: dashed;
+}
+
+.cellComputed {
+  background: #1e293b;
+  border-color: #475569;
+  color: #cbd5e1;
+}
+
+.cellDependency {
+  background: #0369a1;
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+.cellActive {
+  background: #831843;
+  border-color: #ec4899;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.6);
+}
+
+.pointerBadge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+  display: block;
+}

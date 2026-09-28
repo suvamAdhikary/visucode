@@ -17,6 +17,8 @@ import { IntervalVisualizer } from '../../components/visualizer/IntervalVisualiz
 import { GraphVisualizer } from '../../components/visualizer/GraphVisualizer';
 import { TrieVisualizer } from '../../components/visualizer/TrieVisualizer';
 import { HeapVisualizer } from '../../components/visualizer/HeapVisualizer';
+import { DpTableVisualizer } from '../../components/visualizer/DpTableVisualizer';
+import { BacktrackingVisualizer } from '../../components/visualizer/BacktrackingVisualizer';
 import { StepController } from '../../components/visualizer/StepController';
 import { VariableInspector } from '../../components/visualizer/VariableInspector';
 import { CodeViewer } from '../../components/editor/CodeViewer';
@@ -40,6 +42,8 @@ const PATTERN_COLORS: Record<string, string> = {
   'hash-map': '#ec4899',
   'stack': '#3b82f6',
   'greedy': '#f43f5e',
+  'dynamic-programming': '#ec4899',
+  'backtracking': '#f43f5e',
 };
 
 export function DryRunViewer({ problem }: DryRunViewerProps) {
@@ -143,6 +147,20 @@ export function DryRunViewer({ problem }: DryRunViewerProps) {
         {step?.heapState && (
           <HeapVisualizer
             heapState={step.heapState}
+            pointers={step.pointers}
+            accentColor={accentColor}
+          />
+        )}
+        {step?.dpTableState && (
+          <DpTableVisualizer
+            dpTableState={step.dpTableState}
+            pointers={step.pointers}
+            accentColor={accentColor}
+          />
+        )}
+        {step?.backtrackingState && (
+          <BacktrackingVisualizer
+            backtrackingState={step.backtrackingState}
             pointers={step.pointers}
             accentColor={accentColor}
           />

@@ -255,6 +255,33 @@ const PROBLEM_INDEX: Array<{
     companies: ['Google', 'Amazon', 'Microsoft', 'Meta', 'Twitter'],
     accessLevel: 'free',
   },
+  {
+    slug: 'coin-change',
+    title: 'Coin Change',
+    difficulty: 'Medium',
+    category: 'dynamic-programming',
+    patterns: ['dynamic-programming'],
+    companies: ['Amazon', 'Microsoft', 'Google', 'Meta', 'Bloomberg'],
+    accessLevel: 'free',
+  },
+  {
+    slug: 'longest-common-subsequence',
+    title: 'Longest Common Subsequence',
+    difficulty: 'Medium',
+    category: 'dynamic-programming',
+    patterns: ['dynamic-programming'],
+    companies: ['Amazon', 'Google', 'Microsoft', 'Meta'],
+    accessLevel: 'free',
+  },
+  {
+    slug: 'subsets',
+    title: 'Subsets',
+    difficulty: 'Medium',
+    category: 'backtracking',
+    patterns: ['backtracking'],
+    companies: ['Amazon', 'Microsoft', 'Meta', 'Google', 'Bloomberg', 'Apple'],
+    accessLevel: 'free',
+  },
   // More problems will be added here as content is created
 ];
 
