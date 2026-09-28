@@ -50,7 +50,7 @@ export const HeapVisualizer: React.FC<HeapVisualizerProps> = ({
     <div className={styles.container}>
       <div className={styles.header}>
         <span style={{ fontWeight: 600 }}>Heap / Priority Queue</span>
-        <div className={styles.heapTypeBadge}>
+        <div className={styles.heapTypeBadge} style={{ borderColor: accentColor, color: accentColor }}>
           <span>{heapType === 'min' ? '▼ Min-Heap' : '▲ Max-Heap'}</span>
         </div>
       </div>
@@ -63,6 +63,7 @@ export const HeapVisualizer: React.FC<HeapVisualizerProps> = ({
             const isHighlighted = highlightSet.has(idx);
             const isCompared = compareSet.has(idx);
             const isSwapped = swapSet.has(idx);
+            const cellPointers = pointers.filter((p) => p.index === idx);
 
             let cellClass = styles.cellBox;
             if (isSwapped) cellClass += ` ${styles.cellSwapped}`;
@@ -71,8 +72,22 @@ export const HeapVisualizer: React.FC<HeapVisualizerProps> = ({
 
             return (
               <div key={`heap-arr-${idx}`} className={styles.arrayCell}>
+                {cellPointers.length > 0 && (
+                  <div style={{ display: 'flex', gap: '2px', justifyContent: 'center' }}>
+                    {cellPointers.map((p) => (
+                      <span key={p.name} style={{ color: p.color || accentColor, fontSize: '0.7rem', fontWeight: 600 }}>
+                        {p.label || p.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <span className={styles.indexLabel}>[{idx}]</span>
-                <div className={cellClass}>{val}</div>
+                <div
+                  className={cellClass}
+                  style={isHighlighted ? { borderColor: accentColor, boxShadow: `0 0 8px ${accentColor}40` } : undefined}
+                >
+                  {val}
+                </div>
               </div>
             );
           })}
@@ -99,7 +114,12 @@ export const HeapVisualizer: React.FC<HeapVisualizerProps> = ({
 
                   return (
                     <div key={`heap-node-${idx}`} className={styles.treeNode}>
-                      <div className={circleClass}>{val}</div>
+                      <div
+                        className={circleClass}
+                        style={isHighlighted ? { borderColor: accentColor, boxShadow: `0 0 10px ${accentColor}50` } : undefined}
+                      >
+                        {val}
+                      </div>
                       <span className={styles.indexLabel}>[{idx}]</span>
                     </div>
                   );

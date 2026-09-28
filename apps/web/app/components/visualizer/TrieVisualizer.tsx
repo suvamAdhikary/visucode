@@ -34,6 +34,7 @@ export const TrieVisualizer: React.FC<TrieVisualizerProps> = ({
     const isWordEnd = node.isEndOfWord;
     const isRoot = node.id === rootId || node.char === '' || node.char.toUpperCase() === 'ROOT';
     const childIds = Object.values(node.childrenIds || {});
+    const nodePointers = pointers.filter((p) => p.targetId === node.id);
 
     let circleClass = styles.nodeCircle;
     if (isActive) circleClass += ` ${styles.nodeActive}`;
@@ -41,7 +42,20 @@ export const TrieVisualizer: React.FC<TrieVisualizerProps> = ({
 
     return (
       <div key={node.id} className={styles.nodeCard}>
-        <div className={circleClass} title={isWordEnd ? 'End of Word (isEndOfWord = true)' : undefined}>
+        {nodePointers.length > 0 && (
+          <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+            {nodePointers.map((p) => (
+              <span key={p.name} style={{ color: p.color || accentColor, fontSize: '0.7rem', fontWeight: 600 }}>
+                {p.label || p.name}
+              </span>
+            ))}
+          </div>
+        )}
+        <div
+          className={circleClass}
+          style={isActive ? { borderColor: accentColor, boxShadow: `0 0 12px ${accentColor}50` } : undefined}
+          title={isWordEnd ? 'End of Word (isEndOfWord = true)' : undefined}
+        >
           <span>{isRoot ? '•' : node.char}</span>
           {isWordEnd && <span className={styles.wordEndBadge}>✓</span>}
         </div>
@@ -61,7 +75,7 @@ export const TrieVisualizer: React.FC<TrieVisualizerProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span style={{ fontWeight: 600 }}>Trie (Prefix Tree)</span>
           {matchedPrefix !== undefined && (
-            <div className={styles.prefixBanner}>
+            <div className={styles.prefixBanner} style={{ borderColor: accentColor }}>
               <span>Matched:</span>
               <span className={styles.prefixCode}>"{matchedPrefix}"</span>
             </div>
@@ -70,7 +84,7 @@ export const TrieVisualizer: React.FC<TrieVisualizerProps> = ({
 
         <div className={styles.legend}>
           <div className={styles.legendItem}>
-            <span className={styles.dotActive} />
+            <span className={styles.dotActive} style={{ backgroundColor: accentColor }} />
             <span>Active</span>
           </div>
           <div className={styles.legendItem}>

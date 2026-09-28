@@ -294,7 +294,7 @@ Do not ask for merge until every box is checked:
 
 **Active tracker:** [`docs/phase-2-sprint-4-quality-flags.md`](./phase-2-sprint-4-quality-flags.md)
 
-**[PR #13](https://github.com/suvamAdhikary/visucode/pull/13) is `BLOCKED`.** Head `3d6ec26`. Scope is **3 problems** this sprint. Clone Graph is tagged `graph` but `/patterns/graph` 404s.
+**[PR #13](https://github.com/suvamAdhikary/visucode/pull/13) is `READY FOR MERGE`.** All merge blockers resolved (`F-P2S4-07` fixed with `graph` pattern page added). Scope is **3 problems** this sprint. Extra problems later with BE.
 
 ---
 

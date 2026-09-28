@@ -254,6 +254,29 @@ const PATTERNS: Pattern[] = [
     color: '#38bdf8',
   },
   {
+    slug: 'graph',
+    name: 'Graph Traversal',
+    description: 'Traverse and manipulate networks of vertices connected by edges. Common representations include adjacency lists and matrices, explored via Breadth-First or Depth-First search.',
+    pseudocode: `function traverseGraph(adjList):
+  visited = new Set()
+  for vertex in adjList.keys():
+    if vertex not in visited:
+      explore(vertex, adjList, visited)`,
+    timeComplexity: 'O(V + E)',
+    spaceComplexity: 'O(V)',
+    whenToUse: ['Network routing and topology', 'Social network connections', 'Dependency resolution and cycle detection', 'State machines and games'],
+    realWorldUseCases: [
+      {
+        company: 'Meta',
+        scenario: 'Social Graph',
+        description: 'Modeling user friendships and entity relationships as nodes and edges to recommend friends and rank social feed items.'
+      }
+    ],
+    problems: ['clone-graph'],
+    visualizerType: 'graph',
+    color: '#38bdf8',
+  },
+  {
     slug: 'trie',
     name: 'Trie (Prefix Tree)',
     description: 'A tree-like data structure used to store a dynamic set or associative array where the keys are usually strings. Efficient for prefix-based searches and auto-completion.',

@@ -144,6 +144,7 @@ export const GraphVisualizer: React.FC<GraphVisualizerProps> = ({
             const isActive = node.id === activeNodeId;
             const isVisited = visitedSet.has(node.id);
             const isInQueue = queueSet.has(node.id);
+            const nodePointers = pointers.filter((p) => p.targetId === node.id);
 
             let nodeClass = styles.node;
             if (isActive) nodeClass += ` ${styles.nodeActive}`;
@@ -154,6 +155,18 @@ export const GraphVisualizer: React.FC<GraphVisualizerProps> = ({
               <g key={node.id} className={nodeClass} transform={`translate(${pos.x}, ${pos.y})`}>
                 <circle r={radius} className={styles.nodeCircle} />
                 <text className={styles.nodeText}>{node.label || node.id}</text>
+                {nodePointers.map((p, pIdx) => (
+                  <text
+                    key={p.name}
+                    y={-radius - 6 - pIdx * 12}
+                    textAnchor="middle"
+                    fill={p.color || accentColor}
+                    fontSize="10"
+                    fontWeight="600"
+                  >
+                    ▼ {p.label || p.name}
+                  </text>
+                ))}
               </g>
             );
           })}

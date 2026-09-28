@@ -72,7 +72,7 @@
   "dryRunSteps": [
     {
       "stepNumber": 1,
-      "line": 3,
+      "line": 5,
       "explanation": "Initialize queue with Node 1 and clone Node 1 into the hash map.",
       "variables": [
         { "name": "queue", "value": "[Node(1)]", "type": "Array" },
@@ -167,7 +167,7 @@
         ],
         "edges": [
           { "source": "1", "target": "2" },
-          { "source": "1", "target": "4" },
+          { "source": "1", "target": "4", "highlighted": true },
           { "source": "2", "target": "3" },
           { "source": "3", "target": "4", "highlighted": true }
         ],
@@ -178,6 +178,32 @@
     },
     {
       "stepNumber": 5,
+      "line": 8,
+      "explanation": "Dequeue Node 3. Inspect neighbors [2, 4]; both are already cloned. Link edges. Queue is now empty.",
+      "variables": [
+        { "name": "curr", "value": "Node(3)", "type": "Node" },
+        { "name": "queue", "value": "[]", "type": "Array" }
+      ],
+      "graphState": {
+        "nodes": [
+          { "id": "1", "label": "1", "x": 25, "y": 25 },
+          { "id": "2", "label": "2", "x": 75, "y": 25 },
+          { "id": "3", "label": "3", "x": 75, "y": 75 },
+          { "id": "4", "label": "4", "x": 25, "y": 75 }
+        ],
+        "edges": [
+          { "source": "1", "target": "2" },
+          { "source": "1", "target": "4" },
+          { "source": "2", "target": "3", "highlighted": true },
+          { "source": "3", "target": "4", "highlighted": true }
+        ],
+        "activeNodeId": "3",
+        "queueNodeIds": [],
+        "visitedNodeIds": ["1", "2", "3", "4"]
+      }
+    },
+    {
+      "stepNumber": 6,
       "line": 17,
       "explanation": "Queue is empty. All nodes and edges copied. Return cloned Node 1.",
       "variables": [
