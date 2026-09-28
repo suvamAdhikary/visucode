@@ -2,16 +2,18 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PlaygroundClient from '../app/playground/PlaygroundClient';
 
-// Mock Monaco CodeEditor since Monaco runs only in browser canvas/DOM
-jest.mock('../app/playground/CodeEditor', () => ({
-  CodeEditor: ({ code, onChange }: { code: string; onChange: (v: string) => void }) => (
+// Synchronous mock for Next.js dynamic import to prevent async act() warnings
+jest.mock('next/dynamic', () => () => {
+  const DynamicComponent = (props: { code: string; onChange?: (val: string) => void }) => (
     <textarea
       data-testid="monaco-mock"
-      value={code}
-      onChange={(e) => onChange(e.target.value)}
+      value={props.code}
+      onChange={(e) => props.onChange?.(e.target.value)}
     />
-  ),
-}));
+  );
+  DynamicComponent.displayName = 'MockCodeEditor';
+  return DynamicComponent;
+});
 
 // Mock CodeViewer within DryRunViewer
 jest.mock('../app/components/editor/CodeViewer', () => ({
@@ -69,5 +71,36 @@ describe('PlaygroundClient — Live Dry Run Stepper', () => {
       expect(screen.getByText(/live execution stepper/i)).toBeTruthy();
       expect(screen.getByText(/step 1 \/ 10/i)).toBeTruthy();
     });
+  });
+
+  it('aborts on loop hang and displays diagnostics popup with partial trace (F-LDR-S1-07)', async () => {
+    render(<PlaygroundClient />);
+
+    const editor = screen.getByTestId('monaco-mock');
+    const stuckLoopCode = `function stuck(arr) {
+  let count = 0;
+  while (count < 10) {
+    // count never changes
+  }
+  return count;
+}`;
+
+    fireEvent.change(editor, { target: { value: stuckLoopCode } });
+
+    const runBtn = screen.getByRole('button', { name: /dry run/i });
+    fireEvent.click(runBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /infinite loop detected/i })).toBeTruthy();
+      expect(screen.getByText(/what to check:/i)).toBeTruthy();
+      expect(screen.getByRole('button', { name: /inspect partial trace/i })).toBeTruthy();
+    });
+
+    // Dismiss modal and verify partial steps remain accessible
+    const inspectBtn = screen.getByRole('button', { name: /inspect partial trace/i });
+    fireEvent.click(inspectBtn);
+
+    expect(screen.queryByRole('heading', { name: /infinite loop detected/i })).toBeNull();
+    expect(screen.getByText(/live execution stepper/i)).toBeTruthy();
   });
 });
