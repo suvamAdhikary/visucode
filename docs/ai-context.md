@@ -16,7 +16,7 @@ An interactive DSA learning platform: authored dry runs for taught solutions, an
 ## Current Status (As of Live Dry Run plan)
 - **Phase 1 (MVP)**: Done. Dry Run viewer, learn pages, problem browser, Zustand, Vercel.
 - **Phase 2**: Done (Sprints 1–5). Test runner, pattern pages, visualizers, core problem set. Extra volume deferred to Phase 4.
-- **Next — Live Dry Run**: Plan only. [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). JS AST tracer → `DryRunStep[]` → existing viewer. Cuts ahead of Auth.js.
+- **Next — Live Dry Run**: Plan only. [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). Preflight small input → JS AST tracer → stepper. Sprint 4 = authored complexity panel (why + mini Big-O visual). User-code good/bad analysis is later (`F-LDR-X-01`). Cuts ahead of Auth.js.
 - **Phase 3 (user system)**: After Live Dry Run Sprint 1. [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md). Flag IDs stay `F-P3S*`.
 
 ## Key Directories

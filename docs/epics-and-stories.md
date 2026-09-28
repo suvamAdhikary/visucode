@@ -48,10 +48,12 @@ Classroom loop: write JS, write an input, step through **that** execution. Autho
 ### Sprint 1: Tracer + playground stepper (TODO)
 *Focus: instrument user JS, Worker + step cap, line + variables. No visualizer heuristics yet.*
 - [ ] **Story**: Parse user JS (Acorn); insert `__vc.step(line, locals)` after statements.
-- [ ] **Story**: Execute in a Worker with timeout and step cap 500. Kill playground `new Function` on the UI thread (`F-P2S1-10`).
+- [ ] **Story**: Input preflight **before** the dry-run window: default = problem `examples[0]`, or manual. Reject missing / unparseable / over-limit input in place (do not truncate; do not use hidden tests).
+- [ ] **Story**: Execute in a Worker with timeout, step cap 500, and recursion-depth cap. Early abort when the same line + same locals repeat. Kill playground `new Function` on the UI thread (`F-P2S1-10`).
+- [ ] **Story**: On abort or throw: keep partial steps; show a diagnostics popup (observed issues: kind, line, what happened, what to check). No LLM.
 - [ ] **Story**: Decouple `DryRunViewer` from `Problem` so it accepts `{ code, dryRunSteps }`.
 - [ ] **Story**: Playground UI: editor | input | stepper. Line highlight on user code + variable inspector.
-- [ ] **Story**: CI fixture — two-pointers on `[1,3,5,7,9], 12` yields real `left` / `right` values.
+- [ ] **Story**: CI fixtures — two-pointers on `[1,3,5,7,9], 12` yields real `left` / `right`; 1000-element array rejected before Worker; `while (true)`, unbounded recursion, and TypeError abort into the popup with the UI still clickable.
 
 ### Sprint 2: On-the-go visuals (TODO)
 *Start only after Sprint 1 is merge-ready. Snapshot → existing visualizers.*
@@ -62,6 +64,15 @@ Classroom loop: write JS, write an input, step through **that** execution. Autho
 ### Sprint 3: Structure heuristics + problem page (TODO)
 - [ ] **Story**: `{ next }` chains → linked-list visualizer; `{ left, right }` nodes → tree visualizer.
 - [ ] **Story**: Problem page tab “Dry run my code” (starter/user code + example input). Official JSON dry run unchanged.
+
+### Sprint 4: Official complexity explainer (TODO)
+*Authored teaching, not the tracer. Can ship in parallel with Sprints 2–3. Today we only badge `timeComplexity` / `spaceComplexity` in the dry-run header; `solutions[].explanation` is unused.*
+- [ ] **Story**: Problem-page Complexity panel: time + space Big-O, a short **why** for each, and a small growth visual (highlight O(1) / O(log n) / O(n) / O(n log n) / O(n²) / O(2^n)). Same chart component for every problem.
+- [ ] **Story**: Extend solution JSON (`timeComplexityWhy`, `spaceComplexityWhy`, `complexityClass`). Do **not** infer Big-O from live-trace step counts.
+- [ ] **Story**: Backfill why-text + class for every problem already on `main`. Empty why is a content fail.
+
+### Later (not this epic’s sprints)
+- [ ] **Story**: User-code good/bad analysis (what’s solid vs what’s wrong vs the official approach). After Live Dry Run + tests. No LLM until a dedicated ADR.
 
 ## Epic 3: Phase 3 - User System & Progress Tracking
 **Status**: TODO

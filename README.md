@@ -232,10 +232,12 @@ Live Dry Run is next. Then `feature/phase-3-sprint-N` for user-system. Phase 2 P
 
 Plan: [`docs/phase-live-dry-run-quality-flags.md`](docs/phase-live-dry-run-quality-flags.md) · ADR: [`docs/ADR/002-live-dry-run-tracer.md`](docs/ADR/002-live-dry-run-tracer.md)
 
-- [ ] Sprint 1: JS tracer (Worker + step cap) and playground stepper (line + variables)
+- [ ] Sprint 1: input preflight, JS tracer (Worker + caps + early abort), playground stepper, diagnostics popup on buggy code
 - [ ] Sprint 2: on-the-go 1D / 2D / object visuals from snapshots
 - [ ] Sprint 3: list/tree heuristics and problem page “Dry run my code”
+- [ ] Sprint 4: official time/space panel with why-text and a small Big-O visual (can parallel Sprints 2–3)
 - Authored JSON dry runs stay as the official solution tape
+- Later: user-code good/bad analysis (`F-LDR-X-01`)
 
 ### Phase 3 — User System
 
