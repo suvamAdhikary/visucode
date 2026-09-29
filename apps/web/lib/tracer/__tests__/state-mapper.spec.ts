@@ -124,6 +124,30 @@ describe('Live Dry Run State Mapper (Sprint 2 — F-LDR-S2-01..04)', () => {
         { key: 'y', value: 20 },
       ]);
     });
+
+    it('infers hashMapState from class instance fields', () => {
+      class Counter {
+        public total: number;
+        public label: string;
+        constructor(total: number, label: string) {
+          this.total = total;
+          this.label = label;
+        }
+      }
+
+      const instance = new Counter(42, 'hits');
+      const locals = {
+        counter: instance,
+      };
+
+      const viz = inferStepVisualizerState(locals);
+
+      expect(viz.hashMapState).toBeDefined();
+      expect(viz.hashMapState?.entries).toEqual([
+        { key: 'total', value: 42 },
+        { key: 'label', value: 'hits' },
+      ]);
+    });
   });
 
   describe('End-to-end Tracer Visualizer Integration', () => {
@@ -214,10 +238,37 @@ describe('Live Dry Run State Mapper (Sprint 2 — F-LDR-S2-01..04)', () => {
       const stepWithMap = res.steps.find(
         (s) => s.hashMapState && s.hashMapState.entries.length > 0
       );
-      expect(stepWithMap).toBeDefined();
       expect(stepWithMap?.hashMapState?.entries).toEqual(
         expect.arrayContaining([expect.objectContaining({ key: 'a' })])
       );
+    });
+
+    it('populates hashMapState for class instances in live dry run trace', async () => {
+      const code = `class Item {
+  constructor(name, val) {
+    this.name = name;
+    this.val = val;
+  }
+}
+function testClass() {
+  const item = new Item('alpha', 100);
+  return item.val;
+}`;
+
+      const res = await traceUserCode({
+        code,
+        input: '[]',
+      });
+
+      expect(res.completed).toBe(true);
+      const stepWithClassInstance = res.steps.find(
+        (s) => s.hashMapState && s.hashMapState.entries.length >= 2
+      );
+      expect(stepWithClassInstance).toBeDefined();
+      expect(stepWithClassInstance?.hashMapState?.entries).toEqual([
+        { key: 'name', value: 'alpha' },
+        { key: 'val', value: 100 },
+      ]);
     });
   });
 });
