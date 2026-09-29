@@ -52,6 +52,13 @@ If any item fails: **do not merge.**
 - **Timeout cannot keep steps after `terminate()`** (called out in the diagnostic).
 - **First function in the file is the one that runs.**
 - **Manual preview note**: Vercel preview was not clicked due to SSO. After merge, paste `try { while (true) {} }` once locally if you want a human freeze check.
+- **Sprint 2 audit notes addressed**:
+  - Out-of-bounds pointer test updated with real pointer names (`right: 100`, `left: -5`) proving drops.
+  - DP e2e asserts `activeCell: [0, 1]`.
+  - Hash-map tracer e2e test added for frequency maps.
+  - `k` removed from pointer list to prevent window sizes (`k = 3`) from displaying pointers.
+  - Pointers restricted strictly to `val < elements.length` to avoid invisible end-boundary pointers.
+  - Circular import broken by extracting `tracer-utils.ts`.
 
 ---
 
@@ -231,5 +238,6 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-29: Independent review of [PR #15](https://github.com/suvamAdhikary/visucode/pull/15) (`db6d587`). **BLOCKED** on F-LDR-S1-01 (worker module imported into client; sync fallback), F-LDR-S1-02 (`try` uninstrumented; no step-cap/timeout CI), F-LDR-S1-07 (timeout drops steps). F-LDR-S1-04/05/06/08 `FIXED`. F-LDR-S1-03 `OPEN`. Tracer unit tests 22/22 on the blocked snapshot. Preview not used as a freeze check (SSO).
 - 2026-09-29: Resolved independent review blockers in PR #15. Split tracer-context to remove worker bundle import; instrumented try/switch/classes/arrow expressions; guaranteed try/catch cannot swallow tracer aborts; added CI tests for while(true) in try, 500-step cap, recursion bomb, mock worker timeout, and left/right variable snapshots. All 8 test suites (492 tests) green and production build verified.
 - 2026-09-29: Replaced dev work remaining with non-blocking open notes; updated verdict to READY FOR MERGE / 1363b61.
-- 2026-09-29: Sprint 2 implementation complete on feature/live-dry-run-sprint-2. Created state-mapper.ts to infer arrayState, pointers, dpTableState, and hashMapState from runtime execution locals. Factual variable explanations prioritize pointer states. All 9 test suites (500 tests) green, next-env.d.ts 0 diff, production build verified.
+- 2026-09-29: Sprint 2 implementation confirmed on feature/live-dry-run-sprint-2 (F-LDR-S2-01..04). Resolved review audit notes: decoupled tracer-utils.ts (zero circular imports), excluded k from pointer names, clamped pointer index bounds to visible cells (< length), added DP activeCell and hash-map e2e tracer tests, and verified out-of-bounds drops with real pointer identifiers. All 9 test suites (501 tests) green, next-env.d.ts 0 diff, production build verified.
+
 

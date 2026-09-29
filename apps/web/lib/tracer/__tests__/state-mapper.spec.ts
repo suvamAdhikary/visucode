@@ -31,12 +31,13 @@ describe('Live Dry Run State Mapper (Sprint 2 — F-LDR-S2-01..04)', () => {
       expect(viz.arrayState?.highlightIndices).toEqual([0, 4]);
     });
 
-    it('ignores out-of-bounds numeric locals as pointers', () => {
+    it('ignores out-of-bounds numeric locals as pointers even with valid pointer names', () => {
       const locals = {
         arr: [10, 20, 30],
         i: 1,
-        outOfBounds: 100,
-        negative: -5,
+        right: 100, // pointer name, but out of bounds (100 >= arr.length)
+        left: -5,   // pointer name, but negative
+        k: 2,       // k is not treated as an index pointer (window size)
       };
 
       const viz = inferStepVisualizerState(locals);
@@ -44,6 +45,7 @@ describe('Live Dry Run State Mapper (Sprint 2 — F-LDR-S2-01..04)', () => {
       expect(viz.pointers?.length).toBe(1);
       expect(viz.pointers?.[0].name).toBe('i');
       expect(viz.pointers?.[0].index).toBe(1);
+      expect(viz.pointers?.some((p) => p.name === 'right' || p.name === 'left' || p.name === 'k')).toBe(false);
     });
   });
 
@@ -164,7 +166,7 @@ describe('Live Dry Run State Mapper (Sprint 2 — F-LDR-S2-01..04)', () => {
       expect(stepWithPointers?.explanation).not.toContain('Moving pointer from');
     });
 
-    it('populates dpTableState in live dry run trace for grid algorithms', async () => {
+    it('populates dpTableState and activeCell in live dry run trace for grid algorithms', async () => {
       const code = `function miniDP() {
   const dp = [
     [1, 2],
@@ -187,6 +189,35 @@ describe('Live Dry Run State Mapper (Sprint 2 — F-LDR-S2-01..04)', () => {
         [1, 2],
         [3, 4],
       ]);
+
+      const stepWithActiveCell = res.steps.find((s) => s.dpTableState?.activeCell);
+      expect(stepWithActiveCell).toBeDefined();
+      expect(stepWithActiveCell?.dpTableState?.activeCell).toEqual([0, 1]);
+    });
+
+    it('populates hashMapState in live dry run trace for frequency map algorithms', async () => {
+      const code = `function charCount(str) {
+  const counts = {};
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    counts[ch] = (counts[ch] || 0) + 1;
+  }
+  return counts;
+}`;
+
+      const res = await traceUserCode({
+        code,
+        input: '["aba"]',
+      });
+
+      expect(res.completed).toBe(true);
+      const stepWithMap = res.steps.find(
+        (s) => s.hashMapState && s.hashMapState.entries.length > 0
+      );
+      expect(stepWithMap).toBeDefined();
+      expect(stepWithMap?.hashMapState?.entries).toEqual(
+        expect.arrayContaining([expect.objectContaining({ key: 'a' })])
+      );
     });
   });
 });

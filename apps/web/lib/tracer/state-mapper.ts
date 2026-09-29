@@ -5,7 +5,7 @@ import type {
   HashMapEntry,
   Pointer,
 } from '@visucode/shared-types';
-import { safeStringify } from './tracer-context';
+import { safeStringify } from './tracer-utils';
 
 export interface VisualizerStateResult {
   arrayState?: ArrayVisualizerState;
@@ -27,7 +27,6 @@ const POINTER_NAMES = new Set([
   'end',
   'i',
   'j',
-  'k',
   'p',
   'ptr',
   'p1',
@@ -54,7 +53,6 @@ const POINTER_COLORS: Record<string, string> = {
   middle: '#f59e0b',
   i: '#3b82f6',
   j: '#10b981',
-  k: '#ec4899',
   p: '#38bdf8',
   ptr: '#38bdf8',
   curr: '#f43f5e',
@@ -161,7 +159,7 @@ export function inferStepVisualizerState(
         typeof val === 'number' &&
         Number.isInteger(val) &&
         val >= 0 &&
-        val <= elements.length // allow pointing to end boundary
+        val < elements.length
       ) {
         pointers.push({
           name,
