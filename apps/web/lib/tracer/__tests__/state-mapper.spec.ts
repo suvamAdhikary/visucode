@@ -352,5 +352,36 @@ function testClass() {
       expect(stepWithActiveCell).toBeDefined();
       expect(stepWithActiveCell?.dpTableState?.activeCell).toEqual([0, 1]);
     });
+
+    it('supports ternary index expressions (arr[cond ? a : b]) and excludes binary offsets (arr[i + offset])', async () => {
+      const code = `function indexingEdgeCases(arr) {
+  let cond = true;
+  let a = 1;
+  let b = 2;
+  let offset = 1;
+  let i = 0;
+  const v1 = arr[cond ? a : b];
+  const v2 = arr[i + offset];
+  return v1 + v2;
+}`;
+
+      const res = await traceUserCode({
+        code,
+        input: '[[10, 20, 30, 40]]',
+      });
+
+      expect(res.completed).toBe(true);
+      // a and b should be detected as pointers
+      const stepWithPointers = res.steps.find(
+        (s) => s.pointers && s.pointers.some((p) => p.name === 'a' || p.name === 'b')
+      );
+      expect(stepWithPointers).toBeDefined();
+      expect(stepWithPointers?.pointers?.some((p) => p.name === 'a')).toBe(true);
+
+      // offset should NOT be detected as a pointer; i should be detected as a pointer
+      const allPointersAcrossSteps = res.steps.flatMap((s) => s.pointers || []);
+      expect(allPointersAcrossSteps.some((p) => p.name === 'offset')).toBe(false);
+      expect(allPointersAcrossSteps.some((p) => p.name === 'i')).toBe(true);
+    });
   });
 });

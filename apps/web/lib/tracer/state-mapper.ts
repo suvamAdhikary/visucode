@@ -98,7 +98,8 @@ const MAP_PRIORITY_NAMES = ['map', 'seen', 'counts', 'count', 'freq', 'dict', 'l
  */
 export function inferStepVisualizerState(
   locals: Record<string, any>,
-  detectedIndices?: Set<string> | string[]
+  detectedIndices?: Set<string> | string[],
+  coordinatePairs?: [string, string][]
 ): VisualizerStateResult {
   const result: VisualizerStateResult = {};
 
@@ -142,29 +143,25 @@ export function inferStepVisualizerState(
         : []
     );
 
-    // Check for row/col pointers like i, j, r, c or AST-detected variables
+    // Check for row/col pointers: standard conventions (i/j, row/col, r/c) or explicit AST 2D coordinate pairs
     let activeCell: [number, number] | undefined;
     let rowIdx = locals['i'] ?? locals['row'] ?? locals['r'];
     let colIdx = locals['j'] ?? locals['col'] ?? locals['c'];
 
     if (rowIdx === undefined || colIdx === undefined) {
-      if (detectedSet) {
-        const candidateIndices = Array.from(detectedSet)
-          .map((name) => ({ name, val: locals[name] }))
-          .filter(
-            (c) =>
-              typeof c.val === 'number' &&
-              Number.isInteger(c.val) &&
-              c.val >= 0
-          );
-        if (candidateIndices.length >= 2) {
-          const rCandidate = candidateIndices.find((c) => c.val < grid.length);
-          const cCandidate = candidateIndices.find(
-            (c) => c.name !== rCandidate?.name && grid[0] && c.val < grid[0].length
-          );
-          if (rCandidate && cCandidate) {
-            rowIdx = rCandidate.val;
-            colIdx = cCandidate.val;
+      if (coordinatePairs && coordinatePairs.length > 0) {
+        for (const [rName, cName] of coordinatePairs) {
+          const rVal = locals[rName];
+          const cVal = locals[cName];
+          if (
+            typeof rVal === 'number' &&
+            Number.isInteger(rVal) &&
+            typeof cVal === 'number' &&
+            Number.isInteger(cVal)
+          ) {
+            rowIdx = rVal;
+            colIdx = cVal;
+            break;
           }
         }
       }

@@ -40,7 +40,7 @@ If any item fails: **do not merge.**
 | Item | Verdict |
 | --- | --- |
 | **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` | **MERGED & DONE.** Merged into `main` (`cde5b5b`). Sprint 1 complete. |
-| **Live Dry Run Sprint 2 (On-the-go visuals)** — `feature/live-dry-run-sprint-2` → `main` (`58d15b6`) | **READY FOR MERGE / 58d15b6.** All 4 Sprint 2 stories confirmed (F-LDR-S2-01..04). Tracer tests (40/40) green; production build verified; `next-env.d.ts` 0 diff. |
+| **Live Dry Run Sprint 2 (On-the-go visuals)** — `feature/live-dry-run-sprint-2` → `main` | **READY FOR REVIEW.** All 4 Sprint 2 stories implemented (F-LDR-S2-01..04). Dynamic AST index detection refined (ternary indexing, base pointers without offsets, explicit 2D coordinate pairs). All 9 suites (509 tests) green; production build verified; `next-env.d.ts` 0 diff. |
 | **Live Dry Run Sprint 4 (Complexity panel)** | Can start in parallel with Sprint 2/3. |
 | **Phase 2** | Done (Sprints 1–5). |
 | **Phase 3 (user system)** | After Live Dry Run epic. Tracker: `docs/phase-3-quality-flags.md`. |
@@ -51,7 +51,7 @@ If any item fails: **do not merge.**
 
 - **Timeout cannot keep steps after `terminate()`** (called out in the diagnostic).
 - **First function in the file is the one that runs.**
-- **AST-based index pointer detection RESOLVED**: Loop indices (`k`, `idx`, etc.) and computed property access (`arr[k]`, `matrix[r][c]`) are dynamically detected via AST without drawing false-positive pointers on scalar window sizes.
+- **AST index detection refined**: AST extracts computed subscripts (`arr[k]`, ternary `arr[cond ? a : b]`, base pointers in `arr[i + offset]`) and explicit 2D coordinate pairs (`matrix[r][c]`). Loop counters that do not index an array are not marked as pointers.
 - **Manual preview note**: Vercel preview was not clicked due to SSO. After merge, paste `try { while (true) {} }` once locally if you want a human freeze check.
 
 ---

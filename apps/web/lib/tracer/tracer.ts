@@ -57,13 +57,24 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
     };
   }
 
-  const { instrumentedCode, functionName = 'solution', detectedIndexVariables } = instrumentResult;
+  const {
+    instrumentedCode,
+    functionName = 'solution',
+    detectedIndexVariables,
+    detectedCoordinatePairs,
+  } = instrumentResult;
   const args = preflight.args || [];
 
   // 3. Worker environment check (F-LDR-S1-01)
   if (typeof Worker === 'undefined') {
     if (process.env.NODE_ENV === 'test') {
-      return executeTraceSync(instrumentedCode, functionName, args, detectedIndexVariables);
+      return executeTraceSync(
+        instrumentedCode,
+        functionName,
+        args,
+        detectedIndexVariables,
+        detectedCoordinatePairs
+      );
     }
     // Fail-closed in production: never execute on the UI thread
     return {
@@ -127,13 +138,22 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
         functionName,
         args,
         detectedIndexVariables,
+        detectedCoordinatePairs,
       };
 
       worker.postMessage(payload);
     } catch (err: any) {
       if (timer) clearTimeout(timer);
       if (process.env.NODE_ENV === 'test') {
-        resolve(executeTraceSync(instrumentedCode, functionName, args, detectedIndexVariables));
+        resolve(
+          executeTraceSync(
+            instrumentedCode,
+            functionName,
+            args,
+            detectedIndexVariables,
+            detectedCoordinatePairs
+          )
+        );
         return;
       }
       resolve({
@@ -158,11 +178,12 @@ export function executeTraceSync(
   instrumentedCode: string,
   functionName: string,
   args: any[],
-  detectedIndexVariables?: string[]
+  detectedIndexVariables?: string[],
+  detectedCoordinatePairs?: [string, string][]
 ): LiveTraceResult {
   const ctx = new ExecutionTracerContext();
-  if (detectedIndexVariables) {
-    ctx.registerIndexVariables(detectedIndexVariables);
+  if (detectedIndexVariables || detectedCoordinatePairs) {
+    ctx.registerIndexVariables(detectedIndexVariables || [], detectedCoordinatePairs);
   }
 
   try {

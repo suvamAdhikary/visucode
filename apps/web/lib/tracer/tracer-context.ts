@@ -7,6 +7,7 @@ export interface WorkerTracePayload {
   functionName: string;
   args: any[];
   detectedIndexVariables?: string[];
+  detectedCoordinatePairs?: [string, string][];
 }
 
 export interface WorkerTraceResponse {
@@ -47,16 +48,20 @@ export class ExecutionTracerContext {
   public fatalDiagnostic?: TraceDiagnostic;
   public fatalError?: any;
   public detectedIndexVariables = new Set<string>();
+  public detectedCoordinatePairs: [string, string][] = [];
   private lastSignature = '';
   private consecutiveRepeatCount = 0;
 
-  registerIndexVariables(names: string[]) {
+  registerIndexVariables(names: string[], coordinatePairs?: [string, string][]) {
     if (Array.isArray(names)) {
       for (const name of names) {
         if (name && typeof name === 'string') {
           this.detectedIndexVariables.add(name.toLowerCase());
         }
       }
+    }
+    if (Array.isArray(coordinatePairs)) {
+      this.detectedCoordinatePairs = coordinatePairs;
     }
   }
 
@@ -163,7 +168,11 @@ export class ExecutionTracerContext {
         ? explanationParts.slice(0, 4).join(', ')
         : `Line ${line}`;
 
-    const vizState = inferStepVisualizerState(locals, this.detectedIndexVariables);
+    const vizState = inferStepVisualizerState(
+      locals,
+      this.detectedIndexVariables,
+      this.detectedCoordinatePairs
+    );
 
     this.steps.push({
       stepNumber: this.steps.length + 1,

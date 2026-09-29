@@ -95,7 +95,7 @@ describe('Tracer Instrumenter', () => {
     expect(res.error?.line).toBeDefined();
   });
 
-  it('detects user-defined index variables from computed member expressions and loop headers', () => {
+  it('detects user-defined index variables from computed member expressions and coordinate pairs', () => {
     const code = `function search(items, target) {
   for (let k = 0; k < items.length; k++) {
     if (items[k] === target) return k;
@@ -116,5 +116,26 @@ describe('Tracer Instrumenter', () => {
     expect(res.detectedIndexVariables).toContain('c');
     expect(res.detectedIndexVariables).not.toContain('target');
     expect(res.detectedIndexVariables).not.toContain('items');
+    expect(res.detectedCoordinatePairs).toEqual([['r', 'c']]);
+  });
+
+  it('extracts ternary indices and excludes offset variables in BinaryExpressions', () => {
+    const code = `function advancedIndexing(arr, cond, a, b, i, offset) {
+  const v1 = arr[cond ? a : b];
+  const v2 = arr[i + offset];
+  for (let loopOnly = 0; loopOnly < 10; loopOnly++) {
+    // loopOnly does not index an array!
+  }
+  return v1 + v2;
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.detectedIndexVariables).toContain('a');
+    expect(res.detectedIndexVariables).toContain('b');
+    expect(res.detectedIndexVariables).toContain('i');
+    expect(res.detectedIndexVariables).not.toContain('cond');
+    expect(res.detectedIndexVariables).not.toContain('offset');
+    expect(res.detectedIndexVariables).not.toContain('loopOnly');
   });
 });

@@ -1,11 +1,17 @@
 import * as acorn from 'acorn';
 import type { TraceDiagnostic } from './types';
 
+export interface AstIndexAnalysis {
+  indexVariables: string[];
+  coordinatePairs: [string, string][];
+}
+
 export interface InstrumentResult {
   success: boolean;
   instrumentedCode?: string;
   functionName?: string;
   detectedIndexVariables?: string[];
+  detectedCoordinatePairs?: [string, string][];
   error?: TraceDiagnostic;
 }
 
@@ -34,10 +40,12 @@ function extractNames(pattern: any): string[] {
 
 /**
  * Recursively analyzes the AST to discover variable identifiers that are used as array or grid indices
- * (e.g. `arr[k]`, `nums[myVar]`, `matrix[r][c]`, `arr[i + 1]`, `for (let idx = 0; ...)`, `for (let k in arr)`).
+ * (e.g. `arr[k]`, `nums[myVar]`, `matrix[r][c]`, `arr[cond ? a : b]`, `arr[i + 1]`).
+ * Excludes offsets (e.g. `offset` in `arr[i + offset]`) and loop counters that never index an array.
  */
-export function collectIndexVariables(ast: any): string[] {
+export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
   const detected = new Set<string>();
+  const coordinatePairs: [string, string][] = [];
   const ignored = new Set([
     'this',
     'arguments',
@@ -55,9 +63,23 @@ export function collectIndexVariables(ast: any): string[] {
       if (!ignored.has(expr.name)) {
         detected.add(expr.name);
       }
+    } else if (expr.type === 'ConditionalExpression') {
+      // Ternary indexing: arr[cond ? a : b] -> extract a and b
+      extractExprIdentifiers(expr.consequent);
+      extractExprIdentifiers(expr.alternate);
     } else if (expr.type === 'BinaryExpression') {
-      extractExprIdentifiers(expr.left);
-      extractExprIdentifiers(expr.right);
+      // In arr[i + 1], arr[i - k], arr[i + offset]:
+      // The base pointer is the left operand (or right if left is a literal, e.g. 1 + i).
+      // The right-hand offset (e.g. `offset`, `k`, `1`) is excluded.
+      if (expr.operator === '+' || expr.operator === '-') {
+        if (expr.left?.type === 'Identifier') {
+          extractExprIdentifiers(expr.left);
+        } else if (expr.left?.type === 'Literal' && expr.right?.type === 'Identifier') {
+          extractExprIdentifiers(expr.right);
+        } else {
+          extractExprIdentifiers(expr.left);
+        }
+      }
     } else if (expr.type === 'UnaryExpression' || expr.type === 'UpdateExpression') {
       extractExprIdentifiers(expr.argument);
     }
@@ -66,24 +88,25 @@ export function collectIndexVariables(ast: any): string[] {
   function walkAst(node: any) {
     if (!node || typeof node !== 'object') return;
 
-    // 1. Computed MemberExpression: e.g. arr[k], nums[myPointer], grid[r][c]
-    if (node.type === 'MemberExpression' && node.computed) {
-      extractExprIdentifiers(node.property);
+    // 1. 2D nested MemberExpression: e.g. matrix[r][c] or grid[row][col]
+    if (
+      node.type === 'MemberExpression' &&
+      node.computed &&
+      node.object?.type === 'MemberExpression' &&
+      node.object.computed
+    ) {
+      const rowProp = node.object.property;
+      const colProp = node.property;
+      if (rowProp?.type === 'Identifier' && colProp?.type === 'Identifier') {
+        if (!ignored.has(rowProp.name) && !ignored.has(colProp.name)) {
+          coordinatePairs.push([rowProp.name.toLowerCase(), colProp.name.toLowerCase()]);
+        }
+      }
     }
 
-    // 2. Loop headers: for (let k = 0; ...), for (let idx in arr)
-    if (node.type === 'ForStatement' && node.init?.type === 'VariableDeclaration') {
-      for (const d of node.init.declarations || []) {
-        for (const name of extractNames(d.id)) {
-          if (!ignored.has(name)) detected.add(name);
-        }
-      }
-    } else if (node.type === 'ForInStatement' && node.left?.type === 'VariableDeclaration') {
-      for (const d of node.left.declarations || []) {
-        for (const name of extractNames(d.id)) {
-          if (!ignored.has(name)) detected.add(name);
-        }
-      }
+    // 2. Computed MemberExpression: e.g. arr[k], nums[myPointer], arr[cond ? a : b]
+    if (node.type === 'MemberExpression' && node.computed) {
+      extractExprIdentifiers(node.property);
     }
 
     for (const key of Object.keys(node)) {
@@ -100,7 +123,14 @@ export function collectIndexVariables(ast: any): string[] {
   }
 
   walkAst(ast);
-  return Array.from(detected);
+  return {
+    indexVariables: Array.from(detected),
+    coordinatePairs,
+  };
+}
+
+export function collectIndexVariables(ast: any): string[] {
+  return analyzeAstIndexUsage(ast).indexVariables;
 }
 
 /**
@@ -509,12 +539,13 @@ export function instrumentCode(source: string): InstrumentResult {
     result = result.slice(0, edit.start) + edit.replacement + result.slice(edit.end);
   }
 
-  const detectedIndexVariables = collectIndexVariables(ast);
+  const analysis = analyzeAstIndexUsage(ast);
 
   return {
     success: true,
     instrumentedCode: result,
     functionName: mainFunctionName,
-    detectedIndexVariables,
+    detectedIndexVariables: analysis.indexVariables,
+    detectedCoordinatePairs: analysis.coordinatePairs,
   };
 }
