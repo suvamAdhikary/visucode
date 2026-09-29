@@ -1,3 +1,4 @@
+import type { DryRunStep } from '@visucode/shared-types';
 import { validatePreflightInput } from './input-validator';
 import { instrumentCode } from './instrumenter';
 import type { LiveTraceResult, DiagnosticKind } from './types';
@@ -7,6 +8,8 @@ import {
   type WorkerTracePayload,
   type WorkerTraceResponse,
 } from './tracer-context';
+
+export type WorkerMessage = WorkerTraceResponse | { type: 'progress'; steps: DryRunStep[] };
 
 export interface TraceOptions {
   code: string;
@@ -118,16 +121,17 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
         });
       }, timeoutMs);
 
-      worker.onmessage = (e: MessageEvent<any>) => {
-        if (e.data?.type === 'progress') {
-          if (Array.isArray(e.data.steps)) {
-            lastKnownSteps = e.data.steps;
+      worker.onmessage = (e: MessageEvent<WorkerMessage>) => {
+        const data = e.data;
+        if ('type' in data && data.type === 'progress') {
+          if (Array.isArray(data.steps)) {
+            lastKnownSteps = data.steps;
           }
           return;
         }
         if (timer) clearTimeout(timer);
         if (worker) worker.terminate();
-        resolve(e.data);
+        resolve(data as LiveTraceResult);
       };
 
       worker.onerror = (e) => {
@@ -155,7 +159,7 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
       };
 
       worker.postMessage(payload);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (timer) clearTimeout(timer);
       if (process.env.NODE_ENV === 'test') {
         resolve(
@@ -170,13 +174,14 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
         );
         return;
       }
+      const message = err instanceof Error ? err.message : String(err);
       resolve({
         steps: [],
         totalSteps: 0,
         completed: false,
         diagnostic: {
           kind: 'runtime-error',
-          message: err?.message || 'Failed to initialize tracer worker sandbox.',
+          message: message || 'Failed to initialize tracer worker sandbox.',
           suggestion: 'Ensure Web Workers can be instantiated in your browser.',
         },
       });
@@ -191,7 +196,7 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
 export function executeTraceSync(
   instrumentedCode: string,
   functionName: string,
-  args: any[],
+  args: unknown[],
   detectedIndexVariables?: string[],
   detectedCoordinatePairs?: [string, string][],
   timeoutMs?: number
@@ -234,13 +239,28 @@ export function executeTraceSync(
       completed: true,
       returnValue,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorObj =
+      err && typeof err === 'object' ? (err as Record<string, unknown>) : null;
+    const errorKind =
+      errorObj && typeof errorObj.kind === 'string'
+        ? (errorObj.kind as DiagnosticKind)
+        : 'runtime-error';
+    const errorLine =
+      errorObj && typeof errorObj.line === 'number' ? errorObj.line : undefined;
+    const errorMessage =
+      err instanceof Error
+        ? err.message
+        : typeof errorObj?.message === 'string'
+        ? errorObj.message
+        : String(err);
+
     const diagnostic = ctx.fatalDiagnostic || {
-      kind: (err?.kind || 'runtime-error') as DiagnosticKind,
-      line: err?.line,
-      message: err?.message || String(err),
-      suggestion: createDiagnosticSuggestion(err?.kind || 'runtime-error', err?.line),
-      observedEvent: err?.message,
+      kind: errorKind,
+      line: errorLine,
+      message: errorMessage,
+      suggestion: createDiagnosticSuggestion(errorKind, errorLine),
+      observedEvent: errorMessage,
     };
 
     return {
