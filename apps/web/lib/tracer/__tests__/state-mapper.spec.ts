@@ -353,6 +353,26 @@ function testClass() {
       expect(stepWithActiveCell?.dpTableState?.activeCell).toEqual([0, 1]);
     });
 
+    it('supports camelCase 2D grid coordinates rowIdx and colIdx for activeCell', async () => {
+      const code = `function gridCamelCase(matrix) {
+  let rowIdx = 1;
+  let colIdx = 0;
+  return matrix[rowIdx][colIdx];
+}`;
+
+      const res = await traceUserCode({
+        code,
+        input: '[[[1, 2], [3, 4]]]',
+      });
+
+      expect(res.completed).toBe(true);
+      const stepWithActiveCell = res.steps.find(
+        (s) => s.dpTableState && s.dpTableState.activeCell !== undefined
+      );
+      expect(stepWithActiveCell).toBeDefined();
+      expect(stepWithActiveCell?.dpTableState?.activeCell).toEqual([1, 0]);
+    });
+
     it('supports ternary index expressions (arr[cond ? a : b]) and excludes binary offsets (arr[i + offset])', async () => {
       const code = `function indexingEdgeCases(arr) {
   let cond = true;

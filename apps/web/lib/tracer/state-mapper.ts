@@ -88,6 +88,15 @@ export function getPointerColor(name: string): string {
   return DYNAMIC_POINTER_PALETTE[Math.abs(hash) % DYNAMIC_POINTER_PALETTE.length];
 }
 
+function getLocalVar(locals: Record<string, any>, name: string): any {
+  if (locals[name] !== undefined) return locals[name];
+  const lower = name.toLowerCase();
+  for (const [k, v] of Object.entries(locals)) {
+    if (k.toLowerCase() === lower) return v;
+  }
+  return undefined;
+}
+
 const ARRAY_PRIORITY_NAMES = ['nums', 'arr', 'array', 'list', 'elements', 'data'];
 const DP_PRIORITY_NAMES = ['dp', 'grid', 'matrix', 'table', 'memo', 'board'];
 const MAP_PRIORITY_NAMES = ['map', 'seen', 'counts', 'count', 'freq', 'dict', 'lookup', 'hash'];
@@ -143,16 +152,30 @@ export function inferStepVisualizerState(
         : []
     );
 
-    // Check for row/col pointers: standard conventions (i/j, row/col, r/c) or explicit AST 2D coordinate pairs
+    // Check for row/col pointers: standard conventions (i/j, r/c, row/col, rowIdx/colIdx) or explicit AST 2D coordinate pairs
     let activeCell: [number, number] | undefined;
-    let rowIdx = locals['i'] ?? locals['row'] ?? locals['r'];
-    let colIdx = locals['j'] ?? locals['col'] ?? locals['c'];
+    let rowIdx =
+      locals['i'] ??
+      locals['r'] ??
+      locals['row'] ??
+      locals['rowIdx'] ??
+      locals['rowIndex'] ??
+      locals['R'] ??
+      locals['I'];
+    let colIdx =
+      locals['j'] ??
+      locals['c'] ??
+      locals['col'] ??
+      locals['colIdx'] ??
+      locals['colIndex'] ??
+      locals['C'] ??
+      locals['J'];
 
     if (rowIdx === undefined || colIdx === undefined) {
       if (coordinatePairs && coordinatePairs.length > 0) {
         for (const [rName, cName] of coordinatePairs) {
-          const rVal = locals[rName];
-          const cVal = locals[cName];
+          const rVal = getLocalVar(locals, rName);
+          const cVal = getLocalVar(locals, cName);
           if (
             typeof rVal === 'number' &&
             Number.isInteger(rVal) &&

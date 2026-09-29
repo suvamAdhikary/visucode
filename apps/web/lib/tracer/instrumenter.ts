@@ -99,7 +99,7 @@ export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
       const colProp = node.property;
       if (rowProp?.type === 'Identifier' && colProp?.type === 'Identifier') {
         if (!ignored.has(rowProp.name) && !ignored.has(colProp.name)) {
-          coordinatePairs.push([rowProp.name.toLowerCase(), colProp.name.toLowerCase()]);
+          coordinatePairs.push([rowProp.name, colProp.name]);
         }
       }
     }
