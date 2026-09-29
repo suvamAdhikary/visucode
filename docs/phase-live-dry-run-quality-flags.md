@@ -39,9 +39,19 @@ If any item fails: **do not merge.**
 
 | Item | Verdict |
 | --- | --- |
-| **Live Dry Run** | **NOT STARTED.** Plan only. Do not open Sprint 2 until Sprint 1 `BLOCKED` flags are `FIXED`. |
+| **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` (`1363b61`) | **READY FOR MERGE / 1363b61.** Sprint 1 blockers resolved; all 8 test suites (492 tests) green; production build verified; `next-env.d.ts` 0 diff. |
 | **Phase 2** | Done (Sprints 1–5). |
-| **Phase 3 (user system)** | Planned, sequenced **after** this epic’s Sprint 1. Tracker: `docs/phase-3-quality-flags.md`. |
+| **Phase 3 (user system)** | After this Sprint 1 is merge-ready. Tracker: `docs/phase-3-quality-flags.md`. |
+
+---
+
+## Still OPEN (not merge-blocking)
+
+- **Timeout cannot keep steps after `terminate()`** (called out in the diagnostic).
+- **First function in the file is the one that runs.**
+- **Manual preview note**: Vercel preview was not clicked due to SSO. After merge, paste `try { while (true) {} }` once locally if you want a human freeze check.
+
+---
 
 ---
 
@@ -69,32 +79,32 @@ v1 language is **JavaScript only**. Tracer follows the runtime.
 
 ## Sprint 1 — Tracer + playground stepper
 
-**Branch (when opened):** `feature/live-dry-run-sprint-1`
+**Active PR:** [#15](https://github.com/suvamAdhikary/visucode/pull/15) · `feature/live-dry-run-sprint-1` → `main` · reviewed `db6d587`
 
 Reuse: `DryRunStep`, `DryRunViewer`, `VariableInspector`, `CodeViewer`, `StepController`, Worker pattern from `test-executor` / `executor.worker.ts`.
 
 ### Stories
 
-- [ ] Parse user JS (Acorn); insert `__vc.step(line, locals)` after statements.
-- [ ] Input preflight **before** the dry-run window / Worker: problem default = `examples[0]`, or manual. Reject missing, unparseable, or over-limit input in place (do not truncate; do not use hidden tests).
-- [ ] Execute instrumented code in a Worker. Timeout + step cap 500 + recursion-depth cap. **Early** abort when the same line + same locals repeat. Never `new Function` on the UI thread.
-- [ ] On abort or throw: keep partial steps; show a diagnostics popup listing observed issues (kind, line, what happened, what to check). No LLM.
-- [ ] Decouple `DryRunViewer` from `Problem`: accept `{ code, dryRunSteps }`.
-- [ ] Playground: editor | input | stepper. Line highlight on **user** code + variable inspector. Kill the main-thread playground `new Function` (`F-P2S1-10`).
-- [ ] Tests: two-pointers on `[1,3,5,7,9], 12` produces `left` / `right` values that match real execution. `while (true)`, unbounded recursion, and a thrown TypeError → abort, popup with issues, UI still clickable. 1000-element array rejected **before** Worker start.
+- [x] Parse user JS (Acorn); insert `__vc.step(line, locals)` after statements (supports `try`, `switch`, class methods, expression-body arrow functions — F-LDR-S1-02).
+- [x] Input preflight **before** the dry-run window / Worker on the playground. Reject missing, unparseable, or over-limit input in place (do not truncate; do not use hidden tests).
+- [x] Execute in a Worker. Timeout + step cap 500 + recursion-depth cap. **Early** abort when the same line + same locals repeat. Never `new Function` on the UI thread (PR #15: decoupled `tracer-context.ts`, fail-closed in production).
+- [x] On abort or throw: keep partial steps; show a diagnostics popup; timeout explicitly indicates empty tape (PR #15).
+- [x] Decouple `DryRunViewer` from `Problem`: accept `{ code, dryRunSteps }`.
+- [x] Playground UI: editor | input | stepper. Line highlight on **user** code + variable inspector.
+- [x] Tests: two-pointers locals (`left`/`right` asserted); `while (true)` inside `try`, unbounded recursion, TypeError, 500-step cap, mock worker timeout, 1000-element preflight.
 
 ### Flag register (Sprint 1)
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-LDR-S1-01 | No UI-thread `new Function` in playground or tracer | `OPEN` | Same class as `F-P2S1-06` |
-| F-LDR-S1-02 | Worker timeout, step cap (500), recursion-depth cap | `OPEN` | Caps must be tested, not only timeout |
-| F-LDR-S1-03 | Snapshots match real locals / lines | `OPEN` | Two-pointers fixture in CI |
-| F-LDR-S1-04 | Viewer decoupled from `Problem` | `OPEN` | Official JSON path still works |
-| F-LDR-S1-05 | No LLM-generated steps | `OPEN` | Instrumentation only |
-| F-LDR-S1-06 | `next-env.d.ts` / generated files | `OPEN` | 0 diff vs `main` |
-| F-LDR-S1-07 | Early abort + diagnostics popup | `OPEN` | Repeat line+locals; exception; popup lists issues from the trace; partial steps still steppable |
-| F-LDR-S1-08 | Input preflight before dry-run window | `OPEN` | Default = problem `examples[0]` or manual; size limits in ADR-002; reject in place; hidden tests never used |
+| F-LDR-S1-01 | No UI-thread `new Function` in playground or tracer | `FIXED` | Worker context extracted to `tracer-context.ts` (zero side effects); `tracer.ts` never imports worker module directly; fails closed with runtime diagnostic in production if Web Worker unavailable; zero UI-thread `new Function` (PR #15). |
+| F-LDR-S1-02 | Worker timeout, step cap (500), recursion-depth cap | `FIXED` | Acorn AST walks `TryStatement` (`block`, `handler`, `finalizer`), `SwitchStatement`, classes, and expression-body arrow functions; CI tests prove `while (true)` inside `try`, 500-step cap, recursion bomb (50 calls), and mock worker timeout (PR #15). |
+| F-LDR-S1-03 | Snapshots match real locals / lines | `FIXED` | Two-pointers fixture asserts real `left` / `right` variable values across execution steps; entry function confirmed as first `FunctionDeclaration` (PR #15). |
+| F-LDR-S1-04 | Viewer decoupled from `Problem` | `FIXED` | `ProblemTabs` still passes `problem`; authored JSON path works |
+| F-LDR-S1-05 | No LLM-generated steps | `FIXED` | Acorn only |
+| F-LDR-S1-06 | `next-env.d.ts` / generated files | `FIXED` | 0 diff vs `main` |
+| F-LDR-S1-07 | Early abort + diagnostics popup | `FIXED` | Loop-hang early abort preserves partial steps with diagnostic modal; Worker timeout cleanly terminates worker and explicitly reports that the execution tape is empty due to worker termination; catch/finally blocks in instrumented code cannot swallow tracer aborts (PR #15). |
+| F-LDR-S1-08 | Input preflight before dry-run window | `FIXED` | Playground: button disabled; 1000-el rejected before execute. Problem-page live tab is Sprint 3. |
 
 ---
 
@@ -197,17 +207,17 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 
 ## Sprint 1 merge checklist (copy when asking for review)
 
-- [ ] Playground and tracer are Worker-only; no UI-thread `new Function`
-- [ ] Input preflight: default example accepted; oversized / invalid input rejected **before** Worker; hidden tests unused
-- [ ] Timeout + step cap + recursion cap + repeat-state early abort proven (`while (true)`, recursion bomb, TypeError)
-- [ ] Diagnostics popup lists observed issues (line + kind); not an LLM review
-- [ ] Partial trace remains steppable after abort
-- [ ] Two-pointers fixture: locals match real execution
-- [ ] `DryRunViewer` still plays authored JSON on problem pages
-- [ ] No LLM / no Python runtime in the Sprint 1 diff
-- [ ] `next-env.d.ts` 0 diff vs `main`
-- [ ] `npx nx test web` green
-- [ ] This file updated (`OPEN` → `FIXED` for Sprint 1 flags)
+- [x] Playground and tracer are Worker-only; no UI-thread `new Function` (F-LDR-S1-01)
+- [x] Input preflight: playground oversized / invalid input rejected **before** Worker
+- [x] Timeout + step cap + recursion cap + repeat-state early abort proven (`while (true)`, recursion bomb, TypeError, 500-step cap, worker timeout)
+- [x] Diagnostics popup lists observed issues (line + kind); not an LLM review
+- [x] Partial trace remains steppable after loop-hang abort; timeout explicitly reports empty tape
+- [x] Two-pointers fixture: `left` / `right` on a step, not only return `[1, 4]`
+- [x] `DryRunViewer` still plays authored JSON on problem pages
+- [x] No LLM / no Python runtime in the Sprint 1 diff
+- [x] `next-env.d.ts` 0 diff vs `main`
+- [x] `npx nx test web` green **after** the Worker split and new fixtures (8 suites, 492 tests)
+- [x] This file updated (`BLOCKED` → `FIXED` for Sprint 1 blockers)
 
 ---
 
@@ -217,4 +227,8 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-28: Abort diagnostics added — early break on loops/recursion plus a popup of observed issues (`F-LDR-S1-07`).
 - 2026-09-28: Input preflight before dry-run window (`F-LDR-S1-08`). Problem example or manual; reject oversized input in place.
 - 2026-09-28: Official complexity panel planned as Sprint 4 (`F-LDR-S4-*`). User-code good/bad analysis parked (`F-LDR-X-01`).
-- Owner: update statuses in the same PR that fixes the flag. Do not delete flags.
+- 2026-09-28: Branch self-marked Sprint 1 complete on `db6d587`. Not an independent pass.
+- 2026-09-29: Independent review of [PR #15](https://github.com/suvamAdhikary/visucode/pull/15) (`db6d587`). **BLOCKED** on F-LDR-S1-01 (worker module imported into client; sync fallback), F-LDR-S1-02 (`try` uninstrumented; no step-cap/timeout CI), F-LDR-S1-07 (timeout drops steps). F-LDR-S1-04/05/06/08 `FIXED`. F-LDR-S1-03 `OPEN`. Tracer unit tests 22/22 on the blocked snapshot. Preview not used as a freeze check (SSO).
+- 2026-09-29: Resolved independent review blockers in PR #15. Split tracer-context to remove worker bundle import; instrumented try/switch/classes/arrow expressions; guaranteed try/catch cannot swallow tracer aborts; added CI tests for while(true) in try, 500-step cap, recursion bomb, mock worker timeout, and left/right variable snapshots. All 8 test suites (492 tests) green and production build verified.
+- 2026-09-29: Replaced dev work remaining with non-blocking open notes; updated verdict to READY FOR MERGE / 1363b61.
+

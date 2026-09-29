@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "composite": false,
+    "declarationMap": false,
     "jsx": "preserve",
     "noEmit": true,
     "emitDeclarationOnly": false,
@@ -29,6 +31,9 @@
     "app/**/*.js",
     "app/**/*.jsx",
     "lib/**/*.ts",
+    "lib/**/*.tsx",
+    "specs/**/*.ts",
+    "specs/**/*.tsx",
     "../../apps/web/.next/types/**/*.ts",
     "../../dist/apps/web/.next/types/**/*.ts",
     "next-env.d.ts"

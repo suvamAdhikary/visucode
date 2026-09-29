@@ -5,7 +5,7 @@
 
 import { readFileSync, readdirSync } from 'fs';
 import path from 'path';
-import { executeTests, extractFunctionName } from '../test-executor';
+import { executeTests } from '../test-executor';
 
 const PROBLEMS_DIR = path.join(__dirname, '../../../content/problems');
 
