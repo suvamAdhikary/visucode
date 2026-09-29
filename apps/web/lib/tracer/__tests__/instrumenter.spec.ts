@@ -138,4 +138,19 @@ describe('Tracer Instrumenter', () => {
     expect(res.detectedIndexVariables).not.toContain('offset');
     expect(res.detectedIndexVariables).not.toContain('loopOnly');
   });
+
+  it('preserves exact casing and supports binary offsets in detectedCoordinatePairs', () => {
+    const code = `function gridCoords(matrix) {
+  const v1 = matrix[rowIdx][colIdx];
+  const v2 = matrix[r - 1][c + 1];
+  return v1 + v2;
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.detectedCoordinatePairs).toEqual([
+      ['rowIdx', 'colIdx'],
+      ['r', 'c'],
+    ]);
+  });
 });

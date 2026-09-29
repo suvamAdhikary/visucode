@@ -152,41 +152,77 @@ export function inferStepVisualizerState(
         : []
     );
 
-    // Check for row/col pointers: standard conventions (i/j, r/c, row/col, rowIdx/colIdx) or explicit AST 2D coordinate pairs
+    // Check for row/col pointers: prioritize explicit AST 2D coordinate pairs, then standard conventions (r/c, i/j, row/col, rowIdx/colIdx)
     let activeCell: [number, number] | undefined;
-    let rowIdx =
-      locals['i'] ??
-      locals['r'] ??
-      locals['row'] ??
-      locals['rowIdx'] ??
-      locals['rowIndex'] ??
-      locals['R'] ??
-      locals['I'];
-    let colIdx =
-      locals['j'] ??
-      locals['c'] ??
-      locals['col'] ??
-      locals['colIdx'] ??
-      locals['colIndex'] ??
-      locals['C'] ??
-      locals['J'];
+    let rowIdx: number | undefined;
+    let colIdx: number | undefined;
 
-    if (rowIdx === undefined || colIdx === undefined) {
-      if (coordinatePairs && coordinatePairs.length > 0) {
-        for (const [rName, cName] of coordinatePairs) {
-          const rVal = getLocalVar(locals, rName);
-          const cVal = getLocalVar(locals, cName);
-          if (
-            typeof rVal === 'number' &&
-            Number.isInteger(rVal) &&
-            typeof cVal === 'number' &&
-            Number.isInteger(cVal)
-          ) {
-            rowIdx = rVal;
-            colIdx = cVal;
-            break;
-          }
+    // 1. Prioritize explicit AST 2D coordinate pairs found in user subscript expressions (e.g. matrix[rowIdx][colIdx], grid[r][c])
+    if (coordinatePairs && coordinatePairs.length > 0) {
+      for (const [rName, cName] of coordinatePairs) {
+        const rVal = getLocalVar(locals, rName);
+        const cVal = getLocalVar(locals, cName);
+        if (
+          typeof rVal === 'number' &&
+          Number.isInteger(rVal) &&
+          typeof cVal === 'number' &&
+          Number.isInteger(cVal)
+        ) {
+          rowIdx = rVal;
+          colIdx = cVal;
+          break;
         }
+      }
+    }
+
+    // 2. Fallback to standard convention pairs if no AST coordinate pair matched in locals
+    if (rowIdx === undefined || colIdx === undefined) {
+      const standardPairs: [string, string][] = [
+        ['i', 'j'],
+        ['r', 'c'],
+        ['row', 'col'],
+        ['rowIdx', 'colIdx'],
+        ['rowIndex', 'colIndex'],
+        ['R', 'C'],
+        ['I', 'J'],
+      ];
+      for (const [rName, cName] of standardPairs) {
+        const rVal = getLocalVar(locals, rName);
+        const cVal = getLocalVar(locals, cName);
+        if (
+          typeof rVal === 'number' &&
+          Number.isInteger(rVal) &&
+          typeof cVal === 'number' &&
+          Number.isInteger(cVal)
+        ) {
+          rowIdx = rVal;
+          colIdx = cVal;
+          break;
+        }
+      }
+    }
+
+    // 3. Fallback: individual row and column variables
+    if (rowIdx === undefined || colIdx === undefined) {
+      if (rowIdx === undefined) {
+        rowIdx =
+          locals['i'] ??
+          locals['r'] ??
+          locals['row'] ??
+          locals['rowIdx'] ??
+          locals['rowIndex'] ??
+          locals['R'] ??
+          locals['I'];
+      }
+      if (colIdx === undefined) {
+        colIdx =
+          locals['j'] ??
+          locals['c'] ??
+          locals['col'] ??
+          locals['colIdx'] ??
+          locals['colIndex'] ??
+          locals['C'] ??
+          locals['J'];
       }
     }
 

@@ -373,6 +373,47 @@ function testClass() {
       expect(stepWithActiveCell?.dpTableState?.activeCell).toEqual([1, 0]);
     });
 
+    it('prioritizes AST 2D coordinate pairs over unrelated outer loop index i', async () => {
+      const code = `function gridNested(matrix) {
+  let i = 0; // outer loop variable
+  let r = 1;
+  let c = 0;
+  return matrix[r][c];
+}`;
+
+      const res = await traceUserCode({
+        code,
+        input: '[[[1, 2], [3, 4]]]',
+      });
+
+      expect(res.completed).toBe(true);
+      const stepWithActiveCell = res.steps.find(
+        (s) => s.dpTableState && s.dpTableState.activeCell !== undefined
+      );
+      expect(stepWithActiveCell).toBeDefined();
+      expect(stepWithActiveCell?.dpTableState?.activeCell).toEqual([1, 0]);
+    });
+
+    it('supports binary offsets in 2D coordinate subscripts (matrix[r - 1][c])', async () => {
+      const code = `function gridOffset(matrix) {
+  let r = 1;
+  let c = 1;
+  return matrix[r - 1][c];
+}`;
+
+      const res = await traceUserCode({
+        code,
+        input: '[[[1, 2], [3, 4]]]',
+      });
+
+      expect(res.completed).toBe(true);
+      const stepWithActiveCell = res.steps.find(
+        (s) => s.dpTableState && s.dpTableState.activeCell !== undefined
+      );
+      expect(stepWithActiveCell).toBeDefined();
+      expect(stepWithActiveCell?.dpTableState?.activeCell).toEqual([1, 1]);
+    });
+
     it('supports ternary index expressions (arr[cond ? a : b]) and excludes binary offsets (arr[i + offset])', async () => {
       const code = `function indexingEdgeCases(arr) {
   let cond = true;

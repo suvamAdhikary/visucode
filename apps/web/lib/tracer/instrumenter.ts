@@ -85,10 +85,21 @@ export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
     }
   }
 
+  function getBaseIdentifierName(expr: any): string | null {
+    if (!expr || typeof expr !== 'object') return null;
+    if (expr.type === 'Identifier') return expr.name;
+    if (expr.type === 'BinaryExpression' && (expr.operator === '+' || expr.operator === '-')) {
+      if (expr.left?.type === 'Identifier') return expr.left.name;
+      if (expr.left?.type === 'Literal' && expr.right?.type === 'Identifier') return expr.right.name;
+      return getBaseIdentifierName(expr.left);
+    }
+    return null;
+  }
+
   function walkAst(node: any) {
     if (!node || typeof node !== 'object') return;
 
-    // 1. 2D nested MemberExpression: e.g. matrix[r][c] or grid[row][col]
+    // 1. 2D nested MemberExpression: e.g. matrix[r][c], grid[row][col], dp[i - 1][j]
     if (
       node.type === 'MemberExpression' &&
       node.computed &&
@@ -97,10 +108,10 @@ export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
     ) {
       const rowProp = node.object.property;
       const colProp = node.property;
-      if (rowProp?.type === 'Identifier' && colProp?.type === 'Identifier') {
-        if (!ignored.has(rowProp.name) && !ignored.has(colProp.name)) {
-          coordinatePairs.push([rowProp.name, colProp.name]);
-        }
+      const rowName = getBaseIdentifierName(rowProp);
+      const colName = getBaseIdentifierName(colProp);
+      if (rowName && colName && !ignored.has(rowName) && !ignored.has(colName)) {
+        coordinatePairs.push([rowName, colName]);
       }
     }
 
