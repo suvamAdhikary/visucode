@@ -39,9 +39,11 @@ If any item fails: **do not merge.**
 
 | Item | Verdict |
 | --- | --- |
-| **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` (`1363b61`) | **READY FOR MERGE / 1363b61.** Sprint 1 blockers resolved; all 8 test suites (492 tests) green; production build verified; `next-env.d.ts` 0 diff. |
+| **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` | **MERGED & DONE.** Merged into `main` (`cde5b5b`). Sprint 1 complete. |
+| **Live Dry Run Sprint 2 (On-the-go visuals)** | Next up (`feature/live-dry-run-sprint-2`). |
+| **Live Dry Run Sprint 4 (Complexity panel)** | Can start in parallel with Sprint 2/3. |
 | **Phase 2** | Done (Sprints 1–5). |
-| **Phase 3 (user system)** | After this Sprint 1 is merge-ready. Tracker: `docs/phase-3-quality-flags.md`. |
+| **Phase 3 (user system)** | After Live Dry Run epic. Tracker: `docs/phase-3-quality-flags.md`. |
 
 ---
 
