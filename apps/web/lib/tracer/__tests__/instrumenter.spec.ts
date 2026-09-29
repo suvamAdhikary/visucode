@@ -153,4 +153,20 @@ describe('Tracer Instrumenter', () => {
       ['r', 'c'],
     ]);
   });
+
+  it('treats i as base pointer in arr[offset + i] and extracts i and j from arr[i * n + j]', () => {
+    const code = `function flattenedAndOffsetIndexing(arr, offset, i, j, n) {
+  const v1 = arr[offset + i];
+  const v2 = arr[i * n + j];
+  return v1 + v2;
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.detectedIndexVariables).toContain('i');
+    expect(res.detectedIndexVariables).toContain('j');
+    expect(res.detectedIndexVariables).not.toContain('offset');
+    expect(res.detectedIndexVariables).not.toContain('n');
+    expect(res.detectedCoordinatePairs).toContainEqual(['i', 'j']);
+  });
 });

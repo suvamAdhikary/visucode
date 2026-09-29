@@ -40,7 +40,7 @@ If any item fails: **do not merge.**
 | Item | Verdict |
 | --- | --- |
 | **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` | **MERGED & DONE.** Merged into `main` (`cde5b5b`). Sprint 1 complete. |
-| **Live Dry Run Sprint 2 (On-the-go visuals)** — `feature/live-dry-run-sprint-2` → `main` | **READY FOR REVIEW.** All 4 Sprint 2 stories implemented (F-LDR-S2-01..04). Dynamic AST index detection refined (ternary indexing, base pointers without offsets, explicit 2D coordinate pairs with casing preservation and AST prioritization). All 9 suites (513 tests) green; production build verified; `next-env.d.ts` 0 diff. |
+| **Live Dry Run Sprint 2 (On-the-go visuals)** — `feature/live-dry-run-sprint-2` → `main` | **READY FOR REVIEW.** All 4 Sprint 2 stories implemented (F-LDR-S2-01..04). Dynamic AST index detection refined (ternary indexing, commutative offset handling, 2D stride multiplication `arr[i * n + j]`, explicit 2D coordinate pairs with casing preservation and AST prioritization). All 9 suites (515 tests) green; production build verified; `next-env.d.ts` 0 diff. |
 | **Live Dry Run Sprint 4 (Complexity panel)** | Can start in parallel with Sprint 2/3. |
 | **Phase 2** | Done (Sprints 1–5). |
 | **Phase 3 (user system)** | After Live Dry Run epic. Tracker: `docs/phase-3-quality-flags.md`. |
@@ -51,7 +51,7 @@ If any item fails: **do not merge.**
 
 - **Timeout cannot keep steps after `terminate()`** (called out in the diagnostic).
 - **First function in the file is the one that runs.**
-- **AST index detection refined**: AST extracts computed subscripts (`arr[k]`, ternary `arr[cond ? a : b]`, base pointers in `arr[i + offset]`) and explicit 2D coordinate pairs (`matrix[r][c]`, `matrix[rowIdx][colIdx]`, `dp[i - 1][j]`). Exact identifier casing is preserved, AST coordinate pairs take priority over unrelated outer loop counters, and standard convention pairs (`i/j`, `r/c`, `row/col`, `rowIdx/colIdx`) are supported as fallbacks.
+- **AST index detection refined**: AST extracts computed subscripts (`arr[k]`, ternary `arr[cond ? a : b]`, commutative offsets `arr[i + offset]` and `arr[offset + i]`, 2D-to-1D stride expressions `arr[i * n + j]`) and explicit 2D coordinate pairs (`matrix[r][c]`, `matrix[rowIdx][colIdx]`, `dp[i - 1][j]`). Exact identifier casing is preserved, AST coordinate pairs take priority over unrelated outer loop counters, and standard convention pairs (`i/j`, `r/c`, `row/col`, `rowIdx/colIdx`) are supported as fallbacks. In offset coordinates like `matrix[r - 1][c]`, local pointer variables (`r`, `c`) are highlighted adhering to the snapshot model.
 - **Manual preview note**: Vercel preview was not clicked due to SSO. After merge, paste `try { while (true) {} }` once locally if you want a human freeze check.
 
 ---
@@ -234,5 +234,6 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-29: Replaced dev work remaining with non-blocking open notes; updated verdict to READY FOR MERGE / 1363b61.
 - 2026-09-29: Sprint 2 updated to READY FOR MERGE / 58d15b6. Confirmed 4 stories (F-LDR-S2-01..04). Decoupled tracer-utils.ts (zero circular imports), added DP activeCell and hash-map e2e tracer tests, tested class-instance fields in unit and e2e fixtures, and verified out-of-bounds drops with real pointer identifiers. Tracer tests (40/40) green, next-env.d.ts 0 diff, production build verified. Loop-index k and Sprint 1 leftovers remain documented under Still OPEN.
 - 2026-09-29: Enhanced 2D coordinate pair detection: preserved exact casing in AST coordinate extraction with case-insensitive getLocalVar fallback; supported binary offset coordinates (matrix[r - 1][c]); prioritized AST coordinate pairs over outer loop variables to prevent i from overriding r/c; added camelCase rowIdx/colIdx conventions. All 9 suites (513 tests) passing.
+- 2026-09-29: Resolved 1D offset commutativity and stride index extraction: arr[offset + i] correctly identifies i as the base pointer and excludes offset; arr[i * n + j] extracts i and j from * stride calculations while excluding dimension n and recording (i, j) coordinate pairs; confirmed matrix[r - 1][c] highlights snapshot locals (r, c). All 9 suites (515 tests) passing.
 
 

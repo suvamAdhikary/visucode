@@ -57,6 +57,24 @@ export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
     'false',
   ]);
 
+  const OFFSET_OR_DIM_REGEX =
+    /^(offset|delta|diff|step|shift|pad|padding|margin|gap|dist|distance|stride|dim|dimension|width|height|cols|rows|columns|n|m|len|length|size)$/i;
+
+  function isOffsetOrDimName(name: string): boolean {
+    if (OFFSET_OR_DIM_REGEX.test(name)) return true;
+    if (/offset$/i.test(name) || /delta$/i.test(name) || /shift$/i.test(name) || /step$/i.test(name)) {
+      return true;
+    }
+    return false;
+  }
+
+  const POINTER_NAME_REGEX =
+    /^(i|j|k|r|c|p|l|u|v|x|y|idx|index|left|right|lo|hi|low|high|mid|middle|curr|cur|ptr|pointer|head|tail|pos|start|end|row|col|rowidx|colidx|rowindex|colindex)$/i;
+
+  function isPointerName(name: string): boolean {
+    return POINTER_NAME_REGEX.test(name);
+  }
+
   function extractExprIdentifiers(expr: any) {
     if (!expr || typeof expr !== 'object') return;
     if (expr.type === 'Identifier') {
@@ -68,30 +86,149 @@ export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
       extractExprIdentifiers(expr.consequent);
       extractExprIdentifiers(expr.alternate);
     } else if (expr.type === 'BinaryExpression') {
-      // In arr[i + 1], arr[i - k], arr[i + offset]:
-      // The base pointer is the left operand (or right if left is a literal, e.g. 1 + i).
-      // The right-hand offset (e.g. `offset`, `k`, `1`) is excluded.
-      if (expr.operator === '+' || expr.operator === '-') {
-        if (expr.left?.type === 'Identifier') {
+      if (expr.operator === '+') {
+        // Flattened 2D index: arr[i * n + j] or arr[j + i * n]
+        if (expr.left?.type === 'BinaryExpression' && expr.left.operator === '*') {
           extractExprIdentifiers(expr.left);
-        } else if (expr.left?.type === 'Literal' && expr.right?.type === 'Identifier') {
           extractExprIdentifiers(expr.right);
+        } else if (expr.right?.type === 'BinaryExpression' && expr.right.operator === '*') {
+          extractExprIdentifiers(expr.left);
+          extractExprIdentifiers(expr.right);
+        } else if (expr.left?.type === 'Literal') {
+          // arr[1 + i]
+          extractExprIdentifiers(expr.right);
+        } else if (expr.right?.type === 'Literal') {
+          // arr[i + 1]
+          extractExprIdentifiers(expr.left);
         } else {
+          // In arr[offset + i] or arr[i + offset]:
+          // Distinguish pointer from offset/delta/dimension
+          const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
+          const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
+
+          if (leftName && isOffsetOrDimName(leftName) && rightName && !isOffsetOrDimName(rightName)) {
+            // arr[offset + i] -> extract i
+            extractExprIdentifiers(expr.right);
+          } else if (rightName && isOffsetOrDimName(rightName) && leftName && !isOffsetOrDimName(leftName)) {
+            // arr[i + offset] -> extract i
+            extractExprIdentifiers(expr.left);
+          } else if (rightName && isPointerName(rightName) && leftName && !isPointerName(leftName)) {
+            extractExprIdentifiers(expr.right);
+          } else if (leftName && isPointerName(leftName) && rightName && !isPointerName(rightName)) {
+            extractExprIdentifiers(expr.left);
+          } else {
+            // e.g. arr[i + j]
+            extractExprIdentifiers(expr.left);
+            extractExprIdentifiers(expr.right);
+          }
+        }
+      } else if (expr.operator === '-') {
+        // In arr[i - 1], arr[i - offset]:
+        if (
+          expr.right?.type === 'Literal' ||
+          (expr.right?.type === 'Identifier' && isOffsetOrDimName(expr.right.name))
+        ) {
+          extractExprIdentifiers(expr.left);
+        } else {
+          const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
+          const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
+          if (leftName && isOffsetOrDimName(leftName) && rightName && !isOffsetOrDimName(rightName)) {
+            extractExprIdentifiers(expr.right);
+          } else {
+            extractExprIdentifiers(expr.left);
+          }
+        }
+      } else if (expr.operator === '*') {
+        // In arr[i * 2], arr[2 * i], arr[i * n], arr[n * i]
+        if (expr.left?.type === 'Literal') {
+          extractExprIdentifiers(expr.right);
+        } else if (expr.right?.type === 'Literal') {
+          extractExprIdentifiers(expr.left);
+        } else {
+          const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
+          const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
+          if (leftName && isOffsetOrDimName(leftName) && rightName && !isOffsetOrDimName(rightName)) {
+            extractExprIdentifiers(expr.right);
+          } else if (rightName && isOffsetOrDimName(rightName) && leftName && !isOffsetOrDimName(leftName)) {
+            extractExprIdentifiers(expr.left);
+          } else if (leftName && isPointerName(leftName) && (!rightName || !isPointerName(rightName))) {
+            extractExprIdentifiers(expr.left);
+          } else if (rightName && isPointerName(rightName) && (!leftName || !isPointerName(leftName))) {
+            extractExprIdentifiers(expr.right);
+          } else {
+            extractExprIdentifiers(expr.left);
+          }
+        }
+      } else if (expr.operator === '/' || expr.operator === '>>' || expr.operator === '>>>') {
+        extractExprIdentifiers(expr.left);
+      } else if (expr.operator === '|') {
+        if (expr.right?.type === 'Literal' && expr.right.value === 0) {
           extractExprIdentifiers(expr.left);
         }
       }
     } else if (expr.type === 'UnaryExpression' || expr.type === 'UpdateExpression') {
       extractExprIdentifiers(expr.argument);
+    } else if (expr.type === 'CallExpression') {
+      if (expr.arguments && expr.arguments.length > 0) {
+        extractExprIdentifiers(expr.arguments[0]);
+      }
     }
   }
 
   function getBaseIdentifierName(expr: any): string | null {
     if (!expr || typeof expr !== 'object') return null;
-    if (expr.type === 'Identifier') return expr.name;
-    if (expr.type === 'BinaryExpression' && (expr.operator === '+' || expr.operator === '-')) {
-      if (expr.left?.type === 'Identifier') return expr.left.name;
-      if (expr.left?.type === 'Literal' && expr.right?.type === 'Identifier') return expr.right.name;
-      return getBaseIdentifierName(expr.left);
+    if (expr.type === 'Identifier') {
+      return ignored.has(expr.name) ? null : expr.name;
+    }
+    if (expr.type === 'BinaryExpression') {
+      if (expr.operator === '+' || expr.operator === '-') {
+        if (expr.left?.type === 'Literal' && expr.right) {
+          return getBaseIdentifierName(expr.right);
+        }
+        if (expr.right?.type === 'Literal' && expr.left) {
+          return getBaseIdentifierName(expr.left);
+        }
+        if (expr.operator === '+') {
+          const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
+          const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
+          if (leftName && isOffsetOrDimName(leftName) && rightName && !isOffsetOrDimName(rightName)) {
+            return rightName;
+          }
+          if (rightName && isOffsetOrDimName(rightName) && leftName && !isOffsetOrDimName(leftName)) {
+            return leftName;
+          }
+          if (rightName && isPointerName(rightName) && leftName && !isPointerName(leftName)) {
+            return rightName;
+          }
+          if (leftName && isPointerName(leftName) && rightName && !isPointerName(rightName)) {
+            return leftName;
+          }
+        }
+        return getBaseIdentifierName(expr.left) || getBaseIdentifierName(expr.right);
+      }
+      if (expr.operator === '*') {
+        if (expr.left?.type === 'Literal' && expr.right) {
+          return getBaseIdentifierName(expr.right);
+        }
+        if (expr.right?.type === 'Literal' && expr.left) {
+          return getBaseIdentifierName(expr.left);
+        }
+        const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
+        const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
+        if (leftName && isOffsetOrDimName(leftName) && rightName) {
+          return rightName;
+        }
+        if (rightName && isOffsetOrDimName(rightName) && leftName) {
+          return leftName;
+        }
+        if (leftName && isPointerName(leftName)) {
+          return leftName;
+        }
+        if (rightName && isPointerName(rightName)) {
+          return rightName;
+        }
+        return leftName || rightName;
+      }
     }
     return null;
   }
@@ -115,7 +252,33 @@ export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
       }
     }
 
-    // 2. Computed MemberExpression: e.g. arr[k], nums[myPointer], arr[cond ? a : b]
+    // 2. Flattened 2D index in MemberExpression: e.g. arr[i * n + j] or matrix[r * cols + c]
+    if (
+      node.type === 'MemberExpression' &&
+      node.computed &&
+      node.property?.type === 'BinaryExpression' &&
+      node.property.operator === '+'
+    ) {
+      const prop = node.property;
+      let multExpr: any = null;
+      let colExpr: any = null;
+      if (prop.left?.type === 'BinaryExpression' && prop.left.operator === '*') {
+        multExpr = prop.left;
+        colExpr = prop.right;
+      } else if (prop.right?.type === 'BinaryExpression' && prop.right.operator === '*') {
+        multExpr = prop.right;
+        colExpr = prop.left;
+      }
+      if (multExpr && colExpr) {
+        const rowName = getBaseIdentifierName(multExpr);
+        const colName = getBaseIdentifierName(colExpr);
+        if (rowName && colName && !ignored.has(rowName) && !ignored.has(colName)) {
+          coordinatePairs.push([rowName, colName]);
+        }
+      }
+    }
+
+    // 3. Computed MemberExpression: e.g. arr[k], nums[myPointer], arr[cond ? a : b], arr[offset + i], arr[i * n + j]
     if (node.type === 'MemberExpression' && node.computed) {
       extractExprIdentifiers(node.property);
     }

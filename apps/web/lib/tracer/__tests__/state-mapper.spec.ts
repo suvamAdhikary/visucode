@@ -444,5 +444,29 @@ function testClass() {
       expect(allPointersAcrossSteps.some((p) => p.name === 'offset')).toBe(false);
       expect(allPointersAcrossSteps.some((p) => p.name === 'i')).toBe(true);
     });
+
+    it('treats i as base pointer in arr[offset + i] and extracts i and j from arr[i * n + j]', async () => {
+      const code = `function offsetAndStride(arr) {
+  let offset = 2;
+  let i = 1;
+  let j = 0;
+  let n = 2;
+  const val1 = arr[offset + i];
+  const val2 = arr[i * n + j];
+  return val1 + val2;
+}`;
+
+      const res = await traceUserCode({
+        code,
+        input: '[[10, 20, 30, 40, 50]]',
+      });
+
+      expect(res.completed).toBe(true);
+      const allPointers = res.steps.flatMap((s) => s.pointers || []);
+      expect(allPointers.some((p) => p.name === 'i')).toBe(true);
+      expect(allPointers.some((p) => p.name === 'j')).toBe(true);
+      expect(allPointers.some((p) => p.name === 'offset')).toBe(false);
+      expect(allPointers.some((p) => p.name === 'n')).toBe(false);
+    });
   });
 });
