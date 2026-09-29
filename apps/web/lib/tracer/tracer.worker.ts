@@ -1,160 +1,21 @@
-import type { DryRunStep, Variable } from '@visucode/shared-types';
-import type { DiagnosticKind, TraceDiagnostic } from './types';
+// Web Worker execution sandbox for Live Dry Run (ADR-002, F-LDR-S1-01)
+// Runs in dedicated worker thread; never imported directly into client bundles.
 
-export interface WorkerTracePayload {
-  instrumentedCode: string;
-  functionName: string;
-  args: any[];
-}
+import {
+  ExecutionTracerContext,
+  createDiagnosticSuggestion,
+  type WorkerTracePayload,
+  type WorkerTraceResponse,
+} from './tracer-context';
+import type { DiagnosticKind } from './types';
 
-export interface WorkerTraceResponse {
-  success: boolean;
-  steps: DryRunStep[];
-  totalSteps: number;
-  completed: boolean;
-  diagnostic?: TraceDiagnostic;
-  returnValue?: any;
-}
-
-const MAX_STEPS = 500;
-const MAX_RECURSION_DEPTH = 50;
-
-function safeStringify(val: any, seen = new Set<any>()): string {
-  if (val === undefined) return 'undefined';
-  if (val === null) return 'null';
-  if (typeof val === 'number' || typeof val === 'boolean') return String(val);
-  if (typeof val === 'string') return JSON.stringify(val);
-  if (typeof val === 'function') return `[Function: ${val.name || 'anonymous'}]`;
-
-  if (typeof val === 'object') {
-    if (seen.has(val)) return '[Circular]';
-    seen.add(val);
-
-    try {
-      if (Array.isArray(val)) {
-        const items = val.map((item) => safeStringify(item, seen));
-        return `[${items.join(', ')}]`;
-      }
-      const entries = Object.entries(val).map(
-        ([k, v]) => `${JSON.stringify(k)}: ${safeStringify(v, seen)}`
-      );
-      return `{${entries.join(', ')}}`;
-    } finally {
-      seen.delete(val);
-    }
-  }
-
-  return String(val);
-}
-
-function getVariableType(val: any): Variable['type'] {
-  if (val === null) return 'null';
-  if (val === undefined) return 'undefined';
-  if (Array.isArray(val)) return 'array';
-  if (typeof val === 'number') return 'number';
-  if (typeof val === 'string') return 'string';
-  if (typeof val === 'boolean') return 'boolean';
-  return 'object';
-}
-
-export function createDiagnosticSuggestion(kind: DiagnosticKind, line?: number): string {
-  switch (kind) {
-    case 'loop-hang':
-      return `Check loop termination conditions near line ${line || '?'}. Variables are not changing between iterations.`;
-    case 'step-cap-exceeded':
-      return `Execution exceeded the maximum limit of ${MAX_STEPS} steps. Ensure loops and recursions have valid base cases.`;
-    case 'recursion-depth-exceeded':
-      return `Call stack reached depth of ${MAX_RECURSION_DEPTH}. Check for missing or unreachable recursive base cases.`;
-    case 'timeout':
-      return `Execution timed out after 2 seconds. Check for long-running operations or unoptimized iterations.`;
-    case 'runtime-error':
-      return `A runtime exception occurred near line ${line || '?'}. Check for null/undefined property accesses.`;
-    default:
-      return 'Check code logic and boundary constraints.';
-  }
-}
-
-export class ExecutionTracerContext {
-  public steps: DryRunStep[] = [];
-  public stepCount = 0;
-  public callStackDepth = 0;
-  private lastSignature = '';
-  private consecutiveRepeatCount = 0;
-
-  enter() {
-    this.callStackDepth++;
-    if (this.callStackDepth > MAX_RECURSION_DEPTH) {
-      throw {
-        kind: 'recursion-depth-exceeded' as DiagnosticKind,
-        message: `Maximum recursion depth of ${MAX_RECURSION_DEPTH} exceeded (call stack overflow).`,
-      };
-    }
-  }
-
-  leave() {
-    this.callStackDepth = Math.max(0, this.callStackDepth - 1);
-  }
-
-  step(line: number, locals: Record<string, any>) {
-    this.stepCount++;
-    if (this.stepCount > MAX_STEPS) {
-      throw {
-        kind: 'step-cap-exceeded' as DiagnosticKind,
-        line,
-        message: `Step limit of ${MAX_STEPS} steps exceeded.`,
-      };
-    }
-
-    const variables: Variable[] = Object.entries(locals)
-      .filter(([k]) => k !== 'this' && k !== 'arguments' && k !== '__vc')
-      .map(([name, val]) => ({
-        name,
-        value: safeStringify(val),
-        type: getVariableType(val),
-      }));
-
-    // Early abort on repeat state (F-LDR-S1-07): same line and identical locals repeated
-    const sig = `${line}:${variables.map((v) => `${v.name}=${v.value}`).sort().join(',')}`;
-    if (sig === this.lastSignature) {
-      this.consecutiveRepeatCount++;
-      if (this.consecutiveRepeatCount >= 2) {
-        throw {
-          kind: 'loop-hang' as DiagnosticKind,
-          line,
-          message: `Infinite loop detected: code reached line ${line} with identical local variables repeatedly.`,
-        };
-      }
-    } else {
-      this.consecutiveRepeatCount = 0;
-      this.lastSignature = sig;
-    }
-
-    // Factual explanation from variables
-    const explanationParts = variables.map((v) => `${v.name} = ${v.value}`);
-    const explanation =
-      explanationParts.length > 0
-        ? explanationParts.slice(0, 3).join(', ')
-        : `Line ${line}`;
-
-    this.steps.push({
-      stepNumber: this.steps.length + 1,
-      line,
-      variables,
-      explanation,
-    });
-  }
-}
-
-/**
- * Worker message handler
- */
 if (typeof self !== 'undefined' && typeof postMessage === 'function') {
   self.onmessage = (e: MessageEvent<WorkerTracePayload>) => {
     const { instrumentedCode, functionName, args } = e.data;
     const ctx = new ExecutionTracerContext();
 
     try {
-      // Execute the instrumented function inside worker
+      // Execute the instrumented function inside worker sandbox
       const executor = new Function(
         '__vc',
         `
@@ -168,6 +29,19 @@ if (typeof self !== 'undefined' && typeof postMessage === 'function') {
 
       const returnValue = executor(ctx, args);
 
+      if (ctx.isAborted && ctx.fatalDiagnostic) {
+        const response: WorkerTraceResponse = {
+          success: true,
+          steps: ctx.steps,
+          totalSteps: ctx.steps.length,
+          completed: false,
+          diagnostic: ctx.fatalDiagnostic,
+          returnValue: undefined,
+        };
+        postMessage(response);
+        return;
+      }
+
       const response: WorkerTraceResponse = {
         success: true,
         steps: ctx.steps,
@@ -178,23 +52,20 @@ if (typeof self !== 'undefined' && typeof postMessage === 'function') {
 
       postMessage(response);
     } catch (err: any) {
-      const kind: DiagnosticKind = err?.kind || 'runtime-error';
-      const line: number | undefined = err?.line;
-      const message: string = err?.message || String(err);
-      const suggestion = createDiagnosticSuggestion(kind, line);
+      const diagnostic = ctx.fatalDiagnostic || {
+        kind: (err?.kind || 'runtime-error') as DiagnosticKind,
+        line: err?.line,
+        message: err?.message || String(err),
+        suggestion: createDiagnosticSuggestion(err?.kind || 'runtime-error', err?.line),
+        observedEvent: err?.message,
+      };
 
       const response: WorkerTraceResponse = {
         success: true,
         steps: ctx.steps, // Partial steps preserved! (F-LDR-S1-07)
         totalSteps: ctx.steps.length,
         completed: false,
-        diagnostic: {
-          kind,
-          line,
-          message,
-          suggestion,
-          observedEvent: err?.message,
-        },
+        diagnostic,
         returnValue: undefined,
       };
 

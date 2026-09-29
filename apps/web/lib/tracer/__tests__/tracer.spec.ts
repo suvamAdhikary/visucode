@@ -2,6 +2,7 @@ import { traceUserCode } from '../tracer';
 
 describe('Live Dry Run Tracer', () => {
   it('traces twoSum execution with exact locals and lines (F-LDR-S1-03)', async () => {
+    // Note: Primary entry function is the first FunctionDeclaration (F-LDR-S1-03)
     const code = `function twoSum(nums, target) {
   let left = 0;
   let right = nums.length - 1;
@@ -32,11 +33,52 @@ describe('Live Dry Run Tracer', () => {
     const firstStep = result.steps[0];
     expect(firstStep.variables.some((v) => v.name === 'nums')).toBe(true);
 
-    const stepWithLeft = result.steps.find((s) => s.variables.some((v) => v.name === 'left'));
-    expect(stepWithLeft).toBeDefined();
+    // Exact variable step values assertion (F-LDR-S1-03)
+    // Step 1: left = 0, right = 4 (length 5 - 1)
+    const initialStep = result.steps.find(
+      (s) =>
+        s.variables.some((v) => v.name === 'left' && v.value === '0') &&
+        s.variables.some((v) => v.name === 'right' && v.value === '4')
+    );
+    expect(initialStep).toBeDefined();
+
+    // Step 2: after sum = 1 + 9 = 10 < 12, left increments to 1, right remains 4
+    const incrementedStep = result.steps.find(
+      (s) =>
+        s.variables.some((v) => v.name === 'left' && v.value === '1') &&
+        s.variables.some((v) => v.name === 'right' && v.value === '4')
+    );
+    expect(incrementedStep).toBeDefined();
 
     // Verify factual explanations
-    expect(result.steps.some((s) => s.explanation.includes('left') || s.explanation.includes('nums'))).toBe(true);
+    expect(
+      result.steps.some(
+        (s) => s.explanation.includes('left') || s.explanation.includes('nums')
+      )
+    ).toBe(true);
+  });
+
+  it('detects infinite loops early inside a try block (F-LDR-S1-02, F-LDR-S1-07)', async () => {
+    const code = `function loopInTry() {
+  try {
+    while (true) {
+      // repeated state inside try block
+    }
+  } catch (e) {
+    return -1;
+  }
+}`;
+
+    const result = await traceUserCode({
+      code,
+      input: '[]',
+    });
+
+    expect(result.completed).toBe(false);
+    expect(result.diagnostic).toBeDefined();
+    expect(result.diagnostic?.kind).toBe('loop-hang');
+    expect(result.steps.length).toBeGreaterThan(0); // Partial trace preserved!
+    expect(result.diagnostic?.suggestion).toContain('termination conditions');
   });
 
   it('detects infinite loops early and preserves partial trace (F-LDR-S1-07)', async () => {
@@ -58,6 +100,28 @@ describe('Live Dry Run Tracer', () => {
     expect(result.diagnostic?.kind).toBe('loop-hang');
     expect(result.steps.length).toBeGreaterThan(0); // Partial trace preserved!
     expect(result.diagnostic?.suggestion).toContain('termination conditions');
+  });
+
+  it('aborts when step cap of 500 is exceeded (F-LDR-S1-02)', async () => {
+    // Variable i changes on every step so it doesn't trigger repeat-state abort,
+    // but execution exceeds the hard 500-step cap.
+    const code = `function stepCapExceeded() {
+  let i = 0;
+  while (i < 600) {
+    i++;
+  }
+  return i;
+}`;
+
+    const result = await traceUserCode({
+      code,
+      input: '[]',
+    });
+
+    expect(result.completed).toBe(false);
+    expect(result.diagnostic?.kind).toBe('step-cap-exceeded');
+    expect(result.steps.length).toBe(500); // Caps at 500 partial steps
+    expect(result.diagnostic?.message).toContain('Step limit of 500');
   });
 
   it('aborts on recursion depth overflow and preserves trace (F-LDR-S1-02)', async () => {
@@ -91,6 +155,33 @@ describe('Live Dry Run Tracer', () => {
     expect(result.completed).toBe(false);
     expect(result.diagnostic?.kind).toBe('runtime-error');
     expect(result.steps.length).toBeGreaterThan(0);
+  });
+
+  it('aborts on worker timeout, terminates worker, and states tape is empty (F-LDR-S1-02, F-LDR-S1-07)', async () => {
+    const mockWorker = {
+      postMessage: jest.fn(),
+      terminate: jest.fn(),
+      onmessage: null,
+      onerror: null,
+    };
+    const originalWorker = (global as any).Worker;
+    (global as any).Worker = jest.fn(() => mockWorker);
+
+    try {
+      const result = await traceUserCode({
+        code: `function timeoutFn() { while (true) {} }`,
+        input: '[]',
+        timeoutMs: 20,
+      });
+
+      expect(result.completed).toBe(false);
+      expect(result.steps).toEqual([]);
+      expect(result.diagnostic?.kind).toBe('timeout');
+      expect(result.diagnostic?.message).toContain('tape is empty');
+      expect(mockWorker.terminate).toHaveBeenCalled();
+    } finally {
+      (global as any).Worker = originalWorker;
+    }
   });
 
   it('rejects oversized inputs at preflight before execution (F-LDR-S1-08)', async () => {

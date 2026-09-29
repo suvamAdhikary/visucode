@@ -27,6 +27,66 @@ describe('Tracer Instrumenter', () => {
     expect(res.instrumentedCode).toContain('__vc.leave');
   });
 
+  it('instruments TryStatement with try, catch, and finally blocks (F-LDR-S1-02)', () => {
+    const code = `function tryCatchDemo(x) {
+  try {
+    let a = x + 1;
+  } catch (err) {
+    let b = 2;
+  } finally {
+    let c = 3;
+  }
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.instrumentedCode).toContain('__vc.step(2');
+    expect(res.instrumentedCode).toContain('__vc.step(4');
+    expect(res.instrumentedCode).toContain('__vc.step(6');
+  });
+
+  it('instruments SwitchStatement cases cleanly (F-LDR-S1-02)', () => {
+    const code = `function switchDemo(action) {
+  switch (action) {
+    case 'start':
+      let count = 1;
+      break;
+    default:
+      let fallback = 0;
+  }
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.instrumentedCode).toContain('__vc.step');
+    expect(res.instrumentedCode).toContain('action');
+  });
+
+  it('instruments expression-body arrow functions (F-LDR-S1-02)', () => {
+    const code = `function wrapper() {
+  const add = (a, b) => a + b;
+  return add(2, 3);
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.instrumentedCode).toContain('__vc_ret = (a + b)');
+    expect(res.instrumentedCode).toContain('return __vc_ret');
+  });
+
+  it('instruments class methods cleanly (F-LDR-S1-02)', () => {
+    const code = `class Calculator {
+  add(a, b) {
+    return a + b;
+  }
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.instrumentedCode).toContain('__vc.enter()');
+    expect(res.instrumentedCode).toContain('__vc.step');
+  });
+
   it('catches syntax errors cleanly', () => {
     const code = `function bad( {`;
     const res = instrumentCode(code);

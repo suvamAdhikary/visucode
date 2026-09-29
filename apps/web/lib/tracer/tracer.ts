@@ -1,12 +1,12 @@
 import { validatePreflightInput } from './input-validator';
 import { instrumentCode } from './instrumenter';
-import type { LiveTraceResult } from './types';
+import type { LiveTraceResult, DiagnosticKind } from './types';
 import {
   ExecutionTracerContext,
-  WorkerTracePayload,
-  WorkerTraceResponse,
   createDiagnosticSuggestion,
-} from './tracer.worker';
+  type WorkerTracePayload,
+  type WorkerTraceResponse,
+} from './tracer-context';
 
 export interface TraceOptions {
   code: string;
@@ -22,6 +22,7 @@ export interface TraceOptions {
  * - Preflight validation before Worker start (F-LDR-S1-08)
  * - Worker-only sandboxing with 2s timeout and 500-step cap (F-LDR-S1-01, F-LDR-S1-02)
  * - Early abort on repeat state + partial step preservation (F-LDR-S1-07)
+ * - Fails closed in production if Web Worker is unavailable (zero UI-thread new Function)
  */
 export async function traceUserCode(options: TraceOptions): Promise<LiveTraceResult> {
   const { code, input, timeoutMs = 2000 } = options;
@@ -59,38 +60,56 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
   const { instrumentedCode, functionName = 'solution' } = instrumentResult;
   const args = preflight.args || [];
 
-  // 3. Execute in Web Worker (or sync fallback in Node.js test environment)
-  if (typeof Worker === 'undefined' || process.env.NODE_ENV === 'test') {
-    return executeTraceSync(instrumentedCode, functionName, args);
+  // 3. Worker environment check (F-LDR-S1-01)
+  if (typeof Worker === 'undefined') {
+    if (process.env.NODE_ENV === 'test') {
+      return executeTraceSync(instrumentedCode, functionName, args);
+    }
+    // Fail-closed in production: never execute on the UI thread
+    return {
+      steps: [],
+      totalSteps: 0,
+      completed: false,
+      diagnostic: {
+        kind: 'runtime-error',
+        message: 'Web Workers are not supported in this environment.',
+        suggestion: 'Run in a modern browser that supports Web Workers.',
+      },
+    };
   }
 
   return new Promise((resolve) => {
-    try {
-      const worker = new Worker(new URL('./tracer.worker.ts', import.meta.url));
+    let worker: Worker | null = null;
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
-      const timer = setTimeout(() => {
-        worker.terminate();
+    try {
+      worker = new Worker(new URL('./tracer.worker.ts', import.meta.url));
+
+      timer = setTimeout(() => {
+        if (worker) {
+          worker.terminate();
+        }
         resolve({
           steps: [],
           totalSteps: 0,
           completed: false,
           diagnostic: {
             kind: 'timeout',
-            message: `Execution timed out after ${timeoutMs}ms.`,
-            suggestion: 'Check for infinite loops or long-running computations.',
+            message: `Execution timed out after ${timeoutMs}ms. The execution tape is empty because the worker was terminated. Check for infinite loops or unoptimized iterations.`,
+            suggestion: 'Check loop termination conditions and recursive base cases.',
           },
         });
       }, timeoutMs);
 
       worker.onmessage = (e: MessageEvent<WorkerTraceResponse>) => {
-        clearTimeout(timer);
-        worker.terminate();
+        if (timer) clearTimeout(timer);
+        if (worker) worker.terminate();
         resolve(e.data);
       };
 
       worker.onerror = (e) => {
-        clearTimeout(timer);
-        worker.terminate();
+        if (timer) clearTimeout(timer);
+        if (worker) worker.terminate();
         resolve({
           steps: [],
           totalSteps: 0,
@@ -111,14 +130,19 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
 
       worker.postMessage(payload);
     } catch (err: any) {
+      if (timer) clearTimeout(timer);
+      if (process.env.NODE_ENV === 'test') {
+        resolve(executeTraceSync(instrumentedCode, functionName, args));
+        return;
+      }
       resolve({
         steps: [],
         totalSteps: 0,
         completed: false,
         diagnostic: {
           kind: 'runtime-error',
-          message: err.message || 'Failed to initialize tracer worker.',
-          suggestion: 'Ensure Web Workers are supported in your browser.',
+          message: err?.message || 'Failed to initialize tracer worker sandbox.',
+          suggestion: 'Ensure Web Workers can be instantiated in your browser.',
         },
       });
     }
@@ -126,7 +150,8 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
 }
 
 /**
- * Synchronous test runner for Jest / Node.js test environments
+ * Synchronous test runner for Jest / Node.js test environments only.
+ * Never called on the browser UI thread in production (F-LDR-S1-01).
  */
 export function executeTraceSync(
   instrumentedCode: string,
@@ -149,6 +174,16 @@ export function executeTraceSync(
 
     const returnValue = executor(ctx, args);
 
+    if (ctx.isAborted && ctx.fatalDiagnostic) {
+      return {
+        steps: ctx.steps,
+        totalSteps: ctx.steps.length,
+        completed: false,
+        diagnostic: ctx.fatalDiagnostic,
+        returnValue: undefined,
+      };
+    }
+
     return {
       steps: ctx.steps,
       totalSteps: ctx.steps.length,
@@ -156,22 +191,20 @@ export function executeTraceSync(
       returnValue,
     };
   } catch (err: any) {
-    const kind = err?.kind || 'runtime-error';
-    const line = err?.line;
-    const message = err?.message || String(err);
-    const suggestion = createDiagnosticSuggestion(kind, line);
+    const diagnostic = ctx.fatalDiagnostic || {
+      kind: (err?.kind || 'runtime-error') as DiagnosticKind,
+      line: err?.line,
+      message: err?.message || String(err),
+      suggestion: createDiagnosticSuggestion(err?.kind || 'runtime-error', err?.line),
+      observedEvent: err?.message,
+    };
 
     return {
       steps: ctx.steps, // Partial steps preserved! (F-LDR-S1-07)
       totalSteps: ctx.steps.length,
       completed: false,
-      diagnostic: {
-        kind,
-        line,
-        message,
-        suggestion,
-        observedEvent: err?.message,
-      },
+      diagnostic,
+      returnValue: undefined,
     };
   }
 }
