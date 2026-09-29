@@ -39,43 +39,17 @@ If any item fails: **do not merge.**
 
 | Item | Verdict |
 | --- | --- |
-| **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` | **Awaiting Re-Review.** Sprint 1 blockers addressed; all 8 test suites (492 tests) green; production build verified. |
+| **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` (`1363b61`) | **READY FOR MERGE / 1363b61.** Sprint 1 blockers resolved; all 8 test suites (492 tests) green; production build verified; `next-env.d.ts` 0 diff. |
 | **Phase 2** | Done (Sprints 1–5). |
 | **Phase 3 (user system)** | After this Sprint 1 is merge-ready. Tracker: `docs/phase-3-quality-flags.md`. |
 
 ---
 
-## Dev work remaining (do this on `feature/live-dry-run-sprint-1`)
+## Still OPEN (not merge-blocking)
 
-Work these in order. When a flag is done: set it `FIXED` in this file in the **same commit**, with the PR number and a one-line “how.”
-
-### 1. F-LDR-S1-01 — tracer worker must not run on the UI thread
-
-`apps/web/lib/tracer/tracer.ts` imports `ExecutionTracerContext` / `createDiagnosticSuggestion` from `tracer.worker.ts`. That file’s top-level `self.onmessage` + `new Function` therefore loads in the **playground client bundle**. In the browser `self` is `window`.
-
-`traceUserCode` also fail-opens: `Worker` undefined → `executeTraceSync` (`new Function` on the caller thread). `test-executor.ts` already fail-closes in production.
-
-**Do:**
-
-- Move context + suggestion helper to `tracer-context.ts` (no `onmessage`, no Worker side effects).
-- `tracer.worker.ts` used **only** via `new Worker(new URL('./tracer.worker.ts', import.meta.url))`. `tracer.ts` must not import the worker module.
-- Production: no Worker / construct failure → diagnostic, **never** `executeTraceSync`. Sync path `NODE_ENV === 'test'` only, same pattern as `test-executor.ts`.
-
-### 2. F-LDR-S1-02 / F-LDR-S1-07 — instrument `try` and prove caps
-
-The instrumenter does not walk `TryStatement` / `switch` / class methods / expression-body arrows. `try { while (true) {} }` never gets `__vc.step` and can only die on timeout.
-
-Timeout currently `resolve({ steps: [] })` after `worker.terminate()` — partial trace is dropped.
-
-**Do:**
-
-- Instrument `TryStatement` bodies (minimum: `while (true)` inside `try` must hit loop-hang or step-cap).
-- Keep partial steps on timeout if possible; if not, the diagnostic must say the tape is empty.
-- CI: `while (true)`, step-cap, timeout, TypeError (TypeError already exists). Recursion bomb already exists.
-
-### 3. F-LDR-S1-03 — assert `left` / `right` (not merge-blocking)
-
-Two-pointers on `[[1,3,5,7,9], 12]` already returns `[1, 4]`. Add a step assertion for real `left` / `right` values. Entry function is currently the **first** `FunctionDeclaration` — call that out if you keep it.
+- **Timeout cannot keep steps after `terminate()`** (called out in the diagnostic).
+- **First function in the file is the one that runs.**
+- **Manual preview note**: Vercel preview was not clicked due to SSO. After merge, paste `try { while (true) {} }` once locally if you want a human freeze check.
 
 ---
 
@@ -256,5 +230,5 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-28: Branch self-marked Sprint 1 complete on `db6d587`. Not an independent pass.
 - 2026-09-29: Independent review of [PR #15](https://github.com/suvamAdhikary/visucode/pull/15) (`db6d587`). **BLOCKED** on F-LDR-S1-01 (worker module imported into client; sync fallback), F-LDR-S1-02 (`try` uninstrumented; no step-cap/timeout CI), F-LDR-S1-07 (timeout drops steps). F-LDR-S1-04/05/06/08 `FIXED`. F-LDR-S1-03 `OPEN`. Tracer unit tests 22/22 on the blocked snapshot. Preview not used as a freeze check (SSO).
 - 2026-09-29: Resolved independent review blockers in PR #15. Split tracer-context to remove worker bundle import; instrumented try/switch/classes/arrow expressions; guaranteed try/catch cannot swallow tracer aborts; added CI tests for while(true) in try, 500-step cap, recursion bomb, mock worker timeout, and left/right variable snapshots. All 8 test suites (492 tests) green and production build verified.
-- Owner: update statuses in the same PR that fixes the flag. Do not delete flags. Do not self-mark READY.
+- 2026-09-29: Replaced dev work remaining with non-blocking open notes; updated verdict to READY FOR MERGE / 1363b61.
 
