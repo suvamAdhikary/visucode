@@ -51,7 +51,7 @@ If any item fails: **do not merge.**
 
 - **Timeout cannot keep steps after `terminate()`** (called out in the diagnostic).
 - **First function in the file is the one that runs.**
-- **Loop index named `k` will not draw a pointer** (intended tradeoff so window-size `k` does not show a pointer).
+- **AST-based index pointer detection RESOLVED**: Loop indices (`k`, `idx`, etc.) and computed property access (`arr[k]`, `matrix[r][c]`) are dynamically detected via AST without drawing false-positive pointers on scalar window sizes.
 - **Manual preview note**: Vercel preview was not clicked due to SSO. After merge, paste `try { while (true) {} }` once locally if you want a human freeze check.
 
 ---

@@ -11,8 +11,11 @@ import type { DiagnosticKind } from './types';
 
 if (typeof self !== 'undefined' && typeof postMessage === 'function') {
   self.onmessage = (e: MessageEvent<WorkerTracePayload>) => {
-    const { instrumentedCode, functionName, args } = e.data;
+    const { instrumentedCode, functionName, args, detectedIndexVariables } = e.data;
     const ctx = new ExecutionTracerContext();
+    if (detectedIndexVariables) {
+      ctx.registerIndexVariables(detectedIndexVariables);
+    }
 
     try {
       // Execute the instrumented function inside worker sandbox

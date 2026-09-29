@@ -6,6 +6,7 @@ export interface WorkerTracePayload {
   instrumentedCode: string;
   functionName: string;
   args: any[];
+  detectedIndexVariables?: string[];
 }
 
 export interface WorkerTraceResponse {
@@ -17,13 +18,6 @@ export interface WorkerTraceResponse {
   returnValue?: any;
 }
 
-export {
-  MAX_STEPS,
-  MAX_RECURSION_DEPTH,
-  safeStringify,
-  getVariableType,
-  createDiagnosticSuggestion,
-} from './tracer-utils';
 import {
   MAX_STEPS,
   MAX_RECURSION_DEPTH,
@@ -32,6 +26,13 @@ import {
   createDiagnosticSuggestion,
 } from './tracer-utils';
 
+export {
+  MAX_STEPS,
+  MAX_RECURSION_DEPTH,
+  safeStringify,
+  getVariableType,
+  createDiagnosticSuggestion,
+};
 
 /**
  * Sandboxed execution context tracking lines, local variables, call stack depth,
@@ -45,8 +46,19 @@ export class ExecutionTracerContext {
   public isAborted = false;
   public fatalDiagnostic?: TraceDiagnostic;
   public fatalError?: any;
+  public detectedIndexVariables = new Set<string>();
   private lastSignature = '';
   private consecutiveRepeatCount = 0;
+
+  registerIndexVariables(names: string[]) {
+    if (Array.isArray(names)) {
+      for (const name of names) {
+        if (name && typeof name === 'string') {
+          this.detectedIndexVariables.add(name.toLowerCase());
+        }
+      }
+    }
+  }
 
   abort(kind: DiagnosticKind, message: string, line?: number): never {
     this.isAborted = true;
@@ -151,7 +163,7 @@ export class ExecutionTracerContext {
         ? explanationParts.slice(0, 4).join(', ')
         : `Line ${line}`;
 
-    const vizState = inferStepVisualizerState(locals);
+    const vizState = inferStepVisualizerState(locals, this.detectedIndexVariables);
 
     this.steps.push({
       stepNumber: this.steps.length + 1,

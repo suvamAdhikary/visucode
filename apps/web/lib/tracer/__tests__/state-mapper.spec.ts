@@ -270,5 +270,87 @@ function testClass() {
         { key: 'val', value: 100 },
       ]);
     });
+
+    it('draws a pointer for loop index k when indexing array in AST, but ignores scalar window size k', async () => {
+      // 1. Loop index k: arr[k] -> draws pointer k
+      const loopKCode = `function testLoopK(nums) {
+  let ans = 0;
+  for (let k = 0; k < nums.length; k++) {
+    ans += nums[k];
+  }
+  return ans;
+}`;
+      const loopRes = await traceUserCode({
+        code: loopKCode,
+        input: '[[10, 20, 30]]',
+      });
+      expect(loopRes.completed).toBe(true);
+      const stepWithKPointer = loopRes.steps.find(
+        (s) => s.pointers && s.pointers.some((p) => p.name === 'k')
+      );
+      expect(stepWithKPointer).toBeDefined();
+      expect(stepWithKPointer?.pointers?.find((p) => p.name === 'k')?.color).toBe('#ec4899');
+
+      // 2. Scalar window size k: sum += k, no nums[k] -> does NOT draw pointer for k
+      const scalarKCode = `function testWindowK(nums, k) {
+  let sum = 0;
+  for (let i = 0; i < nums.length; i++) {
+    if (i >= k) sum += nums[i];
+  }
+  return sum;
+}`;
+      const scalarRes = await traceUserCode({
+        code: scalarKCode,
+        input: '[[10, 20, 30, 40], 2]',
+      });
+      expect(scalarRes.completed).toBe(true);
+      const stepWithPointers = scalarRes.steps.find((s) => s.pointers && s.pointers.length > 0);
+      expect(stepWithPointers).toBeDefined();
+      expect(stepWithPointers?.pointers?.some((p) => p.name === 'k')).toBe(false);
+      expect(stepWithPointers?.pointers?.some((p) => p.name === 'i')).toBe(true);
+    });
+
+    it('supports arbitrary user-defined pointer names (e.g. myPointer, cursor)', async () => {
+      const code = `function customPointerDemo(items) {
+  let myPointer = 1;
+  const val = items[myPointer];
+  return val;
+}`;
+
+      const res = await traceUserCode({
+        code,
+        input: '[[100, 200, 300]]',
+      });
+
+      expect(res.completed).toBe(true);
+      const stepWithCustomPointer = res.steps.find(
+        (s) => s.pointers && s.pointers.some((p) => p.name === 'myPointer')
+      );
+      expect(stepWithCustomPointer).toBeDefined();
+      const ptr = stepWithCustomPointer?.pointers?.find((p) => p.name === 'myPointer');
+      expect(ptr?.index).toBe(1);
+      expect(ptr?.label).toBe('myPointer=1');
+      expect(ptr?.color).toBeDefined();
+    });
+
+    it('supports custom 2D grid coordinates r and c for activeCell', async () => {
+      const code = `function gridCoords(matrix) {
+  let r = 0;
+  let c = 1;
+  return matrix[r][c];
+}`;
+
+      const res = await traceUserCode({
+        code,
+        input: '[[[1, 2], [3, 4]]]',
+      });
+
+      expect(res.completed).toBe(true);
+      const stepWithActiveCell = res.steps.find(
+        (s) => s.dpTableState && s.dpTableState.activeCell !== undefined
+      );
+      expect(stepWithActiveCell).toBeDefined();
+      expect(stepWithActiveCell?.dpTableState?.activeCell).toEqual([0, 1]);
+    });
   });
 });

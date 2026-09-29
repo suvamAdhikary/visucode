@@ -94,4 +94,27 @@ describe('Tracer Instrumenter', () => {
     expect(res.error?.kind).toBe('syntax-error');
     expect(res.error?.line).toBeDefined();
   });
+
+  it('detects user-defined index variables from computed member expressions and loop headers', () => {
+    const code = `function search(items, target) {
+  for (let k = 0; k < items.length; k++) {
+    if (items[k] === target) return k;
+  }
+  const myPointer = 0;
+  const val = items[myPointer];
+  const grid = [[1]];
+  const cell = grid[r][c];
+  return -1;
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.detectedIndexVariables).toBeDefined();
+    expect(res.detectedIndexVariables).toContain('k');
+    expect(res.detectedIndexVariables).toContain('myPointer');
+    expect(res.detectedIndexVariables).toContain('r');
+    expect(res.detectedIndexVariables).toContain('c');
+    expect(res.detectedIndexVariables).not.toContain('target');
+    expect(res.detectedIndexVariables).not.toContain('items');
+  });
 });

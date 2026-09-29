@@ -57,13 +57,13 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
     };
   }
 
-  const { instrumentedCode, functionName = 'solution' } = instrumentResult;
+  const { instrumentedCode, functionName = 'solution', detectedIndexVariables } = instrumentResult;
   const args = preflight.args || [];
 
   // 3. Worker environment check (F-LDR-S1-01)
   if (typeof Worker === 'undefined') {
     if (process.env.NODE_ENV === 'test') {
-      return executeTraceSync(instrumentedCode, functionName, args);
+      return executeTraceSync(instrumentedCode, functionName, args, detectedIndexVariables);
     }
     // Fail-closed in production: never execute on the UI thread
     return {
@@ -126,13 +126,14 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
         instrumentedCode,
         functionName,
         args,
+        detectedIndexVariables,
       };
 
       worker.postMessage(payload);
     } catch (err: any) {
       if (timer) clearTimeout(timer);
       if (process.env.NODE_ENV === 'test') {
-        resolve(executeTraceSync(instrumentedCode, functionName, args));
+        resolve(executeTraceSync(instrumentedCode, functionName, args, detectedIndexVariables));
         return;
       }
       resolve({
@@ -156,9 +157,13 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
 export function executeTraceSync(
   instrumentedCode: string,
   functionName: string,
-  args: any[]
+  args: any[],
+  detectedIndexVariables?: string[]
 ): LiveTraceResult {
   const ctx = new ExecutionTracerContext();
+  if (detectedIndexVariables) {
+    ctx.registerIndexVariables(detectedIndexVariables);
+  }
 
   try {
     const executor = new Function(

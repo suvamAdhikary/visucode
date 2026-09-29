@@ -43,20 +43,50 @@ const POINTER_COLORS: Record<string, string> = {
   start: '#06b6d4',
   p1: '#06b6d4',
   slow: '#06b6d4',
+  read: '#06b6d4',
   right: '#a855f7',
   hi: '#a855f7',
   high: '#a855f7',
   end: '#a855f7',
   p2: '#a855f7',
   fast: '#a855f7',
+  write: '#a855f7',
   mid: '#f59e0b',
   middle: '#f59e0b',
   i: '#3b82f6',
   j: '#10b981',
+  k: '#ec4899',
+  idx: '#3b82f6',
+  index: '#3b82f6',
+  pos: '#8b5cf6',
   p: '#38bdf8',
   ptr: '#38bdf8',
   curr: '#f43f5e',
 };
+
+const DYNAMIC_POINTER_PALETTE = [
+  '#3b82f6', // blue
+  '#10b981', // emerald
+  '#ec4899', // pink
+  '#8b5cf6', // purple
+  '#06b6d4', // cyan
+  '#f59e0b', // amber
+  '#f43f5e', // rose
+  '#14b8a6', // teal
+];
+
+/**
+ * Deterministic color assignment for standard and custom user-defined pointer variables.
+ */
+export function getPointerColor(name: string): string {
+  const lower = name.toLowerCase();
+  if (POINTER_COLORS[lower]) return POINTER_COLORS[lower];
+  let hash = 0;
+  for (let i = 0; i < lower.length; i++) {
+    hash = (hash << 5) - hash + lower.charCodeAt(i);
+  }
+  return DYNAMIC_POINTER_PALETTE[Math.abs(hash) % DYNAMIC_POINTER_PALETTE.length];
+}
 
 const ARRAY_PRIORITY_NAMES = ['nums', 'arr', 'array', 'list', 'elements', 'data'];
 const DP_PRIORITY_NAMES = ['dp', 'grid', 'matrix', 'table', 'memo', 'board'];
@@ -64,12 +94,20 @@ const MAP_PRIORITY_NAMES = ['map', 'seen', 'counts', 'count', 'freq', 'dict', 'l
 
 /**
  * Infers on-the-go visuals from runtime local variables (Sprint 2 - ADR-002, F-LDR-S2-01..04).
- * Pure mapper function with zero side effects.
+ * Pure mapper function with zero side effects. Accepts optional AST-detected index variables.
  */
 export function inferStepVisualizerState(
-  locals: Record<string, any>
+  locals: Record<string, any>,
+  detectedIndices?: Set<string> | string[]
 ): VisualizerStateResult {
   const result: VisualizerStateResult = {};
+
+  const detectedSet =
+    detectedIndices instanceof Set
+      ? detectedIndices
+      : Array.isArray(detectedIndices)
+      ? new Set(detectedIndices.map((s) => s.toLowerCase()))
+      : undefined;
 
   const entries = Object.entries(locals).filter(
     ([k]) => !['this', 'arguments', '__vc', '__vc_ret'].includes(k)
@@ -104,10 +142,34 @@ export function inferStepVisualizerState(
         : []
     );
 
-    // Check for row/col pointers like i, j
+    // Check for row/col pointers like i, j, r, c or AST-detected variables
     let activeCell: [number, number] | undefined;
-    const rowIdx = locals['i'] ?? locals['row'] ?? locals['r'];
-    const colIdx = locals['j'] ?? locals['col'] ?? locals['c'];
+    let rowIdx = locals['i'] ?? locals['row'] ?? locals['r'];
+    let colIdx = locals['j'] ?? locals['col'] ?? locals['c'];
+
+    if (rowIdx === undefined || colIdx === undefined) {
+      if (detectedSet) {
+        const candidateIndices = Array.from(detectedSet)
+          .map((name) => ({ name, val: locals[name] }))
+          .filter(
+            (c) =>
+              typeof c.val === 'number' &&
+              Number.isInteger(c.val) &&
+              c.val >= 0
+          );
+        if (candidateIndices.length >= 2) {
+          const rCandidate = candidateIndices.find((c) => c.val < grid.length);
+          const cCandidate = candidateIndices.find(
+            (c) => c.name !== rCandidate?.name && grid[0] && c.val < grid[0].length
+          );
+          if (rCandidate && cCandidate) {
+            rowIdx = rCandidate.val;
+            colIdx = cCandidate.val;
+          }
+        }
+      }
+    }
+
     if (
       typeof rowIdx === 'number' &&
       Number.isInteger(rowIdx) &&
@@ -150,12 +212,16 @@ export function inferStepVisualizerState(
         : safeStringify(item)
     );
 
-    // Extract valid numeric pointer locals
+    // Extract valid numeric pointer locals (conventional or AST-detected)
     const pointers: Pointer[] = [];
     for (const [name, val] of entries) {
       const lower = name.toLowerCase();
+      const isPointer =
+        POINTER_NAMES.has(lower) ||
+        (detectedSet !== undefined && detectedSet.has(lower));
+
       if (
-        POINTER_NAMES.has(lower) &&
+        isPointer &&
         typeof val === 'number' &&
         Number.isInteger(val) &&
         val >= 0 &&
@@ -164,7 +230,7 @@ export function inferStepVisualizerState(
         pointers.push({
           name,
           index: val,
-          color: POINTER_COLORS[lower] || '#6366f1',
+          color: getPointerColor(name),
           label: `${name}=${val}`,
         });
       }

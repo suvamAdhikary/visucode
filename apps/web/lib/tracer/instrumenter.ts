@@ -5,6 +5,7 @@ export interface InstrumentResult {
   success: boolean;
   instrumentedCode?: string;
   functionName?: string;
+  detectedIndexVariables?: string[];
   error?: TraceDiagnostic;
 }
 
@@ -29,6 +30,77 @@ function extractNames(pattern: any): string[] {
   }
   if (pattern.type === 'RestElement') return extractNames(pattern.argument);
   return [];
+}
+
+/**
+ * Recursively analyzes the AST to discover variable identifiers that are used as array or grid indices
+ * (e.g. `arr[k]`, `nums[myVar]`, `matrix[r][c]`, `arr[i + 1]`, `for (let idx = 0; ...)`, `for (let k in arr)`).
+ */
+export function collectIndexVariables(ast: any): string[] {
+  const detected = new Set<string>();
+  const ignored = new Set([
+    'this',
+    'arguments',
+    '__vc',
+    '__vc_ret',
+    'undefined',
+    'null',
+    'true',
+    'false',
+  ]);
+
+  function extractExprIdentifiers(expr: any) {
+    if (!expr || typeof expr !== 'object') return;
+    if (expr.type === 'Identifier') {
+      if (!ignored.has(expr.name)) {
+        detected.add(expr.name);
+      }
+    } else if (expr.type === 'BinaryExpression') {
+      extractExprIdentifiers(expr.left);
+      extractExprIdentifiers(expr.right);
+    } else if (expr.type === 'UnaryExpression' || expr.type === 'UpdateExpression') {
+      extractExprIdentifiers(expr.argument);
+    }
+  }
+
+  function walkAst(node: any) {
+    if (!node || typeof node !== 'object') return;
+
+    // 1. Computed MemberExpression: e.g. arr[k], nums[myPointer], grid[r][c]
+    if (node.type === 'MemberExpression' && node.computed) {
+      extractExprIdentifiers(node.property);
+    }
+
+    // 2. Loop headers: for (let k = 0; ...), for (let idx in arr)
+    if (node.type === 'ForStatement' && node.init?.type === 'VariableDeclaration') {
+      for (const d of node.init.declarations || []) {
+        for (const name of extractNames(d.id)) {
+          if (!ignored.has(name)) detected.add(name);
+        }
+      }
+    } else if (node.type === 'ForInStatement' && node.left?.type === 'VariableDeclaration') {
+      for (const d of node.left.declarations || []) {
+        for (const name of extractNames(d.id)) {
+          if (!ignored.has(name)) detected.add(name);
+        }
+      }
+    }
+
+    for (const key of Object.keys(node)) {
+      if (key === 'loc' || key === 'range') continue;
+      const child = node[key];
+      if (Array.isArray(child)) {
+        for (const c of child) {
+          if (c && typeof c === 'object' && c.type) walkAst(c);
+        }
+      } else if (child && typeof child === 'object' && child.type) {
+        walkAst(child);
+      }
+    }
+  }
+
+  walkAst(ast);
+  return Array.from(detected);
 }
 
 /**
@@ -437,9 +509,12 @@ export function instrumentCode(source: string): InstrumentResult {
     result = result.slice(0, edit.start) + edit.replacement + result.slice(edit.end);
   }
 
+  const detectedIndexVariables = collectIndexVariables(ast);
+
   return {
     success: true,
     instrumentedCode: result,
     functionName: mainFunctionName,
+    detectedIndexVariables,
   };
 }
