@@ -169,4 +169,44 @@ describe('Tracer Instrumenter', () => {
     expect(res.detectedIndexVariables).not.toContain('n');
     expect(res.detectedCoordinatePairs).toContainEqual(['i', 'j']);
   });
+
+  it('distinguishes mutated pointer variable foo from static offset bar in arr[foo + bar]', () => {
+    const code = `function customNames(arr, bar) {
+  for (let foo = 0; foo < arr.length; foo++) {
+    const val = arr[foo + bar];
+  }
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.detectedIndexVariables).toContain('foo');
+    expect(res.detectedIndexVariables).not.toContain('bar');
+  });
+
+  it('identifies root caller function over helper functions declared first', () => {
+    const code = `function swap(arr, i, j) {
+  const t = arr[i];
+  arr[i] = arr[j];
+  arr[j] = t;
+}
+
+function bubbleSort(arr) {
+  swap(arr, 0, 1);
+  return arr;
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.functionName).toBe('bubbleSort');
+  });
+
+  it('respects explicitly targeted functionName', () => {
+    const code = `function f1() { return 1; }
+function f2() { return 2; }`;
+
+    const res = instrumentCode(code, 'f2');
+    expect(res.success).toBe(true);
+    expect(res.functionName).toBe('f2');
+  });
 });
+

@@ -12,6 +12,7 @@ export interface TraceOptions {
   code: string;
   input: string | unknown;
   timeoutMs?: number;
+  functionName?: string;
 }
 
 /**
@@ -25,7 +26,7 @@ export interface TraceOptions {
  * - Fails closed in production if Web Worker is unavailable (zero UI-thread new Function)
  */
 export async function traceUserCode(options: TraceOptions): Promise<LiveTraceResult> {
-  const { code, input, timeoutMs = 2000 } = options;
+  const { code, input, timeoutMs = 2000, functionName: requestedFunctionName } = options;
 
   // 1. Preflight input validation (before Worker or navigation)
   const preflight = validatePreflightInput(input);
@@ -43,7 +44,7 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
   }
 
   // 2. Instrument source code with AST step markers
-  const instrumentResult = instrumentCode(code);
+  const instrumentResult = instrumentCode(code, requestedFunctionName);
   if (!instrumentResult.success || !instrumentResult.instrumentedCode) {
     return {
       steps: [],
@@ -73,7 +74,8 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
         functionName,
         args,
         detectedIndexVariables,
-        detectedCoordinatePairs
+        detectedCoordinatePairs,
+        timeoutMs
       );
     }
     // Fail-closed in production: never execute on the UI thread
@@ -92,6 +94,7 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
   return new Promise((resolve) => {
     let worker: Worker | null = null;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    let lastKnownSteps: DryRunStep[] = [];
 
     try {
       worker = new Worker(new URL('./tracer.worker.ts', import.meta.url));
@@ -101,18 +104,27 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
           worker.terminate();
         }
         resolve({
-          steps: [],
-          totalSteps: 0,
+          steps: lastKnownSteps,
+          totalSteps: lastKnownSteps.length,
           completed: false,
           diagnostic: {
             kind: 'timeout',
-            message: `Execution timed out after ${timeoutMs}ms. The execution tape is empty because the worker was terminated. Check for infinite loops or unoptimized iterations.`,
+            message:
+              lastKnownSteps.length > 0
+                ? `Execution timed out after ${timeoutMs}ms. Keeping ${lastKnownSteps.length} partial steps before worker termination.`
+                : `Execution timed out after ${timeoutMs}ms. The execution tape is empty because the worker was terminated. Check for infinite loops or unoptimized iterations.`,
             suggestion: 'Check loop termination conditions and recursive base cases.',
           },
         });
       }, timeoutMs);
 
-      worker.onmessage = (e: MessageEvent<WorkerTraceResponse>) => {
+      worker.onmessage = (e: MessageEvent<any>) => {
+        if (e.data?.type === 'progress') {
+          if (Array.isArray(e.data.steps)) {
+            lastKnownSteps = e.data.steps;
+          }
+          return;
+        }
         if (timer) clearTimeout(timer);
         if (worker) worker.terminate();
         resolve(e.data);
@@ -139,6 +151,7 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
         args,
         detectedIndexVariables,
         detectedCoordinatePairs,
+        timeoutMs,
       };
 
       worker.postMessage(payload);
@@ -151,7 +164,8 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
             functionName,
             args,
             detectedIndexVariables,
-            detectedCoordinatePairs
+            detectedCoordinatePairs,
+            timeoutMs
           )
         );
         return;
@@ -179,9 +193,13 @@ export function executeTraceSync(
   functionName: string,
   args: any[],
   detectedIndexVariables?: string[],
-  detectedCoordinatePairs?: [string, string][]
+  detectedCoordinatePairs?: [string, string][],
+  timeoutMs?: number
 ): LiveTraceResult {
   const ctx = new ExecutionTracerContext();
+  if (timeoutMs) {
+    ctx.startExecution(timeoutMs);
+  }
   if (detectedIndexVariables || detectedCoordinatePairs) {
     ctx.registerIndexVariables(detectedIndexVariables || [], detectedCoordinatePairs);
   }

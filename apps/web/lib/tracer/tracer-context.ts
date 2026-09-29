@@ -8,6 +8,7 @@ export interface WorkerTracePayload {
   args: any[];
   detectedIndexVariables?: string[];
   detectedCoordinatePairs?: [string, string][];
+  timeoutMs?: number;
 }
 
 export interface WorkerTraceResponse {
@@ -49,8 +50,16 @@ export class ExecutionTracerContext {
   public fatalError?: any;
   public detectedIndexVariables = new Set<string>();
   public detectedCoordinatePairs: [string, string][] = [];
+  public timeoutMs?: number;
+  public startTime = 0;
+  public onStep?: (steps: DryRunStep[]) => void;
   private lastSignature = '';
   private consecutiveRepeatCount = 0;
+
+  startExecution(timeoutMs?: number) {
+    this.timeoutMs = timeoutMs;
+    this.startTime = Date.now();
+  }
 
   registerIndexVariables(names: string[], coordinatePairs?: [string, string][]) {
     if (Array.isArray(names)) {
@@ -102,6 +111,17 @@ export class ExecutionTracerContext {
   step(line: number, locals: Record<string, any>) {
     if (this.isAborted) {
       throw this.fatalError;
+    }
+
+    if (this.timeoutMs && this.startTime > 0) {
+      const elapsed = Date.now() - this.startTime;
+      if (elapsed >= this.timeoutMs - 150) {
+        this.abort(
+          'timeout',
+          `Execution timed out after ${this.timeoutMs}ms. Keeping ${this.steps.length} partial steps before timeout.`,
+          line
+        );
+      }
     }
 
     this.stepCount++;
@@ -184,6 +204,10 @@ export class ExecutionTracerContext {
       dpTableState: vizState.dpTableState,
       hashMapState: vizState.hashMapState,
     });
+
+    if (this.onStep) {
+      this.onStep(this.steps);
+    }
   }
 }
 

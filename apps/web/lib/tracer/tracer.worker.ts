@@ -17,11 +17,25 @@ if (typeof self !== 'undefined' && typeof postMessage === 'function') {
       args,
       detectedIndexVariables,
       detectedCoordinatePairs,
+      timeoutMs,
     } = e.data;
     const ctx = new ExecutionTracerContext();
+    if (timeoutMs) {
+      ctx.startExecution(timeoutMs);
+    }
     if (detectedIndexVariables || detectedCoordinatePairs) {
       ctx.registerIndexVariables(detectedIndexVariables || [], detectedCoordinatePairs);
     }
+
+    ctx.onStep = (steps) => {
+      // Periodically stream steps to the parent thread so terminate() never loses partial steps
+      if (steps.length % 5 === 0 || steps.length === 1) {
+        postMessage({
+          type: 'progress',
+          steps,
+        });
+      }
+    };
 
     try {
       // Execute the instrumented function inside worker sandbox

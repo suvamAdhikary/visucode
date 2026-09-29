@@ -75,6 +75,47 @@ export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
     return POINTER_NAME_REGEX.test(name);
   }
 
+  // Pre-pass: collect variables mutated in loops, updates (++), or assignments (+=)
+  // This provides structural data-flow analysis so arr[foo + bar] distinguishes the moving pointer from static offset
+  const mutatedVariables = new Set<string>();
+  function collectMutations(node: any) {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'UpdateExpression') {
+      if (node.argument?.type === 'Identifier') {
+        mutatedVariables.add(node.argument.name);
+      }
+    } else if (node.type === 'AssignmentExpression') {
+      if (node.left?.type === 'Identifier') {
+        mutatedVariables.add(node.left.name);
+      }
+    } else if (node.type === 'ForStatement' && node.init?.type === 'VariableDeclaration') {
+      for (const d of node.init.declarations || []) {
+        if (d.id?.type === 'Identifier') {
+          mutatedVariables.add(d.id.name);
+        }
+      }
+    } else if (
+      (node.type === 'ForInStatement' || node.type === 'ForOfStatement') &&
+      node.left?.type === 'VariableDeclaration'
+    ) {
+      for (const d of node.left.declarations || []) {
+        if (d.id?.type === 'Identifier') {
+          mutatedVariables.add(d.id.name);
+        }
+      }
+    }
+    for (const key of Object.keys(node)) {
+      if (key === 'loc' || key === 'range') continue;
+      const child = node[key];
+      if (Array.isArray(child)) {
+        for (const c of child) if (c && typeof c === 'object') collectMutations(c);
+      } else if (child && typeof child === 'object') {
+        collectMutations(child);
+      }
+    }
+  }
+  collectMutations(ast);
+
   function extractExprIdentifiers(expr: any) {
     if (!expr || typeof expr !== 'object') return;
     if (expr.type === 'Identifier') {
@@ -101,8 +142,8 @@ export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
           // arr[i + 1]
           extractExprIdentifiers(expr.left);
         } else {
-          // In arr[offset + i] or arr[i + offset]:
-          // Distinguish pointer from offset/delta/dimension
+          // In arr[offset + i] or arr[i + offset] or arr[foo + bar]:
+          // Distinguish pointer from offset/delta/dimension using naming heuristics and AST mutation data-flow
           const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
           const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
 
@@ -116,8 +157,14 @@ export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
             extractExprIdentifiers(expr.right);
           } else if (leftName && isPointerName(leftName) && rightName && !isPointerName(rightName)) {
             extractExprIdentifiers(expr.left);
+          } else if (leftName && rightName && mutatedVariables.has(leftName) && !mutatedVariables.has(rightName)) {
+            // arr[foo + bar] where foo is mutated loop counter and bar is static offset
+            extractExprIdentifiers(expr.left);
+          } else if (leftName && rightName && mutatedVariables.has(rightName) && !mutatedVariables.has(leftName)) {
+            // arr[bar + foo] where foo is mutated loop counter and bar is static offset
+            extractExprIdentifiers(expr.right);
           } else {
-            // e.g. arr[i + j]
+            // e.g. arr[i + j] where both are mutated or neither is recognized
             extractExprIdentifiers(expr.left);
             extractExprIdentifiers(expr.right);
           }
@@ -202,6 +249,12 @@ export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
           }
           if (leftName && isPointerName(leftName) && rightName && !isPointerName(rightName)) {
             return leftName;
+          }
+          if (leftName && rightName && mutatedVariables.has(leftName) && !mutatedVariables.has(rightName)) {
+            return leftName;
+          }
+          if (leftName && rightName && mutatedVariables.has(rightName) && !mutatedVariables.has(leftName)) {
+            return rightName;
           }
         }
         return getBaseIdentifierName(expr.left) || getBaseIdentifierName(expr.right);
@@ -313,7 +366,7 @@ export function collectIndexVariables(ast: any): string[] {
  * Supports Function declarations/expressions, arrows (block & expression bodies),
  * TryStatement, SwitchStatement, loop statements, and class methods (F-LDR-S1-02).
  */
-export function instrumentCode(source: string): InstrumentResult {
+export function instrumentCode(source: string, targetFunctionName?: string): InstrumentResult {
   let ast: any;
   try {
     ast = acorn.parse(source, {
@@ -335,16 +388,124 @@ export function instrumentCode(source: string): InstrumentResult {
     };
   }
 
-  let mainFunctionName = 'solution';
-  const edits: TextEdit[] = [];
+  // Find all top-level functions and analyze caller-callee relationships
+  interface TopLevelFn {
+    name: string;
+    node: any;
+    calledFunctions: Set<string>;
+    isExported: boolean;
+  }
 
-  // Find the primary entry function name (first FunctionDeclaration, F-LDR-S1-03)
+  const topLevelFns: TopLevelFn[] = [];
+  const knownFnNames = new Set<string>();
+
   for (const node of ast.body) {
     if (node.type === 'FunctionDeclaration' && node.id?.name) {
-      mainFunctionName = node.id.name;
-      break;
+      topLevelFns.push({
+        name: node.id.name,
+        node,
+        calledFunctions: new Set<string>(),
+        isExported: false,
+      });
+      knownFnNames.add(node.id.name);
+    } else if (node.type === 'VariableDeclaration') {
+      for (const d of node.declarations || []) {
+        if (
+          d.id?.type === 'Identifier' &&
+          d.init &&
+          (d.init.type === 'FunctionExpression' || d.init.type === 'ArrowFunctionExpression')
+        ) {
+          topLevelFns.push({
+            name: d.id.name,
+            node: d.init,
+            calledFunctions: new Set<string>(),
+            isExported: false,
+          });
+          knownFnNames.add(d.id.name);
+        }
+      }
+    } else if (node.type === 'ExportDefaultDeclaration') {
+      if (node.declaration?.type === 'FunctionDeclaration' && node.declaration.id?.name) {
+        topLevelFns.push({
+          name: node.declaration.id.name,
+          node: node.declaration,
+          calledFunctions: new Set<string>(),
+          isExported: true,
+        });
+        knownFnNames.add(node.declaration.id.name);
+      }
+    } else if (node.type === 'ExportNamedDeclaration' && node.declaration) {
+      if (node.declaration.type === 'FunctionDeclaration' && node.declaration.id?.name) {
+        topLevelFns.push({
+          name: node.declaration.id.name,
+          node: node.declaration,
+          calledFunctions: new Set<string>(),
+          isExported: true,
+        });
+        knownFnNames.add(node.declaration.id.name);
+      }
     }
   }
+
+  // Walk each function's AST to find calls to other top-level functions
+  function collectCalls(node: any, calls: Set<string>) {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'CallExpression') {
+      if (node.callee?.type === 'Identifier' && knownFnNames.has(node.callee.name)) {
+        calls.add(node.callee.name);
+      }
+    }
+    for (const key of Object.keys(node)) {
+      if (key === 'loc' || key === 'range') continue;
+      const child = node[key];
+      if (Array.isArray(child)) {
+        for (const c of child) if (c && typeof c === 'object') collectCalls(c, calls);
+      } else if (child && typeof child === 'object') {
+        collectCalls(child, calls);
+      }
+    }
+  }
+
+  const calledByOthers = new Set<string>();
+  for (const fn of topLevelFns) {
+    collectCalls(fn.node, fn.calledFunctions);
+    for (const callee of fn.calledFunctions) {
+      if (callee !== fn.name) {
+        calledByOthers.add(callee);
+      }
+    }
+  }
+
+  let mainFunctionName = 'solution';
+
+  // 1. Explicit targetFunctionName requested by caller
+  if (targetFunctionName && knownFnNames.has(targetFunctionName)) {
+    mainFunctionName = targetFunctionName;
+  }
+  // 2. Exported function
+  else if (topLevelFns.some((f) => f.isExported)) {
+    mainFunctionName = topLevelFns.find((f) => f.isExported)!.name;
+  }
+  // 3. Named 'solution', 'solve', or 'main'
+  else if (topLevelFns.some((f) => /^(solution|solve|main)$/i.test(f.name))) {
+    mainFunctionName = topLevelFns.find((f) => /^(solution|solve|main)$/i.test(f.name))!.name;
+  }
+  // 4. Root caller function: a function that calls other functions and is NOT called by anything else
+  else if (topLevelFns.some((f) => !calledByOthers.has(f.name) && f.calledFunctions.size > 0)) {
+    mainFunctionName = topLevelFns.find(
+      (f) => !calledByOthers.has(f.name) && f.calledFunctions.size > 0
+    )!.name;
+  }
+  // 5. Function not called by any other function (if there's a unique uncalled root function)
+  else if (topLevelFns.filter((f) => !calledByOthers.has(f.name)).length === 1) {
+    mainFunctionName = topLevelFns.find((f) => !calledByOthers.has(f.name))!.name;
+  }
+  // 6. First function declaration as fallback
+  else if (topLevelFns.length > 0) {
+    mainFunctionName = topLevelFns[0].name;
+  }
+
+  const edits: TextEdit[] = [];
 
   /**
    * Helper to format locals into a JS object string: e.g. "{ a, b, c }"

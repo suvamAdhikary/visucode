@@ -197,4 +197,83 @@ describe('Live Dry Run Tracer', () => {
     expect(result.diagnostic?.kind).toBe('preflight-error');
     expect(result.steps.length).toBe(0);
   });
+
+  it('keeps partial steps streamed before timeout occurs', async () => {
+    let messageHandler: ((e: any) => void) | null = null;
+    const mockWorker = {
+      postMessage: jest.fn(),
+      terminate: jest.fn(),
+      set onmessage(handler: any) {
+        messageHandler = handler;
+      },
+      onerror: null,
+    };
+    const originalWorker = (global as any).Worker;
+    (global as any).Worker = jest.fn(() => mockWorker);
+
+    try {
+      const tracePromise = traceUserCode({
+        code: `function timeoutWithSteps() { let x = 0; while (true) { x++; } }`,
+        input: '[]',
+        timeoutMs: 50,
+      });
+
+      // Simulate worker streaming partial steps before timing out
+      setTimeout(() => {
+        if (messageHandler) {
+          messageHandler({
+            data: {
+              type: 'progress',
+              steps: [
+                { stepNumber: 1, line: 1, variables: [{ name: 'x', value: '1', type: 'number' }] },
+                { stepNumber: 2, line: 1, variables: [{ name: 'x', value: '2', type: 'number' }] },
+              ],
+            },
+          });
+        }
+      }, 10);
+
+      const result = await tracePromise;
+      expect(result.completed).toBe(false);
+      expect(result.steps.length).toBe(2);
+      expect(result.diagnostic?.kind).toBe('timeout');
+      expect(mockWorker.terminate).toHaveBeenCalled();
+    } finally {
+      (global as any).Worker = originalWorker;
+    }
+  });
+
+  it('executes root caller function even when helper function is declared first', async () => {
+    const code = `function helper(x) {
+  return x + 10;
+}
+
+function entry(nums) {
+  let res = helper(nums[0]);
+  return res;
+}`;
+
+    const result = await traceUserCode({
+      code,
+      input: '[[5]]',
+    });
+
+    expect(result.completed).toBe(true);
+    expect(result.returnValue).toBe(15);
+  });
+
+  it('allows targeting a specific functionName through traceUserCode options', async () => {
+    const code = `function first(x) { return x * 1; }
+function second(x) { return x * 2; }`;
+
+    const result = await traceUserCode({
+      code,
+      input: '[5]',
+      functionName: 'second',
+    });
+
+    expect(result.completed).toBe(true);
+    expect(result.returnValue).toBe(10);
+  });
 });
+
