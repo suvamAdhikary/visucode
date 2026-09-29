@@ -40,7 +40,7 @@ If any item fails: **do not merge.**
 | Item | Verdict |
 | --- | --- |
 | **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` | **MERGED & DONE.** Merged into `main` (`cde5b5b`). Sprint 1 complete. |
-| **Live Dry Run Sprint 2 (On-the-go visuals)** | Next up (`feature/live-dry-run-sprint-2`). |
+| **Live Dry Run Sprint 2 (On-the-go visuals)** | **READY FOR REVIEW.** (branch `feature/live-dry-run-sprint-2`). 1D arrays -> arrayState, pointers with distinct colors, 2D arrays -> dpTableState with activeCell, objects/Map -> hashMapState, factual explanations. All 9 test suites (500 tests) green; production build verified. |
 | **Live Dry Run Sprint 4 (Complexity panel)** | Can start in parallel with Sprint 2/3. |
 | **Phase 2** | Done (Sprints 1–5). |
 | **Phase 3 (user system)** | After Live Dry Run epic. Tracker: `docs/phase-3-quality-flags.md`. |
@@ -112,23 +112,21 @@ Reuse: `DryRunStep`, `DryRunViewer`, `VariableInspector`, `CodeViewer`, `StepCon
 
 ## Sprint 2 — On-the-go visuals
 
-**Do not start until Sprint 1 is merge-ready.**
-
 ### Stories
 
-- [ ] 1D arrays → `arrayState`. Numeric locals `i`, `j`, `left`, `right`, `lo`, `hi`, `mid` that are valid indices → `pointers`.
-- [ ] 2D arrays → `dpTableState` (grid).
-- [ ] Plain objects / `Map` / class instances (fields) → `hashMapState` or object inspector. No UML.
-- [ ] Factual explanations only (`left = 3`).
+- [x] 1D arrays → `arrayState`. Numeric locals `i`, `j`, `left`, `right`, `lo`, `hi`, `mid` that are valid indices → `pointers`.
+- [x] 2D arrays → `dpTableState` (grid).
+- [x] Plain objects / `Map` / class instances (fields) → `hashMapState` or object inspector. No UML.
+- [x] Factual explanations only (`left = 3`).
 
 ### Flag register (Sprint 2)
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-LDR-S2-01 | 1D array + index pointers from real locals | `OPEN` | |
-| F-LDR-S2-02 | 2D grid from nested arrays | `OPEN` | |
-| F-LDR-S2-03 | Objects / maps / class fields | `OPEN` | |
-| F-LDR-S2-04 | No invented textbook narration | `OPEN` | |
+| F-LDR-S2-01 | 1D array + index pointers from real locals | `FIXED` | `state-mapper.ts` detects 1D arrays, maps valid in-bounds numeric locals (`i`, `j`, `left`, `right`, etc.) to colored pointers and highlights elements; covered by unit tests. |
+| F-LDR-S2-02 | 2D grid from nested arrays | `FIXED` | 2D arrays mapped to `dpTableState` grid with `activeCell` tracking for `i`/`j` coordinates; null/undefined cells sanitized. |
+| F-LDR-S2-03 | Objects / maps / class fields | `FIXED` | `Map` instances and plain objects mapped to `hashMapState.entries` (`key`, `value`); covered by automated tests. |
+| F-LDR-S2-04 | No invented textbook narration | `FIXED` | `explanation` strictly derives from formatted runtime variable values (`var = val`) prioritizing pointers without invented narrative text. |
 
 ---
 
@@ -233,4 +231,5 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-29: Independent review of [PR #15](https://github.com/suvamAdhikary/visucode/pull/15) (`db6d587`). **BLOCKED** on F-LDR-S1-01 (worker module imported into client; sync fallback), F-LDR-S1-02 (`try` uninstrumented; no step-cap/timeout CI), F-LDR-S1-07 (timeout drops steps). F-LDR-S1-04/05/06/08 `FIXED`. F-LDR-S1-03 `OPEN`. Tracer unit tests 22/22 on the blocked snapshot. Preview not used as a freeze check (SSO).
 - 2026-09-29: Resolved independent review blockers in PR #15. Split tracer-context to remove worker bundle import; instrumented try/switch/classes/arrow expressions; guaranteed try/catch cannot swallow tracer aborts; added CI tests for while(true) in try, 500-step cap, recursion bomb, mock worker timeout, and left/right variable snapshots. All 8 test suites (492 tests) green and production build verified.
 - 2026-09-29: Replaced dev work remaining with non-blocking open notes; updated verdict to READY FOR MERGE / 1363b61.
+- 2026-09-29: Sprint 2 implementation complete on feature/live-dry-run-sprint-2. Created state-mapper.ts to infer arrayState, pointers, dpTableState, and hashMapState from runtime execution locals. Factual variable explanations prioritize pointer states. All 9 test suites (500 tests) green, next-env.d.ts 0 diff, production build verified.
 

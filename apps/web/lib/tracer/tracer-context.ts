@@ -1,5 +1,6 @@
 import type { DryRunStep, Variable } from '@visucode/shared-types';
 import type { DiagnosticKind, TraceDiagnostic } from './types';
+import { inferStepVisualizerState } from './state-mapper';
 
 export interface WorkerTracePayload {
   instrumentedCode: string;
@@ -161,18 +162,48 @@ export class ExecutionTracerContext {
       this.lastSignature = sig;
     }
 
-    // Factual explanation from variables (F-LDR-S1-03)
-    const explanationParts = variables.map((v) => `${v.name} = ${v.value}`);
+    // Factual explanation from variables (F-LDR-S1-03, F-LDR-S2-04)
+    const priorityNames = [
+      'return',
+      'left',
+      'right',
+      'i',
+      'j',
+      'k',
+      'mid',
+      'lo',
+      'hi',
+      'start',
+      'end',
+      'sum',
+      'target',
+    ];
+    const sortedVars = [...variables].sort((a, b) => {
+      const aIdx = priorityNames.indexOf(a.name.toLowerCase());
+      const bIdx = priorityNames.indexOf(b.name.toLowerCase());
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      if (aIdx !== -1) return -1;
+      if (bIdx !== -1) return 1;
+      return 0;
+    });
+
+    const explanationParts = sortedVars.map((v) => `${v.name} = ${v.value}`);
     const explanation =
       explanationParts.length > 0
-        ? explanationParts.slice(0, 3).join(', ')
+        ? explanationParts.slice(0, 4).join(', ')
         : `Line ${line}`;
+
+    const vizState = inferStepVisualizerState(locals);
 
     this.steps.push({
       stepNumber: this.steps.length + 1,
       line,
       variables,
       explanation,
+      arrayState: vizState.arrayState,
+      pointers: vizState.pointers,
+      dpTableState: vizState.dpTableState,
+      hashMapState: vizState.hashMapState,
     });
   }
 }
