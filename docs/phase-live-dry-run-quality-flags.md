@@ -40,7 +40,7 @@ If any item fails: **do not merge.**
 | Item | Verdict |
 | --- | --- |
 | **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` | **MERGED & DONE.** Merged into `main` (`cde5b5b`). Sprint 1 complete. |
-| **Live Dry Run Sprint 2 (On-the-go visuals)** — `feature/live-dry-run-sprint-2` → `main` | **READY FOR REVIEW.** All 4 Sprint 2 stories implemented (F-LDR-S2-01..04). Resolved all Still OPEN items: timeout streams and preserves partial steps across worker termination; caller-callee call graph analysis selects root entry functions over helpers declared first; AST mutation data-flow analysis distinguishes moving pointers from static offsets in arbitrary additions (`arr[foo + bar]`). All 9 suites (521 tests) green; production build verified; `next-env.d.ts` 0 diff. |
+| **Live Dry Run Sprint 2 (On-the-go visuals)** — `feature/live-dry-run-sprint-2` → `main` | **READY FOR MERGE / 28e4dd3.** All 4 Sprint 2 stories implemented (F-LDR-S2-01..04). Resolved all Still OPEN items: timeout streams every single step incrementally and preserves partial steps across worker termination (scaled timeout buffer prevents false abort on step 1 when timeoutMs ≤ 150); caller-callee call graph analysis selects root entry functions over helpers declared first; AST mutation data-flow analysis distinguishes moving pointers from static offsets in arbitrary additions (`arr[foo + bar]`). All 9 suites (523 tests total, 60 tracer tests) green; production build verified; `next-env.d.ts` 0 diff. |
 | **Live Dry Run Sprint 4 (Complexity panel)** | Can start in parallel with Sprint 2/3. |
 | **Phase 2** | Done (Sprints 1–5). |
 | **Phase 3 (user system)** | After Live Dry Run epic. Tracker: `docs/phase-3-quality-flags.md`. |
@@ -49,10 +49,7 @@ If any item fails: **do not merge.**
 
 ## Still OPEN (not merge-blocking)
 
-- **None.** All Sprint 1 and Sprint 2 items resolved and proven with automated tests.
-  - *Timeout partial steps*: Worker streams step batches to the parent thread (`onStep`), and `ExecutionTracerContext` detects timeouts internally, ensuring partial execution steps are retained and steppable even when hard worker termination occurs.
-  - *Entry function discovery*: `instrumentCode` analyzes the top-level caller-callee call graph to identify root entry functions (avoiding helper functions declared first), supports exported functions, checks standard solution names, and accepts explicit `functionName` targeting via `traceUserCode`.
-  - *Arbitrary addition indexing*: AST analysis tracks variable mutations and loop counters (`mutatedVariables`) to distinguish moving pointers from static offsets in expressions with arbitrary names like `arr[foo + bar]`.
+- **Worker testing in CI tradeoff**: The trailing-step timeout test in CI injects mock worker step messages to verify message reception and step preservation across termination because Node/jsdom does not support real multi-threaded DOM Web Workers. In real execution, the worker code posts every step incrementally (`{ type: 'step' }`). A live Worker thread hang is not run in CI.
 - **Manual preview note**: Vercel preview was not clicked due to SSO. After merge, paste `try { while (true) {} }` once locally if you want a human freeze check.
 
 ---
@@ -239,5 +236,6 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-29: Documented arr[foo + bar] name-heuristic tradeoff: unrecognized identifiers without known offset/dimension naming extract both candidates for runtime boundary validation. Sprint 1 leftovers (timeout tape empty on terminate, first function runs) confirmed unchanged under Still OPEN.
 - 2026-09-29: Resolved all remaining Still OPEN items: implemented worker partial-step streaming and internal context timeout abort so steps are never dropped on timeout; implemented caller-callee call graph analysis to select root entry functions over helpers declared first; added AST mutation tracking to distinguish moving pointers from static offsets in arbitrary additions (`arr[foo + bar]`). All 9 suites (521 tests) green.
 - 2026-09-29: Resolved short timeout scaling and trailing step streaming: scaled timeout abort buffer so timeoutMs <= 150 never falsely aborts on step 1; upgraded worker streaming to incremental per-step delivery so trailing 1-4 steps are never lost on hard terminate(); updated twoSum test comment to reflect call-graph root resolution. All 9 suites (523 tests) green.
+- 2026-09-30: Updated verdict to READY FOR MERGE / 28e4dd3. Documented CI mock-worker tradeoff (worker posts each step incrementally; live Worker thread hang is not run in Node/jsdom CI). Confirmed 60 tracer tests passing (523 total across 9 suites).
 
 
