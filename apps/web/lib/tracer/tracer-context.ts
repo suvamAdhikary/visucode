@@ -205,6 +205,8 @@ export class ExecutionTracerContext {
       pointers: vizState.pointers,
       dpTableState: vizState.dpTableState,
       hashMapState: vizState.hashMapState,
+      linkedListState: vizState.linkedListState,
+      treeState: vizState.treeState,
     });
 
     if (this.onStep) {

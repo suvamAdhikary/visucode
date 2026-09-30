@@ -37,15 +37,27 @@ export function validatePreflightInput(rawInput: string | unknown): TracePreflig
       const parsed = JSON.parse(trimmed);
       args = Array.isArray(parsed) ? parsed : [parsed];
     } catch {
-      // Try wrapping in array if user passed comma-separated arguments: e.g. [1, 2, 3], 6
+      // 1. Try wrapping in array if user passed comma-separated arguments: e.g. [1, 2, 3], 6
       try {
         const wrapped = JSON.parse(`[${trimmed}]`);
         args = wrapped;
       } catch {
-        return {
-          valid: false,
-          error: 'Input is not valid JSON. Please check syntax.',
-        };
+        // 2. Try stripping LeetCode-style variable assignments: e.g. "nums = [2,7,11,15], target = 9"
+        try {
+          const stripped = trimmed.replace(/\b[a-zA-Z_$][a-zA-Z0-9_$]*\s*=\s*/g, '');
+          try {
+            const parsedStripped = JSON.parse(stripped);
+            args = Array.isArray(parsedStripped) ? parsedStripped : [parsedStripped];
+          } catch {
+            const wrappedStripped = JSON.parse(`[${stripped}]`);
+            args = wrappedStripped;
+          }
+        } catch {
+          return {
+            valid: false,
+            error: 'Input is not valid JSON. Please check syntax.',
+          };
+        }
       }
     }
   } else if (Array.isArray(rawInput)) {

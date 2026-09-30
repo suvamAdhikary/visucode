@@ -3,6 +3,10 @@ import type {
   DpTableVisualizerState,
   HashMapVisualizerState,
   HashMapEntry,
+  LinkedListVisualizerState,
+  LinkedListNode,
+  TreeVisualizerState,
+  TreeNode,
   Pointer,
 } from '@visucode/shared-types';
 import { safeStringify } from './tracer-utils';
@@ -12,6 +16,8 @@ export interface VisualizerStateResult {
   pointers?: Pointer[];
   dpTableState?: DpTableVisualizerState;
   hashMapState?: HashMapVisualizerState;
+  linkedListState?: LinkedListVisualizerState;
+  treeState?: TreeVisualizerState;
 }
 
 const POINTER_NAMES = new Set([
@@ -100,6 +106,296 @@ function getLocalVar(locals: Record<string, any>, name: string): any {
 const ARRAY_PRIORITY_NAMES = ['nums', 'arr', 'array', 'list', 'elements', 'data'];
 const DP_PRIORITY_NAMES = ['dp', 'grid', 'matrix', 'table', 'memo', 'board'];
 const MAP_PRIORITY_NAMES = ['map', 'seen', 'counts', 'count', 'freq', 'dict', 'lookup', 'hash'];
+const LIST_PRIORITY_NAMES = ['head', 'dummy', 'dummyhead', 'list', 'l1', 'l2', 'first', 'curr', 'cur', 'prev', 'tail'];
+const TREE_PRIORITY_NAMES = ['root', 'tree', 't', 'node'];
+
+/**
+ * Negative guard (F-LDR-S3-01): validates whether an object is a Linked List node.
+ * - Must be an object, not array, not Map/Set/Date/RegExp.
+ * - Must have 'next' property.
+ * - obj.next MUST be null, undefined, or an object (rejects primitives like strings, numbers, booleans).
+ * - Must have a value-like property ('val', 'value', 'data', 'item', 'key') or a recognizable class constructor.
+ */
+export function isLinkedListNodeCandidate(obj: unknown): boolean {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false;
+  if (obj instanceof Map || obj instanceof Set || obj instanceof Date || obj instanceof RegExp) return false;
+  if (!('next' in obj)) return false;
+
+  const record = obj as Record<string, unknown>;
+  const nextVal = record.next;
+  if (nextVal !== null && nextVal !== undefined && typeof nextVal !== 'object') {
+    return false;
+  }
+
+  // Reject obvious pagination or config objects: e.g. { page, limit, next: "/items" }
+  if ('page' in record || 'limit' in record || 'totalPages' in record || 'autoPlay' in record) {
+    return false;
+  }
+
+  const hasValueProp =
+    'val' in record ||
+    'value' in record ||
+    'data' in record ||
+    'item' in record ||
+    'key' in record;
+
+  const ctorName = obj.constructor?.name || '';
+  const isListNodeCtor = /^(ListNode|LinkedListNode|Node)$/i.test(ctorName);
+
+  return hasValueProp || isListNodeCtor;
+}
+
+/**
+ * Negative guard (F-LDR-S3-02): validates whether an object is a Binary Tree node.
+ * - Must be an object, not array, not Map/Set/Date/RegExp.
+ * - Must have 'left' or 'right' property (or both).
+ * - Neither obj.left nor obj.right can be a primitive (rejects bounding boxes { left: 10, right: 20 }, CSS { left: '10px' }).
+ * - Must have a value-like property ('val', 'value', 'data', 'item', 'key') or a recognizable class constructor.
+ */
+export function isTreeNodeCandidate(obj: unknown): boolean {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false;
+  if (obj instanceof Map || obj instanceof Set || obj instanceof Date || obj instanceof RegExp) return false;
+
+  const hasLeft = 'left' in obj;
+  const hasRight = 'right' in obj;
+  if (!hasLeft && !hasRight) return false;
+
+  const record = obj as Record<string, unknown>;
+  const leftVal = record.left;
+  const rightVal = record.right;
+
+  // If left or right is a primitive (number, string, boolean, etc.), REJECT immediately!
+  if (leftVal !== null && leftVal !== undefined && typeof leftVal !== 'object') {
+    return false;
+  }
+  if (rightVal !== null && rightVal !== undefined && typeof rightVal !== 'object') {
+    return false;
+  }
+
+  // Reject bounding box / rectangle objects: e.g. { top, bottom, left, right }
+  if ('top' in record || 'bottom' in record || 'width' in record || 'height' in record) {
+    return false;
+  }
+
+  const hasValueProp =
+    'val' in record ||
+    'value' in record ||
+    'data' in record ||
+    'item' in record ||
+    'key' in record;
+
+  const ctorName = obj.constructor?.name || '';
+  const isTreeNodeCtor = /^(TreeNode|BinaryTreeNode|BSTNode|Node)$/i.test(ctorName);
+
+  return hasValueProp || isTreeNodeCtor;
+}
+
+/**
+ * Extracts linked list nodes and pointer references from local variables (F-LDR-S3-01).
+ */
+export function extractLinkedList(entries: [string, any][]): {
+  linkedListState?: LinkedListVisualizerState;
+  pointers: Pointer[];
+  nodeObjects: Set<any>;
+} {
+  const candidateEntries = entries.filter(([, v]) => isLinkedListNodeCandidate(v));
+  if (candidateEntries.length === 0) {
+    return { pointers: [], nodeObjects: new Set() };
+  }
+
+  // 1. Identify head/start node
+  let rootEntry = candidateEntries.find(([k]) =>
+    LIST_PRIORITY_NAMES.includes(k.toLowerCase())
+  );
+  if (!rootEntry) {
+    const nextRefs = new Set<any>();
+    for (const [, node] of candidateEntries) {
+      if (node.next && typeof node.next === 'object') {
+        nextRefs.add(node.next);
+      }
+    }
+    rootEntry = candidateEntries.find(([, node]) => !nextRefs.has(node)) || candidateEntries[0];
+  }
+
+  const startNode = rootEntry[1];
+  const visitedNodes: any[] = [];
+  const nodeToId = new Map<any, string>();
+  const visitedSet = new Set<any>();
+
+  let curr: any = startNode;
+  let idCounter = 1;
+
+  while (curr && typeof curr === 'object' && !visitedSet.has(curr) && visitedNodes.length < 16) {
+    visitedSet.add(curr);
+    const nodeId = `node-${idCounter++}`;
+    nodeToId.set(curr, nodeId);
+    visitedNodes.push(curr);
+    curr = curr.next;
+  }
+
+  if (visitedNodes.length === 0) {
+    return { pointers: [], nodeObjects: new Set() };
+  }
+
+  const nodes: LinkedListNode[] = [];
+  for (let i = 0; i < visitedNodes.length; i++) {
+    const nodeObj = visitedNodes[i];
+    const id = nodeToId.get(nodeObj)!;
+    const rawVal =
+      nodeObj.val !== undefined
+        ? nodeObj.val
+        : nodeObj.value !== undefined
+        ? nodeObj.value
+        : nodeObj.data !== undefined
+        ? nodeObj.data
+        : i + 1;
+
+    const value =
+      typeof rawVal === 'number' || typeof rawVal === 'string'
+        ? rawVal
+        : safeStringify(rawVal);
+
+    let nextId: string | undefined;
+    if (nodeObj.next && typeof nodeObj.next === 'object') {
+      nextId = nodeToId.get(nodeObj.next);
+    }
+
+    nodes.push({ id, value, nextId });
+  }
+
+  const pointers: Pointer[] = [];
+  const highlightIds: string[] = [];
+
+  for (const [name, val] of entries) {
+    if (val && typeof val === 'object' && nodeToId.has(val)) {
+      const targetId = nodeToId.get(val)!;
+      pointers.push({
+        name,
+        targetId,
+        color: getPointerColor(name),
+        label: name,
+      });
+      if (!highlightIds.includes(targetId)) {
+        highlightIds.push(targetId);
+      }
+    }
+  }
+
+  return {
+    linkedListState: {
+      nodes,
+      headId: nodeToId.get(startNode),
+      highlightIds: highlightIds.length > 0 ? highlightIds : undefined,
+    },
+    pointers,
+    nodeObjects: visitedSet,
+  };
+}
+
+/**
+ * Extracts binary tree nodes and pointer references from local variables (F-LDR-S3-02).
+ */
+export function extractTree(entries: [string, any][]): {
+  treeState?: TreeVisualizerState;
+  pointers: Pointer[];
+  nodeObjects: Set<any>;
+} {
+  const candidateEntries = entries.filter(([, v]) => isTreeNodeCandidate(v));
+  if (candidateEntries.length === 0) {
+    return { pointers: [], nodeObjects: new Set() };
+  }
+
+  // 1. Identify root node
+  let rootEntry = candidateEntries.find(([k]) =>
+    TREE_PRIORITY_NAMES.includes(k.toLowerCase())
+  );
+  if (!rootEntry) {
+    const childRefs = new Set<any>();
+    for (const [, node] of candidateEntries) {
+      if (node.left && typeof node.left === 'object') childRefs.add(node.left);
+      if (node.right && typeof node.right === 'object') childRefs.add(node.right);
+    }
+    rootEntry = candidateEntries.find(([, node]) => !childRefs.has(node)) || candidateEntries[0];
+  }
+
+  const rootNode = rootEntry[1];
+  const nodes: TreeNode[] = [];
+  const nodeToId = new Map<any, string>();
+  const visitedSet = new Set<any>();
+  let idCounter = 1;
+
+  const queue: any[] = [rootNode];
+  visitedSet.add(rootNode);
+  nodeToId.set(rootNode, `tree-node-${idCounter++}`);
+
+  while (queue.length > 0 && nodes.length < 31) {
+    const curr = queue.shift()!;
+    const id = nodeToId.get(curr)!;
+    const rawVal =
+      curr.val !== undefined
+        ? curr.val
+        : curr.value !== undefined
+        ? curr.value
+        : curr.data !== undefined
+        ? curr.data
+        : '';
+
+    const value =
+      typeof rawVal === 'number' || typeof rawVal === 'string'
+        ? rawVal
+        : safeStringify(rawVal);
+
+    let leftId: string | undefined;
+    if (curr.left && typeof curr.left === 'object' && !visitedSet.has(curr.left)) {
+      leftId = `tree-node-${idCounter++}`;
+      nodeToId.set(curr.left, leftId);
+      visitedSet.add(curr.left);
+      queue.push(curr.left);
+    } else if (curr.left && typeof curr.left === 'object' && visitedSet.has(curr.left)) {
+      leftId = nodeToId.get(curr.left);
+    }
+
+    let rightId: string | undefined;
+    if (curr.right && typeof curr.right === 'object' && !visitedSet.has(curr.right)) {
+      rightId = `tree-node-${idCounter++}`;
+      nodeToId.set(curr.right, rightId);
+      visitedSet.add(curr.right);
+      queue.push(curr.right);
+    } else if (curr.right && typeof curr.right === 'object' && visitedSet.has(curr.right)) {
+      rightId = nodeToId.get(curr.right);
+    }
+
+    nodes.push({ id, value, leftId, rightId });
+  }
+
+  const pointers: Pointer[] = [];
+  const highlightIds: string[] = [];
+
+  for (const [name, val] of entries) {
+    if (val && typeof val === 'object' && nodeToId.has(val)) {
+      const targetId = nodeToId.get(val)!;
+      pointers.push({
+        name,
+        targetId,
+        color: getPointerColor(name),
+        label: name,
+      });
+      if (!highlightIds.includes(targetId)) {
+        highlightIds.push(targetId);
+      }
+    }
+  }
+
+  return {
+    treeState: {
+      nodes,
+      rootId: nodeToId.get(rootNode),
+      highlightIds: highlightIds.length > 0 ? highlightIds : undefined,
+    },
+    pointers,
+    nodeObjects: visitedSet,
+  };
+}
 
 /**
  * Infers on-the-go visuals from runtime local variables (Sprint 2 - ADR-002, F-LDR-S2-01..04).
@@ -309,13 +605,37 @@ export function inferStepVisualizerState(
     }
   }
 
-  // 3. Identify Objects / Map / Class Instances -> hashMapState (F-LDR-S2-03)
+  // 3. Identify Linked List -> linkedListState (Sprint 3 - F-LDR-S3-01)
+  const listRes = extractLinkedList(entries);
+  if (listRes.linkedListState) {
+    result.linkedListState = listRes.linkedListState;
+    if (listRes.pointers.length > 0) {
+      result.pointers = [...(result.pointers || []), ...listRes.pointers];
+    }
+  }
+
+  // 4. Identify Binary Tree -> treeState (Sprint 3 - F-LDR-S3-02)
+  const treeRes = extractTree(entries);
+  if (treeRes.treeState) {
+    result.treeState = treeRes.treeState;
+    if (treeRes.pointers.length > 0) {
+      result.pointers = [...(result.pointers || []), ...treeRes.pointers];
+    }
+  }
+
+  const consumedNodeObjects = new Set<any>([
+    ...listRes.nodeObjects,
+    ...treeRes.nodeObjects,
+  ]);
+
+  // 5. Identify Objects / Map / Class Instances -> hashMapState (F-LDR-S2-03)
   let mapEntry = entries.find(
     ([k, v]) =>
       MAP_PRIORITY_NAMES.includes(k.toLowerCase()) &&
       v !== null &&
       typeof v === 'object' &&
-      !Array.isArray(v)
+      !Array.isArray(v) &&
+      !consumedNodeObjects.has(v)
   );
 
   if (!mapEntry) {
@@ -324,6 +644,7 @@ export function inferStepVisualizerState(
         v !== null &&
         typeof v === 'object' &&
         !Array.isArray(v) &&
+        !consumedNodeObjects.has(v) &&
         (v instanceof Map || Object.keys(v).length > 0)
     );
   }

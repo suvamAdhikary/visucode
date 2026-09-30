@@ -40,7 +40,8 @@ If any item fails: **do not merge.**
 | Item | Verdict |
 | --- | --- |
 | **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` | **MERGED & DONE.** Merged into `main` (`cde5b5b`). Sprint 1 complete. |
-| **Live Dry Run Sprint 2 (On-the-go visuals)** — `feature/live-dry-run-sprint-2` → `main` | **READY FOR MERGE / 28e4dd3.** All 4 Sprint 2 stories implemented (F-LDR-S2-01..04). Resolved all Still OPEN items: timeout streams every single step incrementally and preserves partial steps across worker termination (scaled timeout buffer prevents false abort on step 1 when timeoutMs ≤ 150); caller-callee call graph analysis selects root entry functions over helpers declared first; AST mutation data-flow analysis distinguishes moving pointers from static offsets in arbitrary additions (`arr[foo + bar]`). All 9 suites (523 tests total, 60 tracer tests) green; production build verified; `next-env.d.ts` 0 diff. |
+| **[PR #16](https://github.com/suvamAdhikary/visucode/pull/16)** — `feature/live-dry-run-sprint-2` → `main` | **MERGED & DONE.** Merged into `main` (`57bda07`). Sprint 2 complete. |
+| **Live Dry Run Sprint 3 (Structure heuristics + problem page)** — `feature/live-dry-run-sprint-3` → `main` | **READY FOR REVIEW / READY FOR MERGE.** All 3 stories complete (`F-LDR-S3-01`, `F-LDR-S3-02`, `F-LDR-S3-03` FIXED). Linked list and tree heuristics with negative guards; problem page 3-tab surface (`🔍 Official Dry Run`, `⚡ Dry Run My Code` with Live badge, and `💻 Your Code` with Beta badge); input preflight; zero diff on `next-env.d.ts`; all 10 test suites (537 tests) passing. |
 | **Live Dry Run Sprint 4 (Complexity panel)** | Can start in parallel with Sprint 2/3. |
 | **Phase 2** | Done (Sprints 1–5). |
 | **Phase 3 (user system)** | After Live Dry Run epic. Tracker: `docs/phase-3-quality-flags.md`. |
@@ -133,17 +134,17 @@ Reuse: `DryRunStep`, `DryRunViewer`, `VariableInspector`, `CodeViewer`, `StepCon
 
 ### Stories
 
-- [ ] `{ next }` chains → `linkedListState`.
-- [ ] `{ left, right }` nodes → `treeState`.
-- [ ] Problem page tab: “Dry run my code” using starter/user code and that problem’s example input. “Official dry run” stays authored JSON.
+- [x] `{ next }` chains → `linkedListState`.
+- [x] `{ left, right }` nodes → `treeState`.
+- [x] Problem page tab: “Dry run my code” using starter/user code and that problem’s example input. “Official dry run” stays authored JSON (`F-LDR-S3-03`).
 
 ### Flag register (Sprint 3)
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-LDR-S3-01 | List heuristic does not misread unrelated objects | `OPEN` | Need a fixture that should **not** become a list |
-| F-LDR-S3-02 | Tree heuristic same | `OPEN` | |
-| F-LDR-S3-03 | Official JSON dry run unchanged by live tab | `OPEN` | Two surfaces |
+| F-LDR-S3-01 | List heuristic does not misread unrelated objects | `FIXED` | `isLinkedListNodeCandidate` validates structural node criteria: requires `val`/`value`/`data` key; `next` must be null or an object (never strings, numbers, booleans like pagination `{ next: "tuesday" }`); negative fixtures proven in `state-mapper.spec.ts`. Circular references handled via cycle-detection set without infinite loops. |
+| F-LDR-S3-02 | Tree heuristic same | `FIXED` | `isTreeNodeCandidate` validates tree structural criteria: requires `val`/`value`/`data` key; `left` and `right` must be null or node objects; rejects non-tree shapes like bounding boxes/CSS `{ left: 10, right: 20 }` or string ranges; negative fixtures proven in `state-mapper.spec.ts`. |
+| F-LDR-S3-03 | Official JSON dry run unchanged by live tab | `FIXED` | Problem page tabs split into three surfaces: `🔍 Official Dry Run` (authored JSON), `⚡ Dry Run My Code` (user code + preflight + Worker live trace), and `💻 Your Code` (submission test runner). Authored `problem.dryRunSteps` is never mutated or overridden. Proven by `specs/problem-tabs.spec.tsx`. |
 
 ---
 
@@ -220,6 +221,21 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 
 ---
 
+## Sprint 3 merge checklist (copy when asking for review)
+
+- [x] `{ next }` chains inferred as `linkedListState` with pointer bindings (`targetId`)
+- [x] List negative guard `F-LDR-S3-01`: rejects `{ next: "tuesday" }`, `{ next: 42 }`, pagination objects
+- [x] `{ left, right }` nodes inferred as `treeState` with pointer bindings (`targetId`)
+- [x] Tree negative guard `F-LDR-S3-02`: rejects bounding boxes `{ left: 10, right: 20 }`, CSS, coordinate ranges
+- [x] Problem page tab: "Dry run my code" renders user code with example input without mutating authored JSON (`F-LDR-S3-03`)
+- [x] Input preflight handles JSON and LeetCode assignment syntax (`nums = [...], target = ...`)
+- [x] `next-env.d.ts` 0 diff vs `main`
+- [x] `npx nx test web` green across all 10 suites (537 tests)
+- [x] `npx nx build web` clean production build verified
+- [x] This file updated (`F-LDR-S3-01`, `F-LDR-S3-02`, `F-LDR-S3-03` marked `FIXED`)
+
+---
+
 ## Review notes
 
 - 2026-09-28: Plan written after Phase 2 Sprint 5. Independent of tracer code.
@@ -237,5 +253,7 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-29: Resolved all remaining Still OPEN items: implemented worker partial-step streaming and internal context timeout abort so steps are never dropped on timeout; implemented caller-callee call graph analysis to select root entry functions over helpers declared first; added AST mutation tracking to distinguish moving pointers from static offsets in arbitrary additions (`arr[foo + bar]`). All 9 suites (521 tests) green.
 - 2026-09-29: Resolved short timeout scaling and trailing step streaming: scaled timeout abort buffer so timeoutMs <= 150 never falsely aborts on step 1; upgraded worker streaming to incremental per-step delivery so trailing 1-4 steps are never lost on hard terminate(); updated twoSum test comment to reflect call-graph root resolution. All 9 suites (523 tests) green.
 - 2026-09-30: Updated verdict to READY FOR MERGE / 28e4dd3. Documented CI mock-worker tradeoff (worker posts each step incrementally; live Worker thread hang is not run in Node/jsdom CI). Confirmed 60 tracer tests passing (523 total across 9 suites).
+- 2026-09-30: PR #16 merged into main (57bda07). Branched feature/live-dry-run-sprint-3. Started Sprint 3 (structure heuristics for linked lists and binary trees with negative guards F-LDR-S3-01/02, and problem-page live dry run tab F-LDR-S3-03).
+- 2026-09-30: Sprint 3 completed: implemented linked-list (`extractLinkedList`) and binary tree (`extractTree`) heuristics in `state-mapper.ts` with strict negative guards (`F-LDR-S3-01`, `F-LDR-S3-02`) rejecting pagination objects, bounding boxes, and scalar coordinates; integrated pointers (`targetId`) for list/tree nodes; decoupled consumed node objects from `hashMapState`; created `LiveDryRunTab` and wired into `ProblemTabs` alongside `DryRunViewer` (`F-LDR-S3-03`) with input preflight supporting JSON and LeetCode assignments (`name = ...`); created `apps/web/specs/problem-tabs.spec.tsx` asserting tab switching and authored JSON immutability. All 10 test suites (537 tests) green, production build verified, and zero diff on `next-env.d.ts`. READY FOR REVIEW / READY FOR MERGE.
 
 

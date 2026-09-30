@@ -469,4 +469,272 @@ function testClass() {
       expect(allPointers.some((p) => p.name === 'n')).toBe(false);
     });
   });
+
+  describe('Linked List Structure Heuristic (Sprint 3 — F-LDR-S3-01)', () => {
+    it('infers linkedListState and pointers from { val, next } chains', () => {
+      const node3 = { val: 30, next: null };
+      const node2 = { val: 20, next: node3 };
+      const node1 = { val: 10, next: node2 };
+
+      const locals = {
+        head: node1,
+        curr: node2,
+      };
+
+      const viz = inferStepVisualizerState(locals);
+
+      expect(viz.linkedListState).toBeDefined();
+      expect(viz.linkedListState?.nodes.length).toBe(3);
+      expect(viz.linkedListState?.headId).toBe('node-1');
+      expect(viz.linkedListState?.nodes[0].value).toBe(10);
+      expect(viz.linkedListState?.nodes[0].nextId).toBe('node-2');
+      expect(viz.linkedListState?.nodes[1].value).toBe(20);
+      expect(viz.linkedListState?.nodes[1].nextId).toBe('node-3');
+      expect(viz.linkedListState?.nodes[2].value).toBe(30);
+      expect(viz.linkedListState?.nodes[2].nextId).toBeUndefined();
+
+      // Pointers target node IDs
+      expect(viz.pointers).toBeDefined();
+      const headPtr = viz.pointers?.find((p) => p.name === 'head');
+      const currPtr = viz.pointers?.find((p) => p.name === 'curr');
+      expect(headPtr?.targetId).toBe('node-1');
+      expect(currPtr?.targetId).toBe('node-2');
+
+      // Highlight IDs correspond to target nodes
+      expect(viz.linkedListState?.highlightIds).toEqual(['node-1', 'node-2']);
+
+      // Consumed linked list nodes are NOT also treated as generic hash maps
+      expect(viz.hashMapState).toBeUndefined();
+    });
+
+    it('supports class-instance linked list nodes', () => {
+      class ListNode {
+        val: number;
+        next: ListNode | null;
+        constructor(val: number, next: ListNode | null = null) {
+          this.val = val;
+          this.next = next;
+        }
+      }
+
+      const tail = new ListNode(2);
+      const head = new ListNode(1, tail);
+
+      const locals = { head, tail };
+      const viz = inferStepVisualizerState(locals);
+
+      expect(viz.linkedListState).toBeDefined();
+      expect(viz.linkedListState?.nodes.length).toBe(2);
+      expect(viz.linkedListState?.nodes[0].value).toBe(1);
+      expect(viz.linkedListState?.nodes[1].value).toBe(2);
+      expect(viz.pointers?.find((p) => p.name === 'head')?.targetId).toBe('node-1');
+      expect(viz.pointers?.find((p) => p.name === 'tail')?.targetId).toBe('node-2');
+    });
+
+    it('safely handles circular linked list references without infinite looping', () => {
+      const nodeA: any = { val: 'A' };
+      const nodeB: any = { val: 'B', next: nodeA };
+      nodeA.next = nodeB;
+
+      const locals = { head: nodeA };
+      const viz = inferStepVisualizerState(locals);
+
+      expect(viz.linkedListState).toBeDefined();
+      expect(viz.linkedListState?.nodes.length).toBe(2);
+      expect(viz.linkedListState?.nodes[0].nextId).toBe('node-2');
+      expect(viz.linkedListState?.nodes[1].nextId).toBe('node-1');
+    });
+
+    // Negative guards for F-LDR-S3-01
+    it('negative guard (F-LDR-S3-01): rejects unrelated objects with string or number next', () => {
+      const locals1 = {
+        config: { next: 'tuesday', current: 'monday' },
+      };
+      const viz1 = inferStepVisualizerState(locals1);
+      expect(viz1.linkedListState).toBeUndefined();
+
+      const locals2 = {
+        counter: { next: 42, count: 5 },
+      };
+      const viz2 = inferStepVisualizerState(locals2);
+      expect(viz2.linkedListState).toBeUndefined();
+
+      const locals3 = {
+        flags: { next: false, autoPlay: true },
+      };
+      const viz3 = inferStepVisualizerState(locals3);
+      expect(viz3.linkedListState).toBeUndefined();
+
+      const locals4 = {
+        pagination: { page: 1, limit: 10, next: '/api/items?page=2' },
+      };
+      const viz4 = inferStepVisualizerState(locals4);
+      expect(viz4.linkedListState).toBeUndefined();
+    });
+  });
+
+  describe('Binary Tree Structure Heuristic (Sprint 3 — F-LDR-S3-02)', () => {
+    it('infers treeState and pointers from { val, left, right } binary tree nodes', () => {
+      const leftChild = { val: 2, left: null, right: null };
+      const rightChild = { val: 3, left: null, right: null };
+      const rootNode = { val: 1, left: leftChild, right: rightChild };
+
+      const locals = {
+        root: rootNode,
+        curr: leftChild,
+      };
+
+      const viz = inferStepVisualizerState(locals);
+
+      expect(viz.treeState).toBeDefined();
+      expect(viz.treeState?.nodes.length).toBe(3);
+      expect(viz.treeState?.rootId).toBe('tree-node-1');
+
+      const rootInTree = viz.treeState?.nodes.find((n) => n.id === 'tree-node-1');
+      expect(rootInTree?.value).toBe(1);
+      expect(rootInTree?.leftId).toBe('tree-node-2');
+      expect(rootInTree?.rightId).toBe('tree-node-3');
+
+      const leftInTree = viz.treeState?.nodes.find((n) => n.id === 'tree-node-2');
+      expect(leftInTree?.value).toBe(2);
+      expect(leftInTree?.leftId).toBeUndefined();
+      expect(leftInTree?.rightId).toBeUndefined();
+
+      // Pointers target tree nodes
+      expect(viz.pointers).toBeDefined();
+      const rootPtr = viz.pointers?.find((p) => p.name === 'root');
+      const currPtr = viz.pointers?.find((p) => p.name === 'curr');
+      expect(rootPtr?.targetId).toBe('tree-node-1');
+      expect(currPtr?.targetId).toBe('tree-node-2');
+
+      // Highlight IDs correspond to target nodes
+      expect(viz.treeState?.highlightIds).toEqual(['tree-node-1', 'tree-node-2']);
+
+      // Consumed tree nodes are NOT also treated as generic hash maps
+      expect(viz.hashMapState).toBeUndefined();
+    });
+
+    it('supports class-instance binary tree nodes', () => {
+      class TreeNode {
+        val: string;
+        left: TreeNode | null;
+        right: TreeNode | null;
+        constructor(val: string, left: TreeNode | null = null, right: TreeNode | null = null) {
+          this.val = val;
+          this.left = left;
+          this.right = right;
+        }
+      }
+
+      const left = new TreeNode('B');
+      const right = new TreeNode('C');
+      const root = new TreeNode('A', left, right);
+
+      const locals = { root, curr: right };
+      const viz = inferStepVisualizerState(locals);
+
+      expect(viz.treeState).toBeDefined();
+      expect(viz.treeState?.nodes.length).toBe(3);
+      expect(viz.treeState?.nodes[0].value).toBe('A');
+      expect(viz.pointers?.find((p) => p.name === 'root')?.targetId).toBe('tree-node-1');
+      expect(viz.pointers?.find((p) => p.name === 'curr')?.targetId).toBe('tree-node-3');
+    });
+
+    // Negative guards for F-LDR-S3-02
+    it('negative guard (F-LDR-S3-02): rejects bounding boxes and ranges with primitive left/right', () => {
+      const locals1 = {
+        box: { left: 10, right: 20, top: 0, bottom: 50 },
+      };
+      const viz1 = inferStepVisualizerState(locals1);
+      expect(viz1.treeState).toBeUndefined();
+
+      const locals2 = {
+        interval: { left: 5, right: 15 },
+      };
+      const viz2 = inferStepVisualizerState(locals2);
+      expect(viz2.treeState).toBeUndefined();
+
+      const locals3 = {
+        styles: { left: '10px', right: '20px' },
+      };
+      const viz3 = inferStepVisualizerState(locals3);
+      expect(viz3.treeState).toBeUndefined();
+
+      const locals4 = {
+        binarySearchState: { left: 0, right: 8, target: 5 },
+      };
+      const viz4 = inferStepVisualizerState(locals4);
+      expect(viz4.treeState).toBeUndefined();
+
+      const locals5 = {
+        directions: { left: true, right: false },
+      };
+      const viz5 = inferStepVisualizerState(locals5);
+      expect(viz5.treeState).toBeUndefined();
+    });
+  });
+
+  describe('Full End-to-End Tracer with Data Structures (Sprint 3)', () => {
+    it('traces linked list traversal and captures linkedListState across steps', async () => {
+      const code = `function traverseList(head) {
+  let curr = head;
+  let sum = 0;
+  while (curr !== null) {
+    sum += curr.val;
+    curr = curr.next;
+  }
+  return sum;
+}`;
+
+      // Pass input as linked list JSON
+      const listInput = { val: 1, next: { val: 2, next: { val: 3, next: null } } };
+      const res = await traceUserCode({
+        code,
+        input: JSON.stringify([listInput]),
+      });
+
+      expect(res.completed).toBe(true);
+      expect(res.returnValue).toBe(6);
+
+      // Verify that linkedListState is captured on steps
+      const stepWithList = res.steps.find((s) => s.linkedListState !== undefined);
+      expect(stepWithList).toBeDefined();
+      expect(stepWithList?.linkedListState?.nodes.length).toBe(3);
+      expect(stepWithList?.linkedListState?.nodes[0].value).toBe(1);
+      expect(stepWithList?.linkedListState?.nodes[1].value).toBe(2);
+      expect(stepWithList?.linkedListState?.nodes[2].value).toBe(3);
+
+      // Verify pointers on steps targeting node IDs
+      const stepWithCurr = res.steps.find((s) => s.pointers?.some((p) => p.name === 'curr'));
+      expect(stepWithCurr).toBeDefined();
+      expect(stepWithCurr?.pointers?.find((p) => p.name === 'curr')?.targetId).toMatch(/^node-\d+$/);
+    });
+
+    it('traces binary tree traversal and captures treeState across steps', async () => {
+      const code = `function maxDepth(root) {
+  if (root === null) return 0;
+  let curr = root;
+  return 1;
+}`;
+
+      const treeInput = {
+        val: 1,
+        left: { val: 2, left: null, right: null },
+        right: { val: 3, left: null, right: null },
+      };
+
+      const res = await traceUserCode({
+        code,
+        input: JSON.stringify([treeInput]),
+      });
+
+      expect(res.completed).toBe(true);
+      expect(res.returnValue).toBe(1);
+
+      const stepWithTree = res.steps.find((s) => s.treeState !== undefined);
+      expect(stepWithTree).toBeDefined();
+      expect(stepWithTree?.treeState?.nodes.length).toBe(3);
+      expect(stepWithTree?.treeState?.nodes[0].value).toBe(1);
+    });
+  });
 });
