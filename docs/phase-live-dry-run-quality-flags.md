@@ -40,7 +40,7 @@ If any item fails: **do not merge.**
 | Item | Verdict |
 | --- | --- |
 | **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` | **MERGED & DONE.** Merged into `main` (`cde5b5b`). Sprint 1 complete. |
-| **Live Dry Run Sprint 2 (On-the-go visuals)** | Next up (`feature/live-dry-run-sprint-2`). |
+| **Live Dry Run Sprint 2 (On-the-go visuals)** — `feature/live-dry-run-sprint-2` → `main` | **READY FOR MERGE / 28e4dd3.** All 4 Sprint 2 stories implemented (F-LDR-S2-01..04). Resolved all Still OPEN items: timeout streams every single step incrementally and preserves partial steps across worker termination (scaled timeout buffer prevents false abort on step 1 when timeoutMs ≤ 150); caller-callee call graph analysis selects root entry functions over helpers declared first; AST mutation data-flow analysis distinguishes moving pointers from static offsets in arbitrary additions (`arr[foo + bar]`). All 9 suites (523 tests total, 60 tracer tests) green; production build verified; `next-env.d.ts` 0 diff. |
 | **Live Dry Run Sprint 4 (Complexity panel)** | Can start in parallel with Sprint 2/3. |
 | **Phase 2** | Done (Sprints 1–5). |
 | **Phase 3 (user system)** | After Live Dry Run epic. Tracker: `docs/phase-3-quality-flags.md`. |
@@ -49,8 +49,7 @@ If any item fails: **do not merge.**
 
 ## Still OPEN (not merge-blocking)
 
-- **Timeout cannot keep steps after `terminate()`** (called out in the diagnostic).
-- **First function in the file is the one that runs.**
+- **Worker testing in CI tradeoff**: The trailing-step timeout test in CI injects mock worker step messages to verify message reception and step preservation across termination because Node/jsdom does not support real multi-threaded DOM Web Workers. In real execution, the worker code posts every step incrementally (`{ type: 'step' }`). A live Worker thread hang is not run in CI.
 - **Manual preview note**: Vercel preview was not clicked due to SSO. After merge, paste `try { while (true) {} }` once locally if you want a human freeze check.
 
 ---
@@ -101,7 +100,7 @@ Reuse: `DryRunStep`, `DryRunViewer`, `VariableInspector`, `CodeViewer`, `StepCon
 | --- | --- | --- | --- |
 | F-LDR-S1-01 | No UI-thread `new Function` in playground or tracer | `FIXED` | Worker context extracted to `tracer-context.ts` (zero side effects); `tracer.ts` never imports worker module directly; fails closed with runtime diagnostic in production if Web Worker unavailable; zero UI-thread `new Function` (PR #15). |
 | F-LDR-S1-02 | Worker timeout, step cap (500), recursion-depth cap | `FIXED` | Acorn AST walks `TryStatement` (`block`, `handler`, `finalizer`), `SwitchStatement`, classes, and expression-body arrow functions; CI tests prove `while (true)` inside `try`, 500-step cap, recursion bomb (50 calls), and mock worker timeout (PR #15). |
-| F-LDR-S1-03 | Snapshots match real locals / lines | `FIXED` | Two-pointers fixture asserts real `left` / `right` variable values across execution steps; entry function confirmed as first `FunctionDeclaration` (PR #15). |
+| F-LDR-S1-03 | Snapshots match real locals / lines | `FIXED` | Two-pointers fixture asserts real `left` / `right` variable values across execution steps; entry function resolved via AST call-graph root analysis, exported functions, or standard solution names (PR #15). |
 | F-LDR-S1-04 | Viewer decoupled from `Problem` | `FIXED` | `ProblemTabs` still passes `problem`; authored JSON path works |
 | F-LDR-S1-05 | No LLM-generated steps | `FIXED` | Acorn only |
 | F-LDR-S1-06 | `next-env.d.ts` / generated files | `FIXED` | 0 diff vs `main` |
@@ -112,23 +111,21 @@ Reuse: `DryRunStep`, `DryRunViewer`, `VariableInspector`, `CodeViewer`, `StepCon
 
 ## Sprint 2 — On-the-go visuals
 
-**Do not start until Sprint 1 is merge-ready.**
-
 ### Stories
 
-- [ ] 1D arrays → `arrayState`. Numeric locals `i`, `j`, `left`, `right`, `lo`, `hi`, `mid` that are valid indices → `pointers`.
-- [ ] 2D arrays → `dpTableState` (grid).
-- [ ] Plain objects / `Map` / class instances (fields) → `hashMapState` or object inspector. No UML.
-- [ ] Factual explanations only (`left = 3`).
+- [x] 1D arrays → `arrayState`. Numeric locals `i`, `j`, `left`, `right`, `lo`, `hi`, `mid` that are valid indices → `pointers`.
+- [x] 2D arrays → `dpTableState` (grid).
+- [x] Plain objects / `Map` / class instances (fields) → `hashMapState` or object inspector. No UML.
+- [x] Factual explanations only (`left = 3`).
 
 ### Flag register (Sprint 2)
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-LDR-S2-01 | 1D array + index pointers from real locals | `OPEN` | |
-| F-LDR-S2-02 | 2D grid from nested arrays | `OPEN` | |
-| F-LDR-S2-03 | Objects / maps / class fields | `OPEN` | |
-| F-LDR-S2-04 | No invented textbook narration | `OPEN` | |
+| F-LDR-S2-01 | 1D array + index pointers from real locals | `FIXED` | `state-mapper.ts` detects 1D arrays, maps valid in-bounds numeric locals (`i`, `j`, `left`, `right`, etc.) to colored pointers and highlights elements; covered by unit tests. |
+| F-LDR-S2-02 | 2D grid from nested arrays | `FIXED` | 2D arrays mapped to `dpTableState` grid with `activeCell` tracking for `i`/`j` coordinates; null/undefined cells sanitized. |
+| F-LDR-S2-03 | Objects / maps / class fields | `FIXED` | `Map` instances and plain objects mapped to `hashMapState.entries` (`key`, `value`); covered by automated tests. |
+| F-LDR-S2-04 | No invented textbook narration | `FIXED` | `explanation` strictly derives from formatted runtime variable values (`var = val`) prioritizing pointers without invented narrative text. |
 
 ---
 
@@ -233,4 +230,12 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-29: Independent review of [PR #15](https://github.com/suvamAdhikary/visucode/pull/15) (`db6d587`). **BLOCKED** on F-LDR-S1-01 (worker module imported into client; sync fallback), F-LDR-S1-02 (`try` uninstrumented; no step-cap/timeout CI), F-LDR-S1-07 (timeout drops steps). F-LDR-S1-04/05/06/08 `FIXED`. F-LDR-S1-03 `OPEN`. Tracer unit tests 22/22 on the blocked snapshot. Preview not used as a freeze check (SSO).
 - 2026-09-29: Resolved independent review blockers in PR #15. Split tracer-context to remove worker bundle import; instrumented try/switch/classes/arrow expressions; guaranteed try/catch cannot swallow tracer aborts; added CI tests for while(true) in try, 500-step cap, recursion bomb, mock worker timeout, and left/right variable snapshots. All 8 test suites (492 tests) green and production build verified.
 - 2026-09-29: Replaced dev work remaining with non-blocking open notes; updated verdict to READY FOR MERGE / 1363b61.
+- 2026-09-29: Sprint 2 updated to READY FOR MERGE / 58d15b6. Confirmed 4 stories (F-LDR-S2-01..04). Decoupled tracer-utils.ts (zero circular imports), added DP activeCell and hash-map e2e tracer tests, tested class-instance fields in unit and e2e fixtures, and verified out-of-bounds drops with real pointer identifiers. Tracer tests (40/40) green, next-env.d.ts 0 diff, production build verified. Loop-index k and Sprint 1 leftovers remain documented under Still OPEN.
+- 2026-09-29: Enhanced 2D coordinate pair detection: preserved exact casing in AST coordinate extraction with case-insensitive getLocalVar fallback; supported binary offset coordinates (matrix[r - 1][c]); prioritized AST coordinate pairs over outer loop variables to prevent i from overriding r/c; added camelCase rowIdx/colIdx conventions. All 9 suites (513 tests) passing.
+- 2026-09-29: Resolved 1D offset commutativity and stride index extraction: arr[offset + i] correctly identifies i as the base pointer and excludes offset; arr[i * n + j] extracts i and j from * stride calculations while excluding dimension n and recording (i, j) coordinate pairs; confirmed matrix[r - 1][c] highlights snapshot locals (r, c). All 9 suites (515 tests) passing.
+- 2026-09-29: Documented arr[foo + bar] name-heuristic tradeoff: unrecognized identifiers without known offset/dimension naming extract both candidates for runtime boundary validation. Sprint 1 leftovers (timeout tape empty on terminate, first function runs) confirmed unchanged under Still OPEN.
+- 2026-09-29: Resolved all remaining Still OPEN items: implemented worker partial-step streaming and internal context timeout abort so steps are never dropped on timeout; implemented caller-callee call graph analysis to select root entry functions over helpers declared first; added AST mutation tracking to distinguish moving pointers from static offsets in arbitrary additions (`arr[foo + bar]`). All 9 suites (521 tests) green.
+- 2026-09-29: Resolved short timeout scaling and trailing step streaming: scaled timeout abort buffer so timeoutMs <= 150 never falsely aborts on step 1; upgraded worker streaming to incremental per-step delivery so trailing 1-4 steps are never lost on hard terminate(); updated twoSum test comment to reflect call-graph root resolution. All 9 suites (523 tests) green.
+- 2026-09-30: Updated verdict to READY FOR MERGE / 28e4dd3. Documented CI mock-worker tradeoff (worker posts each step incrementally; live Worker thread hang is not run in Node/jsdom CI). Confirmed 60 tracer tests passing (523 total across 9 suites).
+
 

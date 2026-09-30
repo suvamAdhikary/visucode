@@ -26,7 +26,7 @@ export const TrieVisualizer: React.FC<TrieVisualizerProps> = ({
   const rootNode = nodeMap.get(rootId) || nodes[0];
 
   // Recursive renderer for Trie subtrees
-  const renderSubtree = (nodeId: string, depth: number = 0): React.ReactNode => {
+  const renderSubtree = (nodeId: string, depth = 0): React.ReactNode => {
     const node = nodeMap.get(nodeId);
     if (!node) return null;
 

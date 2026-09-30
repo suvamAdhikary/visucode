@@ -94,4 +94,119 @@ describe('Tracer Instrumenter', () => {
     expect(res.error?.kind).toBe('syntax-error');
     expect(res.error?.line).toBeDefined();
   });
+
+  it('detects user-defined index variables from computed member expressions and coordinate pairs', () => {
+    const code = `function search(items, target) {
+  for (let k = 0; k < items.length; k++) {
+    if (items[k] === target) return k;
+  }
+  const myPointer = 0;
+  const val = items[myPointer];
+  const grid = [[1]];
+  const cell = grid[r][c];
+  return -1;
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.detectedIndexVariables).toBeDefined();
+    expect(res.detectedIndexVariables).toContain('k');
+    expect(res.detectedIndexVariables).toContain('myPointer');
+    expect(res.detectedIndexVariables).toContain('r');
+    expect(res.detectedIndexVariables).toContain('c');
+    expect(res.detectedIndexVariables).not.toContain('target');
+    expect(res.detectedIndexVariables).not.toContain('items');
+    expect(res.detectedCoordinatePairs).toEqual([['r', 'c']]);
+  });
+
+  it('extracts ternary indices and excludes offset variables in BinaryExpressions', () => {
+    const code = `function advancedIndexing(arr, cond, a, b, i, offset) {
+  const v1 = arr[cond ? a : b];
+  const v2 = arr[i + offset];
+  for (let loopOnly = 0; loopOnly < 10; loopOnly++) {
+    // loopOnly does not index an array!
+  }
+  return v1 + v2;
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.detectedIndexVariables).toContain('a');
+    expect(res.detectedIndexVariables).toContain('b');
+    expect(res.detectedIndexVariables).toContain('i');
+    expect(res.detectedIndexVariables).not.toContain('cond');
+    expect(res.detectedIndexVariables).not.toContain('offset');
+    expect(res.detectedIndexVariables).not.toContain('loopOnly');
+  });
+
+  it('preserves exact casing and supports binary offsets in detectedCoordinatePairs', () => {
+    const code = `function gridCoords(matrix) {
+  const v1 = matrix[rowIdx][colIdx];
+  const v2 = matrix[r - 1][c + 1];
+  return v1 + v2;
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.detectedCoordinatePairs).toEqual([
+      ['rowIdx', 'colIdx'],
+      ['r', 'c'],
+    ]);
+  });
+
+  it('treats i as base pointer in arr[offset + i] and extracts i and j from arr[i * n + j]', () => {
+    const code = `function flattenedAndOffsetIndexing(arr, offset, i, j, n) {
+  const v1 = arr[offset + i];
+  const v2 = arr[i * n + j];
+  return v1 + v2;
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.detectedIndexVariables).toContain('i');
+    expect(res.detectedIndexVariables).toContain('j');
+    expect(res.detectedIndexVariables).not.toContain('offset');
+    expect(res.detectedIndexVariables).not.toContain('n');
+    expect(res.detectedCoordinatePairs).toContainEqual(['i', 'j']);
+  });
+
+  it('distinguishes mutated pointer variable foo from static offset bar in arr[foo + bar]', () => {
+    const code = `function customNames(arr, bar) {
+  for (let foo = 0; foo < arr.length; foo++) {
+    const val = arr[foo + bar];
+  }
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.detectedIndexVariables).toContain('foo');
+    expect(res.detectedIndexVariables).not.toContain('bar');
+  });
+
+  it('identifies root caller function over helper functions declared first', () => {
+    const code = `function swap(arr, i, j) {
+  const t = arr[i];
+  arr[i] = arr[j];
+  arr[j] = t;
+}
+
+function bubbleSort(arr) {
+  swap(arr, 0, 1);
+  return arr;
+}`;
+
+    const res = instrumentCode(code);
+    expect(res.success).toBe(true);
+    expect(res.functionName).toBe('bubbleSort');
+  });
+
+  it('respects explicitly targeted functionName', () => {
+    const code = `function f1() { return 1; }
+function f2() { return 2; }`;
+
+    const res = instrumentCode(code, 'f2');
+    expect(res.success).toBe(true);
+    expect(res.functionName).toBe('f2');
+  });
 });
+

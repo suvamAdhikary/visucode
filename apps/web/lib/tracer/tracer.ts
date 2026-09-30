@@ -1,3 +1,4 @@
+import type { DryRunStep } from '@visucode/shared-types';
 import { validatePreflightInput } from './input-validator';
 import { instrumentCode } from './instrumenter';
 import type { LiveTraceResult, DiagnosticKind } from './types';
@@ -8,10 +9,16 @@ import {
   type WorkerTraceResponse,
 } from './tracer-context';
 
+export type WorkerMessage =
+  | WorkerTraceResponse
+  | { type: 'progress'; steps: DryRunStep[] }
+  | { type: 'step'; step: DryRunStep };
+
 export interface TraceOptions {
   code: string;
   input: string | unknown;
   timeoutMs?: number;
+  functionName?: string;
 }
 
 /**
@@ -25,7 +32,7 @@ export interface TraceOptions {
  * - Fails closed in production if Web Worker is unavailable (zero UI-thread new Function)
  */
 export async function traceUserCode(options: TraceOptions): Promise<LiveTraceResult> {
-  const { code, input, timeoutMs = 2000 } = options;
+  const { code, input, timeoutMs = 2000, functionName: requestedFunctionName } = options;
 
   // 1. Preflight input validation (before Worker or navigation)
   const preflight = validatePreflightInput(input);
@@ -43,7 +50,7 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
   }
 
   // 2. Instrument source code with AST step markers
-  const instrumentResult = instrumentCode(code);
+  const instrumentResult = instrumentCode(code, requestedFunctionName);
   if (!instrumentResult.success || !instrumentResult.instrumentedCode) {
     return {
       steps: [],
@@ -57,13 +64,25 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
     };
   }
 
-  const { instrumentedCode, functionName = 'solution' } = instrumentResult;
+  const {
+    instrumentedCode,
+    functionName = 'solution',
+    detectedIndexVariables,
+    detectedCoordinatePairs,
+  } = instrumentResult;
   const args = preflight.args || [];
 
   // 3. Worker environment check (F-LDR-S1-01)
   if (typeof Worker === 'undefined') {
     if (process.env.NODE_ENV === 'test') {
-      return executeTraceSync(instrumentedCode, functionName, args);
+      return executeTraceSync(
+        instrumentedCode,
+        functionName,
+        args,
+        detectedIndexVariables,
+        detectedCoordinatePairs,
+        timeoutMs
+      );
     }
     // Fail-closed in production: never execute on the UI thread
     return {
@@ -81,6 +100,7 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
   return new Promise((resolve) => {
     let worker: Worker | null = null;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    let lastKnownSteps: DryRunStep[] = [];
 
     try {
       worker = new Worker(new URL('./tracer.worker.ts', import.meta.url));
@@ -90,21 +110,37 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
           worker.terminate();
         }
         resolve({
-          steps: [],
-          totalSteps: 0,
+          steps: lastKnownSteps,
+          totalSteps: lastKnownSteps.length,
           completed: false,
           diagnostic: {
             kind: 'timeout',
-            message: `Execution timed out after ${timeoutMs}ms. The execution tape is empty because the worker was terminated. Check for infinite loops or unoptimized iterations.`,
+            message:
+              lastKnownSteps.length > 0
+                ? `Execution timed out after ${timeoutMs}ms. Keeping ${lastKnownSteps.length} partial steps before worker termination.`
+                : `Execution timed out after ${timeoutMs}ms. The execution tape is empty because the worker was terminated. Check for infinite loops or unoptimized iterations.`,
             suggestion: 'Check loop termination conditions and recursive base cases.',
           },
         });
       }, timeoutMs);
 
-      worker.onmessage = (e: MessageEvent<WorkerTraceResponse>) => {
+      worker.onmessage = (e: MessageEvent<WorkerMessage>) => {
+        const data = e.data;
+        if ('type' in data) {
+          if (data.type === 'step') {
+            lastKnownSteps.push(data.step);
+            return;
+          }
+          if (data.type === 'progress') {
+            if (Array.isArray(data.steps)) {
+              lastKnownSteps = data.steps;
+            }
+            return;
+          }
+        }
         if (timer) clearTimeout(timer);
         if (worker) worker.terminate();
-        resolve(e.data);
+        resolve(data as LiveTraceResult);
       };
 
       worker.onerror = (e) => {
@@ -126,22 +162,35 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
         instrumentedCode,
         functionName,
         args,
+        detectedIndexVariables,
+        detectedCoordinatePairs,
+        timeoutMs,
       };
 
       worker.postMessage(payload);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (timer) clearTimeout(timer);
       if (process.env.NODE_ENV === 'test') {
-        resolve(executeTraceSync(instrumentedCode, functionName, args));
+        resolve(
+          executeTraceSync(
+            instrumentedCode,
+            functionName,
+            args,
+            detectedIndexVariables,
+            detectedCoordinatePairs,
+            timeoutMs
+          )
+        );
         return;
       }
+      const message = err instanceof Error ? err.message : String(err);
       resolve({
         steps: [],
         totalSteps: 0,
         completed: false,
         diagnostic: {
           kind: 'runtime-error',
-          message: err?.message || 'Failed to initialize tracer worker sandbox.',
+          message: message || 'Failed to initialize tracer worker sandbox.',
           suggestion: 'Ensure Web Workers can be instantiated in your browser.',
         },
       });
@@ -156,9 +205,18 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
 export function executeTraceSync(
   instrumentedCode: string,
   functionName: string,
-  args: any[]
+  args: unknown[],
+  detectedIndexVariables?: string[],
+  detectedCoordinatePairs?: [string, string][],
+  timeoutMs?: number
 ): LiveTraceResult {
   const ctx = new ExecutionTracerContext();
+  if (timeoutMs) {
+    ctx.startExecution(timeoutMs);
+  }
+  if (detectedIndexVariables || detectedCoordinatePairs) {
+    ctx.registerIndexVariables(detectedIndexVariables || [], detectedCoordinatePairs);
+  }
 
   try {
     const executor = new Function(
@@ -190,13 +248,28 @@ export function executeTraceSync(
       completed: true,
       returnValue,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorObj =
+      err && typeof err === 'object' ? (err as Record<string, unknown>) : null;
+    const errorKind =
+      errorObj && typeof errorObj.kind === 'string'
+        ? (errorObj.kind as DiagnosticKind)
+        : 'runtime-error';
+    const errorLine =
+      errorObj && typeof errorObj.line === 'number' ? errorObj.line : undefined;
+    const errorMessage =
+      err instanceof Error
+        ? err.message
+        : typeof errorObj?.message === 'string'
+        ? errorObj.message
+        : String(err);
+
     const diagnostic = ctx.fatalDiagnostic || {
-      kind: (err?.kind || 'runtime-error') as DiagnosticKind,
-      line: err?.line,
-      message: err?.message || String(err),
-      suggestion: createDiagnosticSuggestion(err?.kind || 'runtime-error', err?.line),
-      observedEvent: err?.message,
+      kind: errorKind,
+      line: errorLine,
+      message: errorMessage,
+      suggestion: createDiagnosticSuggestion(errorKind, errorLine),
+      observedEvent: errorMessage,
     };
 
     return {

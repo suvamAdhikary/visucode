@@ -1,10 +1,17 @@
 import * as acorn from 'acorn';
 import type { TraceDiagnostic } from './types';
 
+export interface AstIndexAnalysis {
+  indexVariables: string[];
+  coordinatePairs: [string, string][];
+}
+
 export interface InstrumentResult {
   success: boolean;
   instrumentedCode?: string;
   functionName?: string;
+  detectedIndexVariables?: string[];
+  detectedCoordinatePairs?: [string, string][];
   error?: TraceDiagnostic;
 }
 
@@ -32,12 +39,334 @@ function extractNames(pattern: any): string[] {
 }
 
 /**
+ * Recursively analyzes the AST to discover variable identifiers that are used as array or grid indices
+ * (e.g. `arr[k]`, `nums[myVar]`, `matrix[r][c]`, `arr[cond ? a : b]`, `arr[i + 1]`).
+ * Excludes offsets (e.g. `offset` in `arr[i + offset]`) and loop counters that never index an array.
+ */
+export function analyzeAstIndexUsage(ast: any): AstIndexAnalysis {
+  const detected = new Set<string>();
+  const coordinatePairs: [string, string][] = [];
+  const ignored = new Set([
+    'this',
+    'arguments',
+    '__vc',
+    '__vc_ret',
+    'undefined',
+    'null',
+    'true',
+    'false',
+  ]);
+
+  const OFFSET_OR_DIM_REGEX =
+    /^(offset|delta|diff|step|shift|pad|padding|margin|gap|dist|distance|stride|dim|dimension|width|height|cols|rows|columns|n|m|len|length|size)$/i;
+
+  function isOffsetOrDimName(name: string): boolean {
+    if (OFFSET_OR_DIM_REGEX.test(name)) return true;
+    if (/offset$/i.test(name) || /delta$/i.test(name) || /shift$/i.test(name) || /step$/i.test(name)) {
+      return true;
+    }
+    return false;
+  }
+
+  const POINTER_NAME_REGEX =
+    /^(i|j|k|r|c|p|l|u|v|x|y|idx|index|left|right|lo|hi|low|high|mid|middle|curr|cur|ptr|pointer|head|tail|pos|start|end|row|col|rowidx|colidx|rowindex|colindex)$/i;
+
+  function isPointerName(name: string): boolean {
+    return POINTER_NAME_REGEX.test(name);
+  }
+
+  // Pre-pass: collect variables mutated in loops, updates (++), or assignments (+=)
+  // This provides structural data-flow analysis so arr[foo + bar] distinguishes the moving pointer from static offset
+  const mutatedVariables = new Set<string>();
+  function collectMutations(node: any) {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'UpdateExpression') {
+      if (node.argument?.type === 'Identifier') {
+        mutatedVariables.add(node.argument.name);
+      }
+    } else if (node.type === 'AssignmentExpression') {
+      if (node.left?.type === 'Identifier') {
+        mutatedVariables.add(node.left.name);
+      }
+    } else if (node.type === 'ForStatement' && node.init?.type === 'VariableDeclaration') {
+      for (const d of node.init.declarations || []) {
+        if (d.id?.type === 'Identifier') {
+          mutatedVariables.add(d.id.name);
+        }
+      }
+    } else if (
+      (node.type === 'ForInStatement' || node.type === 'ForOfStatement') &&
+      node.left?.type === 'VariableDeclaration'
+    ) {
+      for (const d of node.left.declarations || []) {
+        if (d.id?.type === 'Identifier') {
+          mutatedVariables.add(d.id.name);
+        }
+      }
+    }
+    for (const key of Object.keys(node)) {
+      if (key === 'loc' || key === 'range') continue;
+      const child = node[key];
+      if (Array.isArray(child)) {
+        for (const c of child) if (c && typeof c === 'object') collectMutations(c);
+      } else if (child && typeof child === 'object') {
+        collectMutations(child);
+      }
+    }
+  }
+  collectMutations(ast);
+
+  function extractExprIdentifiers(expr: any) {
+    if (!expr || typeof expr !== 'object') return;
+    if (expr.type === 'Identifier') {
+      if (!ignored.has(expr.name)) {
+        detected.add(expr.name);
+      }
+    } else if (expr.type === 'ConditionalExpression') {
+      // Ternary indexing: arr[cond ? a : b] -> extract a and b
+      extractExprIdentifiers(expr.consequent);
+      extractExprIdentifiers(expr.alternate);
+    } else if (expr.type === 'BinaryExpression') {
+      if (expr.operator === '+') {
+        // Flattened 2D index: arr[i * n + j] or arr[j + i * n]
+        if (expr.left?.type === 'BinaryExpression' && expr.left.operator === '*') {
+          extractExprIdentifiers(expr.left);
+          extractExprIdentifiers(expr.right);
+        } else if (expr.right?.type === 'BinaryExpression' && expr.right.operator === '*') {
+          extractExprIdentifiers(expr.left);
+          extractExprIdentifiers(expr.right);
+        } else if (expr.left?.type === 'Literal') {
+          // arr[1 + i]
+          extractExprIdentifiers(expr.right);
+        } else if (expr.right?.type === 'Literal') {
+          // arr[i + 1]
+          extractExprIdentifiers(expr.left);
+        } else {
+          // In arr[offset + i] or arr[i + offset] or arr[foo + bar]:
+          // Distinguish pointer from offset/delta/dimension using naming heuristics and AST mutation data-flow
+          const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
+          const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
+
+          if (leftName && isOffsetOrDimName(leftName) && rightName && !isOffsetOrDimName(rightName)) {
+            // arr[offset + i] -> extract i
+            extractExprIdentifiers(expr.right);
+          } else if (rightName && isOffsetOrDimName(rightName) && leftName && !isOffsetOrDimName(leftName)) {
+            // arr[i + offset] -> extract i
+            extractExprIdentifiers(expr.left);
+          } else if (rightName && isPointerName(rightName) && leftName && !isPointerName(leftName)) {
+            extractExprIdentifiers(expr.right);
+          } else if (leftName && isPointerName(leftName) && rightName && !isPointerName(rightName)) {
+            extractExprIdentifiers(expr.left);
+          } else if (leftName && rightName && mutatedVariables.has(leftName) && !mutatedVariables.has(rightName)) {
+            // arr[foo + bar] where foo is mutated loop counter and bar is static offset
+            extractExprIdentifiers(expr.left);
+          } else if (leftName && rightName && mutatedVariables.has(rightName) && !mutatedVariables.has(leftName)) {
+            // arr[bar + foo] where foo is mutated loop counter and bar is static offset
+            extractExprIdentifiers(expr.right);
+          } else {
+            // e.g. arr[i + j] where both are mutated or neither is recognized
+            extractExprIdentifiers(expr.left);
+            extractExprIdentifiers(expr.right);
+          }
+        }
+      } else if (expr.operator === '-') {
+        // In arr[i - 1], arr[i - offset]:
+        if (
+          expr.right?.type === 'Literal' ||
+          (expr.right?.type === 'Identifier' && isOffsetOrDimName(expr.right.name))
+        ) {
+          extractExprIdentifiers(expr.left);
+        } else {
+          const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
+          const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
+          if (leftName && isOffsetOrDimName(leftName) && rightName && !isOffsetOrDimName(rightName)) {
+            extractExprIdentifiers(expr.right);
+          } else {
+            extractExprIdentifiers(expr.left);
+          }
+        }
+      } else if (expr.operator === '*') {
+        // In arr[i * 2], arr[2 * i], arr[i * n], arr[n * i]
+        if (expr.left?.type === 'Literal') {
+          extractExprIdentifiers(expr.right);
+        } else if (expr.right?.type === 'Literal') {
+          extractExprIdentifiers(expr.left);
+        } else {
+          const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
+          const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
+          if (leftName && isOffsetOrDimName(leftName) && rightName && !isOffsetOrDimName(rightName)) {
+            extractExprIdentifiers(expr.right);
+          } else if (rightName && isOffsetOrDimName(rightName) && leftName && !isOffsetOrDimName(leftName)) {
+            extractExprIdentifiers(expr.left);
+          } else if (leftName && isPointerName(leftName) && (!rightName || !isPointerName(rightName))) {
+            extractExprIdentifiers(expr.left);
+          } else if (rightName && isPointerName(rightName) && (!leftName || !isPointerName(leftName))) {
+            extractExprIdentifiers(expr.right);
+          } else {
+            extractExprIdentifiers(expr.left);
+          }
+        }
+      } else if (expr.operator === '/' || expr.operator === '>>' || expr.operator === '>>>') {
+        extractExprIdentifiers(expr.left);
+      } else if (expr.operator === '|') {
+        if (expr.right?.type === 'Literal' && expr.right.value === 0) {
+          extractExprIdentifiers(expr.left);
+        }
+      }
+    } else if (expr.type === 'UnaryExpression' || expr.type === 'UpdateExpression') {
+      extractExprIdentifiers(expr.argument);
+    } else if (expr.type === 'CallExpression') {
+      if (expr.arguments && expr.arguments.length > 0) {
+        extractExprIdentifiers(expr.arguments[0]);
+      }
+    }
+  }
+
+  function getBaseIdentifierName(expr: any): string | null {
+    if (!expr || typeof expr !== 'object') return null;
+    if (expr.type === 'Identifier') {
+      return ignored.has(expr.name) ? null : expr.name;
+    }
+    if (expr.type === 'BinaryExpression') {
+      if (expr.operator === '+' || expr.operator === '-') {
+        if (expr.left?.type === 'Literal' && expr.right) {
+          return getBaseIdentifierName(expr.right);
+        }
+        if (expr.right?.type === 'Literal' && expr.left) {
+          return getBaseIdentifierName(expr.left);
+        }
+        if (expr.operator === '+') {
+          const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
+          const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
+          if (leftName && isOffsetOrDimName(leftName) && rightName && !isOffsetOrDimName(rightName)) {
+            return rightName;
+          }
+          if (rightName && isOffsetOrDimName(rightName) && leftName && !isOffsetOrDimName(leftName)) {
+            return leftName;
+          }
+          if (rightName && isPointerName(rightName) && leftName && !isPointerName(leftName)) {
+            return rightName;
+          }
+          if (leftName && isPointerName(leftName) && rightName && !isPointerName(rightName)) {
+            return leftName;
+          }
+          if (leftName && rightName && mutatedVariables.has(leftName) && !mutatedVariables.has(rightName)) {
+            return leftName;
+          }
+          if (leftName && rightName && mutatedVariables.has(rightName) && !mutatedVariables.has(leftName)) {
+            return rightName;
+          }
+        }
+        return getBaseIdentifierName(expr.left) || getBaseIdentifierName(expr.right);
+      }
+      if (expr.operator === '*') {
+        if (expr.left?.type === 'Literal' && expr.right) {
+          return getBaseIdentifierName(expr.right);
+        }
+        if (expr.right?.type === 'Literal' && expr.left) {
+          return getBaseIdentifierName(expr.left);
+        }
+        const leftName = expr.left?.type === 'Identifier' ? expr.left.name : null;
+        const rightName = expr.right?.type === 'Identifier' ? expr.right.name : null;
+        if (leftName && isOffsetOrDimName(leftName) && rightName) {
+          return rightName;
+        }
+        if (rightName && isOffsetOrDimName(rightName) && leftName) {
+          return leftName;
+        }
+        if (leftName && isPointerName(leftName)) {
+          return leftName;
+        }
+        if (rightName && isPointerName(rightName)) {
+          return rightName;
+        }
+        return leftName || rightName;
+      }
+    }
+    return null;
+  }
+
+  function walkAst(node: any) {
+    if (!node || typeof node !== 'object') return;
+
+    // 1. 2D nested MemberExpression: e.g. matrix[r][c], grid[row][col], dp[i - 1][j]
+    if (
+      node.type === 'MemberExpression' &&
+      node.computed &&
+      node.object?.type === 'MemberExpression' &&
+      node.object.computed
+    ) {
+      const rowProp = node.object.property;
+      const colProp = node.property;
+      const rowName = getBaseIdentifierName(rowProp);
+      const colName = getBaseIdentifierName(colProp);
+      if (rowName && colName && !ignored.has(rowName) && !ignored.has(colName)) {
+        coordinatePairs.push([rowName, colName]);
+      }
+    }
+
+    // 2. Flattened 2D index in MemberExpression: e.g. arr[i * n + j] or matrix[r * cols + c]
+    if (
+      node.type === 'MemberExpression' &&
+      node.computed &&
+      node.property?.type === 'BinaryExpression' &&
+      node.property.operator === '+'
+    ) {
+      const prop = node.property;
+      let multExpr: any = null;
+      let colExpr: any = null;
+      if (prop.left?.type === 'BinaryExpression' && prop.left.operator === '*') {
+        multExpr = prop.left;
+        colExpr = prop.right;
+      } else if (prop.right?.type === 'BinaryExpression' && prop.right.operator === '*') {
+        multExpr = prop.right;
+        colExpr = prop.left;
+      }
+      if (multExpr && colExpr) {
+        const rowName = getBaseIdentifierName(multExpr);
+        const colName = getBaseIdentifierName(colExpr);
+        if (rowName && colName && !ignored.has(rowName) && !ignored.has(colName)) {
+          coordinatePairs.push([rowName, colName]);
+        }
+      }
+    }
+
+    // 3. Computed MemberExpression: e.g. arr[k], nums[myPointer], arr[cond ? a : b], arr[offset + i], arr[i * n + j]
+    if (node.type === 'MemberExpression' && node.computed) {
+      extractExprIdentifiers(node.property);
+    }
+
+    for (const key of Object.keys(node)) {
+      if (key === 'loc' || key === 'range') continue;
+      const child = node[key];
+      if (Array.isArray(child)) {
+        for (const c of child) {
+          if (c && typeof c === 'object' && c.type) walkAst(c);
+        }
+      } else if (child && typeof child === 'object' && child.type) {
+        walkAst(child);
+      }
+    }
+  }
+
+  walkAst(ast);
+  return {
+    indexVariables: Array.from(detected),
+    coordinatePairs,
+  };
+}
+
+export function collectIndexVariables(ast: any): string[] {
+  return analyzeAstIndexUsage(ast).indexVariables;
+}
+
+/**
  * Instruments user JavaScript source code with __vc.step(line, locals) and __vc.enter()/leave() calls.
  * Uses Acorn AST range offsets to rewrite statements cleanly without external code generators.
  * Supports Function declarations/expressions, arrows (block & expression bodies),
  * TryStatement, SwitchStatement, loop statements, and class methods (F-LDR-S1-02).
  */
-export function instrumentCode(source: string): InstrumentResult {
+export function instrumentCode(source: string, targetFunctionName?: string): InstrumentResult {
   let ast: any;
   try {
     ast = acorn.parse(source, {
@@ -59,16 +388,124 @@ export function instrumentCode(source: string): InstrumentResult {
     };
   }
 
-  let mainFunctionName = 'solution';
-  const edits: TextEdit[] = [];
+  // Find all top-level functions and analyze caller-callee relationships
+  interface TopLevelFn {
+    name: string;
+    node: any;
+    calledFunctions: Set<string>;
+    isExported: boolean;
+  }
 
-  // Find the primary entry function name (first FunctionDeclaration, F-LDR-S1-03)
+  const topLevelFns: TopLevelFn[] = [];
+  const knownFnNames = new Set<string>();
+
   for (const node of ast.body) {
     if (node.type === 'FunctionDeclaration' && node.id?.name) {
-      mainFunctionName = node.id.name;
-      break;
+      topLevelFns.push({
+        name: node.id.name,
+        node,
+        calledFunctions: new Set<string>(),
+        isExported: false,
+      });
+      knownFnNames.add(node.id.name);
+    } else if (node.type === 'VariableDeclaration') {
+      for (const d of node.declarations || []) {
+        if (
+          d.id?.type === 'Identifier' &&
+          d.init &&
+          (d.init.type === 'FunctionExpression' || d.init.type === 'ArrowFunctionExpression')
+        ) {
+          topLevelFns.push({
+            name: d.id.name,
+            node: d.init,
+            calledFunctions: new Set<string>(),
+            isExported: false,
+          });
+          knownFnNames.add(d.id.name);
+        }
+      }
+    } else if (node.type === 'ExportDefaultDeclaration') {
+      if (node.declaration?.type === 'FunctionDeclaration' && node.declaration.id?.name) {
+        topLevelFns.push({
+          name: node.declaration.id.name,
+          node: node.declaration,
+          calledFunctions: new Set<string>(),
+          isExported: true,
+        });
+        knownFnNames.add(node.declaration.id.name);
+      }
+    } else if (node.type === 'ExportNamedDeclaration' && node.declaration) {
+      if (node.declaration.type === 'FunctionDeclaration' && node.declaration.id?.name) {
+        topLevelFns.push({
+          name: node.declaration.id.name,
+          node: node.declaration,
+          calledFunctions: new Set<string>(),
+          isExported: true,
+        });
+        knownFnNames.add(node.declaration.id.name);
+      }
     }
   }
+
+  // Walk each function's AST to find calls to other top-level functions
+  function collectCalls(node: any, calls: Set<string>) {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'CallExpression') {
+      if (node.callee?.type === 'Identifier' && knownFnNames.has(node.callee.name)) {
+        calls.add(node.callee.name);
+      }
+    }
+    for (const key of Object.keys(node)) {
+      if (key === 'loc' || key === 'range') continue;
+      const child = node[key];
+      if (Array.isArray(child)) {
+        for (const c of child) if (c && typeof c === 'object') collectCalls(c, calls);
+      } else if (child && typeof child === 'object') {
+        collectCalls(child, calls);
+      }
+    }
+  }
+
+  const calledByOthers = new Set<string>();
+  for (const fn of topLevelFns) {
+    collectCalls(fn.node, fn.calledFunctions);
+    for (const callee of fn.calledFunctions) {
+      if (callee !== fn.name) {
+        calledByOthers.add(callee);
+      }
+    }
+  }
+
+  let mainFunctionName = 'solution';
+
+  // 1. Explicit targetFunctionName requested by caller
+  if (targetFunctionName && knownFnNames.has(targetFunctionName)) {
+    mainFunctionName = targetFunctionName;
+  }
+  // 2. Exported function
+  else if (topLevelFns.some((f) => f.isExported)) {
+    mainFunctionName = topLevelFns.find((f) => f.isExported)!.name;
+  }
+  // 3. Named 'solution', 'solve', or 'main'
+  else if (topLevelFns.some((f) => /^(solution|solve|main)$/i.test(f.name))) {
+    mainFunctionName = topLevelFns.find((f) => /^(solution|solve|main)$/i.test(f.name))!.name;
+  }
+  // 4. Root caller function: a function that calls other functions and is NOT called by anything else
+  else if (topLevelFns.some((f) => !calledByOthers.has(f.name) && f.calledFunctions.size > 0)) {
+    mainFunctionName = topLevelFns.find(
+      (f) => !calledByOthers.has(f.name) && f.calledFunctions.size > 0
+    )!.name;
+  }
+  // 5. Function not called by any other function (if there's a unique uncalled root function)
+  else if (topLevelFns.filter((f) => !calledByOthers.has(f.name)).length === 1) {
+    mainFunctionName = topLevelFns.find((f) => !calledByOthers.has(f.name))!.name;
+  }
+  // 6. First function declaration as fallback
+  else if (topLevelFns.length > 0) {
+    mainFunctionName = topLevelFns[0].name;
+  }
+
+  const edits: TextEdit[] = [];
 
   /**
    * Helper to format locals into a JS object string: e.g. "{ a, b, c }"
@@ -437,9 +874,13 @@ export function instrumentCode(source: string): InstrumentResult {
     result = result.slice(0, edit.start) + edit.replacement + result.slice(edit.end);
   }
 
+  const analysis = analyzeAstIndexUsage(ast);
+
   return {
     success: true,
     instrumentedCode: result,
     functionName: mainFunctionName,
+    detectedIndexVariables: analysis.indexVariables,
+    detectedCoordinatePairs: analysis.coordinatePairs,
   };
 }

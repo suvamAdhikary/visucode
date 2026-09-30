@@ -1,10 +1,14 @@
 import type { DryRunStep, Variable } from '@visucode/shared-types';
 import type { DiagnosticKind, TraceDiagnostic } from './types';
+import { inferStepVisualizerState } from './state-mapper';
 
 export interface WorkerTracePayload {
   instrumentedCode: string;
   functionName: string;
   args: any[];
+  detectedIndexVariables?: string[];
+  detectedCoordinatePairs?: [string, string][];
+  timeoutMs?: number;
 }
 
 export interface WorkerTraceResponse {
@@ -16,63 +20,21 @@ export interface WorkerTraceResponse {
   returnValue?: any;
 }
 
-export const MAX_STEPS = 500;
-export const MAX_RECURSION_DEPTH = 50;
+import {
+  MAX_STEPS,
+  MAX_RECURSION_DEPTH,
+  safeStringify,
+  getVariableType,
+  createDiagnosticSuggestion,
+} from './tracer-utils';
 
-export function safeStringify(val: any, seen = new Set<any>()): string {
-  if (val === undefined) return 'undefined';
-  if (val === null) return 'null';
-  if (typeof val === 'number' || typeof val === 'boolean') return String(val);
-  if (typeof val === 'string') return JSON.stringify(val);
-  if (typeof val === 'function') return `[Function: ${val.name || 'anonymous'}]`;
-
-  if (typeof val === 'object') {
-    if (seen.has(val)) return '[Circular]';
-    seen.add(val);
-
-    try {
-      if (Array.isArray(val)) {
-        const items = val.map((item) => safeStringify(item, seen));
-        return `[${items.join(', ')}]`;
-      }
-      const entries = Object.entries(val).map(
-        ([k, v]) => `${JSON.stringify(k)}: ${safeStringify(v, seen)}`
-      );
-      return `{${entries.join(', ')}}`;
-    } finally {
-      seen.delete(val);
-    }
-  }
-
-  return String(val);
-}
-
-export function getVariableType(val: any): Variable['type'] {
-  if (val === null) return 'null';
-  if (val === undefined) return 'undefined';
-  if (Array.isArray(val)) return 'array';
-  if (typeof val === 'number') return 'number';
-  if (typeof val === 'string') return 'string';
-  if (typeof val === 'boolean') return 'boolean';
-  return 'object';
-}
-
-export function createDiagnosticSuggestion(kind: DiagnosticKind, line?: number): string {
-  switch (kind) {
-    case 'loop-hang':
-      return `Check loop termination conditions near line ${line || '?'}. Variables are not changing between iterations.`;
-    case 'step-cap-exceeded':
-      return `Execution exceeded the maximum limit of ${MAX_STEPS} steps. Ensure loops and recursions have valid base cases.`;
-    case 'recursion-depth-exceeded':
-      return `Call stack reached depth of ${MAX_RECURSION_DEPTH}. Check for missing or unreachable recursive base cases.`;
-    case 'timeout':
-      return `Execution timed out after 2 seconds. Check for long-running operations or unoptimized iterations.`;
-    case 'runtime-error':
-      return `A runtime exception occurred near line ${line || '?'}. Check for null/undefined property accesses.`;
-    default:
-      return 'Check code logic and boundary constraints.';
-  }
-}
+export {
+  MAX_STEPS,
+  MAX_RECURSION_DEPTH,
+  safeStringify,
+  getVariableType,
+  createDiagnosticSuggestion,
+};
 
 /**
  * Sandboxed execution context tracking lines, local variables, call stack depth,
@@ -86,8 +48,31 @@ export class ExecutionTracerContext {
   public isAborted = false;
   public fatalDiagnostic?: TraceDiagnostic;
   public fatalError?: any;
+  public detectedIndexVariables = new Set<string>();
+  public detectedCoordinatePairs: [string, string][] = [];
+  public timeoutMs?: number;
+  public startTime = 0;
+  public onStep?: (steps: DryRunStep[]) => void;
   private lastSignature = '';
   private consecutiveRepeatCount = 0;
+
+  startExecution(timeoutMs?: number) {
+    this.timeoutMs = timeoutMs;
+    this.startTime = Date.now();
+  }
+
+  registerIndexVariables(names: string[], coordinatePairs?: [string, string][]) {
+    if (Array.isArray(names)) {
+      for (const name of names) {
+        if (name && typeof name === 'string') {
+          this.detectedIndexVariables.add(name.toLowerCase());
+        }
+      }
+    }
+    if (Array.isArray(coordinatePairs)) {
+      this.detectedCoordinatePairs = coordinatePairs;
+    }
+  }
 
   abort(kind: DiagnosticKind, message: string, line?: number): never {
     this.isAborted = true;
@@ -128,6 +113,19 @@ export class ExecutionTracerContext {
       throw this.fatalError;
     }
 
+    if (this.timeoutMs && this.timeoutMs > 0 && this.startTime > 0) {
+      const elapsed = Date.now() - this.startTime;
+      const safetyBuffer = Math.min(150, Math.max(0, Math.floor(this.timeoutMs * 0.1)));
+      const threshold = Math.max(1, this.timeoutMs - safetyBuffer);
+      if (elapsed >= threshold) {
+        this.abort(
+          'timeout',
+          `Execution timed out after ${this.timeoutMs}ms. Keeping ${this.steps.length} partial steps before timeout.`,
+          line
+        );
+      }
+    }
+
     this.stepCount++;
     if (this.stepCount > MAX_STEPS) {
       this.abort(
@@ -161,19 +159,57 @@ export class ExecutionTracerContext {
       this.lastSignature = sig;
     }
 
-    // Factual explanation from variables (F-LDR-S1-03)
-    const explanationParts = variables.map((v) => `${v.name} = ${v.value}`);
+    // Factual explanation from variables (F-LDR-S1-03, F-LDR-S2-04)
+    const priorityNames = [
+      'return',
+      'left',
+      'right',
+      'i',
+      'j',
+      'k',
+      'mid',
+      'lo',
+      'hi',
+      'start',
+      'end',
+      'sum',
+      'target',
+    ];
+    const sortedVars = [...variables].sort((a, b) => {
+      const aIdx = priorityNames.indexOf(a.name.toLowerCase());
+      const bIdx = priorityNames.indexOf(b.name.toLowerCase());
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      if (aIdx !== -1) return -1;
+      if (bIdx !== -1) return 1;
+      return 0;
+    });
+
+    const explanationParts = sortedVars.map((v) => `${v.name} = ${v.value}`);
     const explanation =
       explanationParts.length > 0
-        ? explanationParts.slice(0, 3).join(', ')
+        ? explanationParts.slice(0, 4).join(', ')
         : `Line ${line}`;
+
+    const vizState = inferStepVisualizerState(
+      locals,
+      this.detectedIndexVariables,
+      this.detectedCoordinatePairs
+    );
 
     this.steps.push({
       stepNumber: this.steps.length + 1,
       line,
       variables,
       explanation,
+      arrayState: vizState.arrayState,
+      pointers: vizState.pointers,
+      dpTableState: vizState.dpTableState,
+      hashMapState: vizState.hashMapState,
     });
+
+    if (this.onStep) {
+      this.onStep(this.steps);
+    }
   }
 }
 

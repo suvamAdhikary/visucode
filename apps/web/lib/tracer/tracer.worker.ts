@@ -11,8 +11,32 @@ import type { DiagnosticKind } from './types';
 
 if (typeof self !== 'undefined' && typeof postMessage === 'function') {
   self.onmessage = (e: MessageEvent<WorkerTracePayload>) => {
-    const { instrumentedCode, functionName, args } = e.data;
+    const {
+      instrumentedCode,
+      functionName,
+      args,
+      detectedIndexVariables,
+      detectedCoordinatePairs,
+      timeoutMs,
+    } = e.data;
     const ctx = new ExecutionTracerContext();
+    if (timeoutMs) {
+      ctx.startExecution(timeoutMs);
+    }
+    if (detectedIndexVariables || detectedCoordinatePairs) {
+      ctx.registerIndexVariables(detectedIndexVariables || [], detectedCoordinatePairs);
+    }
+
+    ctx.onStep = (steps) => {
+      // Stream each step to the parent thread so terminate() never loses trailing partial steps
+      const latestStep = steps[steps.length - 1];
+      if (latestStep) {
+        postMessage({
+          type: 'step',
+          step: latestStep,
+        });
+      }
+    };
 
     try {
       // Execute the instrumented function inside worker sandbox
