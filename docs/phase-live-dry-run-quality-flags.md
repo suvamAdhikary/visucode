@@ -103,7 +103,7 @@ Reuse: `DryRunStep`, `DryRunViewer`, `VariableInspector`, `CodeViewer`, `StepCon
 | --- | --- | --- | --- |
 | F-LDR-S1-01 | No UI-thread `new Function` in playground or tracer | `FIXED` | Worker context extracted to `tracer-context.ts` (zero side effects); `tracer.ts` never imports worker module directly; fails closed with runtime diagnostic in production if Web Worker unavailable; zero UI-thread `new Function` (PR #15). |
 | F-LDR-S1-02 | Worker timeout, step cap (500), recursion-depth cap | `FIXED` | Acorn AST walks `TryStatement` (`block`, `handler`, `finalizer`), `SwitchStatement`, classes, and expression-body arrow functions; CI tests prove `while (true)` inside `try`, 500-step cap, recursion bomb (50 calls), and mock worker timeout (PR #15). |
-| F-LDR-S1-03 | Snapshots match real locals / lines | `FIXED` | Two-pointers fixture asserts real `left` / `right` variable values across execution steps; entry function confirmed as first `FunctionDeclaration` (PR #15). |
+| F-LDR-S1-03 | Snapshots match real locals / lines | `FIXED` | Two-pointers fixture asserts real `left` / `right` variable values across execution steps; entry function resolved via AST call-graph root analysis, exported functions, or standard solution names (PR #15). |
 | F-LDR-S1-04 | Viewer decoupled from `Problem` | `FIXED` | `ProblemTabs` still passes `problem`; authored JSON path works |
 | F-LDR-S1-05 | No LLM-generated steps | `FIXED` | Acorn only |
 | F-LDR-S1-06 | `next-env.d.ts` / generated files | `FIXED` | 0 diff vs `main` |
@@ -238,5 +238,6 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-29: Resolved 1D offset commutativity and stride index extraction: arr[offset + i] correctly identifies i as the base pointer and excludes offset; arr[i * n + j] extracts i and j from * stride calculations while excluding dimension n and recording (i, j) coordinate pairs; confirmed matrix[r - 1][c] highlights snapshot locals (r, c). All 9 suites (515 tests) passing.
 - 2026-09-29: Documented arr[foo + bar] name-heuristic tradeoff: unrecognized identifiers without known offset/dimension naming extract both candidates for runtime boundary validation. Sprint 1 leftovers (timeout tape empty on terminate, first function runs) confirmed unchanged under Still OPEN.
 - 2026-09-29: Resolved all remaining Still OPEN items: implemented worker partial-step streaming and internal context timeout abort so steps are never dropped on timeout; implemented caller-callee call graph analysis to select root entry functions over helpers declared first; added AST mutation tracking to distinguish moving pointers from static offsets in arbitrary additions (`arr[foo + bar]`). All 9 suites (521 tests) green.
+- 2026-09-29: Resolved short timeout scaling and trailing step streaming: scaled timeout abort buffer so timeoutMs <= 150 never falsely aborts on step 1; upgraded worker streaming to incremental per-step delivery so trailing 1-4 steps are never lost on hard terminate(); updated twoSum test comment to reflect call-graph root resolution. All 9 suites (523 tests) green.
 
 

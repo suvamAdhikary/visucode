@@ -2,7 +2,7 @@ import { traceUserCode } from '../tracer';
 
 describe('Live Dry Run Tracer', () => {
   it('traces twoSum execution with exact locals and lines (F-LDR-S1-03)', async () => {
-    // Note: Primary entry function is the first FunctionDeclaration (F-LDR-S1-03)
+    // Note: Entry function is resolved via AST call-graph root analysis, exported functions, or standard names (F-LDR-S1-03)
     const code = `function twoSum(nums, target) {
   let left = 0;
   let right = nums.length - 1;
@@ -274,6 +274,82 @@ function second(x) { return x * 2; }`;
 
     expect(result.completed).toBe(true);
     expect(result.returnValue).toBe(10);
+  });
+
+  it('does not falsely abort on step 1 when timeoutMs <= 150', async () => {
+    const code = `function sumTo(n) {
+  let total = 0;
+  for (let i = 1; i <= n; i++) {
+    total += i;
+  }
+  return total;
+}`;
+
+    const result = await traceUserCode({
+      code,
+      input: '[5]',
+      timeoutMs: 100,
+    });
+
+    expect(result.completed).toBe(true);
+    expect(result.steps.length).toBeGreaterThan(1);
+    expect(result.diagnostic).toBeUndefined();
+    expect(result.returnValue).toBe(15);
+  });
+
+  it('preserves trailing steps (1-4 steps after any batch) via per-step streaming on worker termination', async () => {
+    let messageHandler: ((e: any) => void) | null = null;
+    const mockWorker = {
+      postMessage: jest.fn(),
+      terminate: jest.fn(),
+      set onmessage(handler: any) {
+        messageHandler = handler;
+      },
+      onerror: null,
+    };
+    const originalWorker = (global as any).Worker;
+    (global as any).Worker = jest.fn(() => mockWorker);
+
+    try {
+      const tracePromise = traceUserCode({
+        code: `function loop() { let x = 0; while (true) { x++; } }`,
+        input: '[]',
+        timeoutMs: 60,
+      });
+
+      // Stream 3 incremental steps (a trailing non-multiple of 5)
+      setTimeout(() => {
+        if (messageHandler) {
+          messageHandler({
+            data: {
+              type: 'step',
+              step: { stepNumber: 1, line: 1, variables: [{ name: 'x', value: '1', type: 'number' }] },
+            },
+          });
+          messageHandler({
+            data: {
+              type: 'step',
+              step: { stepNumber: 2, line: 1, variables: [{ name: 'x', value: '2', type: 'number' }] },
+            },
+          });
+          messageHandler({
+            data: {
+              type: 'step',
+              step: { stepNumber: 3, line: 1, variables: [{ name: 'x', value: '3', type: 'number' }] },
+            },
+          });
+        }
+      }, 10);
+
+      const result = await tracePromise;
+      expect(result.completed).toBe(false);
+      expect(result.steps.length).toBe(3);
+      expect(result.steps.map((s) => s.stepNumber)).toEqual([1, 2, 3]);
+      expect(result.diagnostic?.kind).toBe('timeout');
+      expect(mockWorker.terminate).toHaveBeenCalled();
+    } finally {
+      (global as any).Worker = originalWorker;
+    }
   });
 });
 

@@ -113,9 +113,11 @@ export class ExecutionTracerContext {
       throw this.fatalError;
     }
 
-    if (this.timeoutMs && this.startTime > 0) {
+    if (this.timeoutMs && this.timeoutMs > 0 && this.startTime > 0) {
       const elapsed = Date.now() - this.startTime;
-      if (elapsed >= this.timeoutMs - 150) {
+      const safetyBuffer = Math.min(150, Math.max(0, Math.floor(this.timeoutMs * 0.1)));
+      const threshold = Math.max(1, this.timeoutMs - safetyBuffer);
+      if (elapsed >= threshold) {
         this.abort(
           'timeout',
           `Execution timed out after ${this.timeoutMs}ms. Keeping ${this.steps.length} partial steps before timeout.`,

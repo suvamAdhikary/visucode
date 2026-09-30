@@ -28,11 +28,12 @@ if (typeof self !== 'undefined' && typeof postMessage === 'function') {
     }
 
     ctx.onStep = (steps) => {
-      // Periodically stream steps to the parent thread so terminate() never loses partial steps
-      if (steps.length % 5 === 0 || steps.length === 1) {
+      // Stream each step to the parent thread so terminate() never loses trailing partial steps
+      const latestStep = steps[steps.length - 1];
+      if (latestStep) {
         postMessage({
-          type: 'progress',
-          steps,
+          type: 'step',
+          step: latestStep,
         });
       }
     };

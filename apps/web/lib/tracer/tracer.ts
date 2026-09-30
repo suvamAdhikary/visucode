@@ -9,7 +9,10 @@ import {
   type WorkerTraceResponse,
 } from './tracer-context';
 
-export type WorkerMessage = WorkerTraceResponse | { type: 'progress'; steps: DryRunStep[] };
+export type WorkerMessage =
+  | WorkerTraceResponse
+  | { type: 'progress'; steps: DryRunStep[] }
+  | { type: 'step'; step: DryRunStep };
 
 export interface TraceOptions {
   code: string;
@@ -123,11 +126,17 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
 
       worker.onmessage = (e: MessageEvent<WorkerMessage>) => {
         const data = e.data;
-        if ('type' in data && data.type === 'progress') {
-          if (Array.isArray(data.steps)) {
-            lastKnownSteps = data.steps;
+        if ('type' in data) {
+          if (data.type === 'step') {
+            lastKnownSteps.push(data.step);
+            return;
           }
-          return;
+          if (data.type === 'progress') {
+            if (Array.isArray(data.steps)) {
+              lastKnownSteps = data.steps;
+            }
+            return;
+          }
         }
         if (timer) clearTimeout(timer);
         if (worker) worker.terminate();
