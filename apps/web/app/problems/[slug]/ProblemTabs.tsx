@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { DryRunViewer } from './DryRunViewer';
 import { LiveDryRunTab } from './LiveDryRunTab';
 import { CodeSubmit } from '../../components/editor/CodeSubmit';
-import { useVisualizerStore } from '../../../lib/stores';
 import type { Problem } from '@visucode/shared-types';
 import styles from './ProblemTabs.module.css';
 
@@ -19,9 +18,6 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
 
   const handleTabChange = (tab: 'official-dry-run' | 'live-dry-run' | 'code') => {
     setActiveTab(tab);
-    if (tab === 'official-dry-run') {
-      useVisualizerStore.getState().reset(problem.dryRunSteps?.length || 0);
-    }
   };
 
   return (

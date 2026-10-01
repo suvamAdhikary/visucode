@@ -466,4 +466,38 @@ describe('ProblemTabs — Three Surfaces and F-LDR-S3-03', () => {
       expect(screen.getByText(/⚡ live dry run/i)).toBeTruthy();
     });
   });
+
+  it('maintains independent visualizer stores for official and live dry run viewers without clobbering', async () => {
+    render(<ProblemTabs problem={mockProblem} />);
+
+    // Official Dry Run starts at step 0
+    expect(screen.getByText('Authored Step 1: Initialize hash map')).toBeTruthy();
+
+    // Advance Official Dry Run to step 1
+    const nextBtn = screen.getByLabelText('Next step');
+    fireEvent.click(nextBtn);
+
+    // Official Dry Run is now at step 1
+    expect(screen.getByText('Authored Step 2: Found pair')).toBeTruthy();
+
+    // Switch to Live Dry Run tab
+    const liveTab = screen.getByRole('tab', { name: /dry run my code/i });
+    fireEvent.click(liveTab);
+
+    // Execute live dry run
+    const runBtn = screen.getByRole('button', { name: /run dry run/i });
+    fireEvent.click(runBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/⚡ live dry run/i)).toBeTruthy();
+    });
+
+    // Switch back to Official Dry Run tab
+    const officialTab = screen.getByRole('tab', { name: /official dry run/i });
+    fireEvent.click(officialTab);
+
+    // Official Dry Run must STILL be at step 1 (not reset or clobbered!)
+    expect(screen.getByText('Authored Step 2: Found pair')).toBeTruthy();
+  });
 });
+

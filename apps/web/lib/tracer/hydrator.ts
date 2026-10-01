@@ -118,14 +118,22 @@ export function hydrateArgs(
   let resolvedType = hydrationType;
   if (resolvedType === 'auto') {
     if (code) {
+      // Robust detection for playground & arbitrary user scripts (F-LDR-S3-03)
+      // Matches function ... (head), (head) =>, head =>, .next property access, or known list helpers
       const isList =
-        /\b(reverseList|mergeTwoLists|hasCycle|deleteNode|removeNthFromEnd|reorderList)\b/.test(code) ||
-        /\bfunction\s+[a-zA-Z0-9_$]*\s*\(\s*head\b/.test(code) ||
-        /\b(head|curr|prev)\.next\b/.test(code);
+        /\(([^)]*\b)?head\b/i.test(code) ||
+        /\bhead\s*=>/i.test(code) ||
+        /\b[a-zA-Z0-9_$]+\??\.next\b/.test(code) ||
+        /\bListNode\b/.test(code) ||
+        /\b(reverseList|mergeTwoLists|hasCycle|detectCycle|cycle|deleteNode|removeNthFromEnd|reorderList|middleNode|deleteDuplicates|removeElements)\b/i.test(code);
+
+      // Matches function ... (root), (root) =>, root =>, .left / .right property access, or known tree helpers
       const isTree =
-        /\b(maxDepth|invertTree|isSameTree|isSubtree|levelOrder|isValidBST)\b/.test(code) ||
-        /\bfunction\s+[a-zA-Z0-9_$]*\s*\(\s*root\b/.test(code) ||
-        /\broot\.(left|right)\b/.test(code);
+        /\(([^)]*\b)?root\b/i.test(code) ||
+        /\broot\s*=>/i.test(code) ||
+        /\b[a-zA-Z0-9_$]+\??\.(left|right)\b/.test(code) ||
+        /\bTreeNode\b/.test(code) ||
+        /\b(maxDepth|minDepth|invertTree|isSameTree|isSubtree|levelOrder|isValidBST|lowestCommonAncestor|hasPathSum|diameterOfBinaryTree)\b/i.test(code);
 
       if (isList && !isTree) resolvedType = 'linked-list';
       else if (isTree && !isList) resolvedType = 'tree';
@@ -136,11 +144,16 @@ export function hydrateArgs(
   }
 
   if (resolvedType === 'linked-list') {
-    // If problem is linked-list cycle: args = [arr, pos] -> hasCycle(__arrayToList(arr, pos))
-    if (args.length === 2 && Array.isArray(args[0]) && typeof args[1] === 'number') {
+    // Only treat [arr, pos] as a cycle when the code specifically represents a cycle problem (e.g. hasCycle)
+    // Preserves multi-argument functions like removeNthFromEnd(head, n)
+    const isCycleProblem =
+      Boolean(code && (/\b(hasCycle|detectCycle|cycle|loop)\b/i.test(code) || /\bpos\b/i.test(code)));
+
+    if (isCycleProblem && args.length === 2 && Array.isArray(args[0]) && typeof args[1] === 'number') {
       return [arrayToList(args[0], args[1])];
     }
-    // Normal linked list(s): convert array arguments to list nodes
+
+    // Normal linked list(s): convert array arguments to list nodes, preserve scalar arguments (e.g. n in removeNthFromEnd)
     return args.map((arg) => (Array.isArray(arg) ? arrayToList(arg) : arg));
   }
 

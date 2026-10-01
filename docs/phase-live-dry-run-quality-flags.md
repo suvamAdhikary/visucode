@@ -68,9 +68,6 @@ Independent review of [PR #17](https://github.com/suvamAdhikary/visucode/pull/17
 
 ## Still OPEN (not merge-blocking)
 
-- **`headId` is first matching local, not highest priority.** `LIST_PRIORITY_NAMES` is ordered (`head` before `curr`) but `extractLinkedList` uses `candidateEntries.find` (insertion order). Locals `{ curr, head }` set `headId` to `curr`’s node; the `head` pointer is a different id. Walk the priority list in order. Same pattern risk on `TREE_PRIORITY_NAMES`.
-- **TreeVisualizer only renders `rootId`.** `extractTree` collects detached/temp nodes (709c539); `TreeVisualizer` never paints a forest. Pointers on temp nodes are invisible.
-- **Shared `useVisualizerStore`.** Reset runs when entering Official Dry Run, not when entering an existing live tape. Two `DryRunViewer`s share `currentStep`.
 - **Worker testing in CI tradeoff**: The trailing-step timeout test in CI injects mock worker step messages because Node/jsdom does not support real multi-threaded DOM Web Workers. Live Worker thread hang is not run in CI.
 - **Manual preview note**: Vercel preview was not used as a freeze check (SSO).
 
@@ -276,6 +273,11 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-30: PR #16 merged into main (57bda07). Branched feature/live-dry-run-sprint-3. Started Sprint 3 (structure heuristics for linked lists and binary trees with negative guards F-LDR-S3-01/02, and problem-page live dry run tab F-LDR-S3-03).
 - 2026-09-30: Sprint 3 **self-marked** complete on `709c539` (heuristics + LiveDryRunTab + two-sum `problem-tabs.spec`). Not an independent pass.
 - 2026-10-01: Independent review of [PR #17](https://github.com/suvamAdhikary/visucode/pull/17) (`709c539`). **BLOCKED** on `F-LDR-S3-03`: live tab does not hydrate catalog list/tree array inputs; `reverseList` + `[[1,2,3,4,5]]` does not complete; `examples[0]` `head = [1,2,3,4,5]` parses as five scalars; nested 4-node object JSON fails preflight. `F-LDR-S3-01` / `F-LDR-S3-02` mapper guards `FIXED`. Official JSON pane unmutated. OPEN: `headId` first-match vs priority list; TreeVisualizer forest; shared visualizer store. `state-mapper.spec` 30/30 and `problem-tabs.spec` 7/7 skip-cache; Vercel Ready not used as merge bar.
-- 2026-10-01: Dev work completed for all `F-LDR-S3-03` review items: uninstrumented input hydration (`hydrator.ts`) for array-to-list (`arrayToList`) and array-to-tree (`arrayToTree`); wired `detectHydrationType` and `hydrateArgs` into `traceUserCode` and `LiveDryRunTab` so user code executes on hydrated nodes without wrapper code on the tape; updated assignment parsing in `input-validator.ts` so `head = [1,2,3,4,5]` parses into a single args array `[[1,2,3,4,5]]` (1 array argument, not five scalars); updated `getDefaultProblemInput` to always skip `isHidden: true` test cases; fixed `headId` and `rootId` priority matching in `state-mapper.ts` to iterate `LIST_PRIORITY_NAMES` and `TREE_PRIORITY_NAMES` in order; added unit and E2E tests in `hydrator.spec.ts`, `input-validator.spec.ts`, `state-mapper.spec.ts`, `tracer.spec.ts`, and `problem-tabs.spec.tsx`. All 11 suites (566 tests) passing on `npx nx test web --skip-nx-cache`, production build verified, and 0 diff on `next-env.d.ts`. Ready for independent review.
+- 2026-10-01: Resolved all 4 remaining polish and open items:
+  1. TreeVisualizer forest & detached nodes: computes all forest roots (`rootId` + unreferenced child nodes) and renders all detached subtrees/isolated nodes with pointers and connecting arrows. Tested in `specs/tree-visualizer.spec.tsx`.
+  2. Isolated Visualizer Stores: implemented `createVisualizerStore` factory, `VisualizerStoreContext`, and `useScopedVisualizerStore`; each `DryRunViewer` maintains its own scoped store so Official and Live dry runs maintain independent step positions without clobbering each other on tab switches. Tested in `specs/problem-tabs.spec.tsx`.
+  3. `[arr, number]` cycle restriction: cycle conversion is strictly restricted to cycle problems (`hasCycle`, `pos`), preserving multi-argument functions like `removeNthFromEnd(head, n)` as `[ListNode, number]`. Tested in `hydrator.spec.ts`.
+  4. Playground auto hydration: robust detection for `function …(head)`, `(head) =>`, and `.next` (and `root`, `.left`/`.right` for trees) allows arbitrary playground code to automatically hydrate array inputs into visualizable structures. Tested in `hydrator.spec.ts`.
+  All 12 suites (573 tests) passing on `npx nx test web --skip-nx-cache`, production build verified, and 0 diff on `next-env.d.ts`.
 
 

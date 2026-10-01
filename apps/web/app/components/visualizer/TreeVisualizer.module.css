@@ -21,6 +21,12 @@
 .treeContainer {
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
 }
 
 .treeNodeWrapper {

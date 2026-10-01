@@ -39,7 +39,7 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
     input,
     timeoutMs = 2000,
     functionName: requestedFunctionName,
-    hydration,
+    hydration = 'auto',
   } = options;
 
   // 1. Preflight input validation (before Worker or navigation)

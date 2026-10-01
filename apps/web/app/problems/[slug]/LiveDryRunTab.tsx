@@ -7,7 +7,6 @@ import { traceUserCode } from '../../../lib/tracer/tracer';
 import { validatePreflightInput } from '../../../lib/tracer/input-validator';
 import { detectHydrationType } from '../../../lib/tracer/hydrator';
 import type { LiveTraceResult, TraceDiagnostic } from '../../../lib/tracer/types';
-import { useVisualizerStore } from '../../../lib/stores';
 import type { Problem } from '@visucode/shared-types';
 import styles from './LiveDryRunTab.module.css';
 
@@ -74,10 +73,6 @@ export function LiveDryRunTab({ problem }: LiveDryRunTabProps) {
       const hydration = detectHydrationType(problem);
       const result = await traceUserCode({ code, input, hydration });
       setTraceResult(result);
-
-      if (result.steps.length > 0) {
-        useVisualizerStore.getState().reset(result.steps.length);
-      }
 
       if (!result.completed && result.diagnostic) {
         setDiagnostic(result.diagnostic);

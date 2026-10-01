@@ -104,11 +104,75 @@ describe('Tracer Hydrator (F-LDR-S3-03)', () => {
       expect(hydrated[1]).toBeInstanceOf(ListNode);
     });
 
-    it('hydrates cycle list args [arr, pos] into a single head argument', () => {
-      const hydrated = hydrateArgs([[3, 2, 0, -4], 1], 'linked-list');
+    it('hydrates cycle list args [arr, pos] into a single head argument when code is hasCycle', () => {
+      const cycleCode = 'function hasCycle(head) { let slow = head; }';
+      const hydrated = hydrateArgs([[3, 2, 0, -4], 1], 'linked-list', cycleCode);
       expect(hydrated.length).toBe(1);
       expect(hydrated[0]).toBeInstanceOf(ListNode);
       expect(hydrated[0].next?.next?.next?.next).toBe(hydrated[0].next);
+    });
+
+    it('preserves multi-argument linked list functions like removeNthFromEnd(head, n) without cycle conversion', () => {
+      const removeCode = 'function removeNthFromEnd(head, n) { let dummy = new ListNode(0); }';
+      const hydrated = hydrateArgs([[1, 2, 3, 4, 5], 2], 'linked-list', removeCode);
+      expect(hydrated.length).toBe(2);
+      expect(hydrated[0]).toBeInstanceOf(ListNode);
+      expect(hydrated[0].val).toBe(1);
+      // Last node has next: null (NOT a cycle)
+      expect(hydrated[0].next?.next?.next?.next?.next).toBeNull();
+      // Second argument n=2 is preserved intact
+      expect(hydrated[1]).toBe(2);
+    });
+
+    it('auto-detects linked-list from function ... (head) or .next in playground scripts', () => {
+      const code1 = 'function customSolve(head) { return head ? head.val : 0; }';
+      const hydrated1 = hydrateArgs([[10, 20]], 'auto', code1);
+      expect(hydrated1.length).toBe(1);
+      expect(hydrated1[0]).toBeInstanceOf(ListNode);
+      expect(hydrated1[0].val).toBe(10);
+
+      const code2 = 'const run = (head, k) => { let curr = head; while (curr) curr = curr.next; };';
+      const hydrated2 = hydrateArgs([[1, 2, 3], 5], 'auto', code2);
+      expect(hydrated2.length).toBe(2);
+      expect(hydrated2[0]).toBeInstanceOf(ListNode);
+      expect(hydrated2[1]).toBe(5);
+
+      const code3 = 'function loopNodes(first) { while (first) first = first.next; }';
+      const hydrated3 = hydrateArgs([[100]], 'auto', code3);
+      expect(hydrated3.length).toBe(1);
+      expect(hydrated3[0]).toBeInstanceOf(ListNode);
+
+      const code4 = 'const traverse = head => { let c = head; while (c) c = c?.next; };';
+      const hydrated4 = hydrateArgs([[5, 10, 15]], 'auto', code4);
+      expect(hydrated4.length).toBe(1);
+      expect(hydrated4[0]).toBeInstanceOf(ListNode);
+      expect(hydrated4[0].val).toBe(5);
+    });
+
+    it('auto-detects tree from function ... (root) or .left/.right in playground scripts', () => {
+      const code1 = 'function depth(root) { if (!root) return 0; return 1; }';
+      const hydrated1 = hydrateArgs([[3, 9, 20]], 'auto', code1);
+      expect(hydrated1.length).toBe(1);
+      expect(hydrated1[0]).toBeInstanceOf(TreeNode);
+      expect(hydrated1[0].val).toBe(3);
+
+      const code2 = 'const invert = (root) => { const left = root.left; root.left = root.right; };';
+      const hydrated2 = hydrateArgs([[4, 2, 7]], 'auto', code2);
+      expect(hydrated2.length).toBe(1);
+      expect(hydrated2[0]).toBeInstanceOf(TreeNode);
+
+      const code3 = 'const getLeft = root => root?.left;';
+      const hydrated3 = hydrateArgs([[1, 2, 3]], 'auto', code3);
+      expect(hydrated3.length).toBe(1);
+      expect(hydrated3[0]).toBeInstanceOf(TreeNode);
+      expect(hydrated3[0].val).toBe(1);
+    });
+
+    it('does not falsely auto-detect list or tree for array two-pointers code', () => {
+      const code = 'function twoSum(nums, target) { let left = 0, right = nums.length - 1; }';
+      const raw = [[2, 7, 11, 15], 9];
+      const hydrated = hydrateArgs(raw, 'auto', code);
+      expect(hydrated).toEqual([[2, 7, 11, 15], 9]);
     });
 
     it('hydrates tree array arguments', () => {
