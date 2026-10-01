@@ -545,6 +545,34 @@ function testClass() {
       expect(viz.linkedListState?.nodes[1].nextId).toBe('node-1');
     });
 
+    it('extracts multiple linked list fragments and maps pointers across disjoint chains (e.g. reverseList)', () => {
+      // Simulates reverseList midway: node 1 reversed (points to null), nodes 2->3 unreversed
+      const node1 = { val: 1, next: null };
+      const node3 = { val: 3, next: null };
+      const node2 = { val: 2, next: node3 };
+
+      const locals = {
+        prev: node1,
+        curr: node2,
+      };
+
+      const viz = inferStepVisualizerState(locals);
+
+      expect(viz.linkedListState).toBeDefined();
+      // All 3 nodes across both fragments are captured
+      expect(viz.linkedListState?.nodes.length).toBe(3);
+      expect(viz.linkedListState?.nodes.map((n) => n.value)).toEqual([1, 2, 3]);
+
+      // Both pointers correctly resolve to their respective fragment nodes
+      const prevPtr = viz.pointers?.find((p) => p.name === 'prev');
+      const currPtr = viz.pointers?.find((p) => p.name === 'curr');
+      expect(prevPtr?.targetId).toBe('node-1');
+      expect(currPtr?.targetId).toBe('node-2');
+
+      // None of the fragment nodes leak into hashMapState
+      expect(viz.hashMapState).toBeUndefined();
+    });
+
     // Negative guards for F-LDR-S3-01
     it('negative guard (F-LDR-S3-01): rejects unrelated objects with string or number next', () => {
       const locals1 = {
@@ -638,6 +666,20 @@ function testClass() {
       expect(viz.treeState?.nodes[0].value).toBe('A');
       expect(viz.pointers?.find((p) => p.name === 'root')?.targetId).toBe('tree-node-1');
       expect(viz.pointers?.find((p) => p.name === 'curr')?.targetId).toBe('tree-node-3');
+    });
+
+    it('extracts detached tree nodes and maps pointers (e.g. temporary nodes during tree construction)', () => {
+      const root = { val: 10, left: null, right: null };
+      const tempNode = { val: 20, left: null, right: null };
+
+      const locals = { root, temp: tempNode };
+      const viz = inferStepVisualizerState(locals);
+
+      expect(viz.treeState).toBeDefined();
+      expect(viz.treeState?.nodes.length).toBe(2);
+      expect(viz.pointers?.find((p) => p.name === 'root')?.targetId).toBe('tree-node-1');
+      expect(viz.pointers?.find((p) => p.name === 'temp')?.targetId).toBe('tree-node-2');
+      expect(viz.hashMapState).toBeUndefined();
     });
 
     // Negative guards for F-LDR-S3-02

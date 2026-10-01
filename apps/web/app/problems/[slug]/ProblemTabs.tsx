@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { DryRunViewer } from './DryRunViewer';
 import { LiveDryRunTab } from './LiveDryRunTab';
 import { CodeSubmit } from '../../components/editor/CodeSubmit';
+import { useVisualizerStore } from '../../../lib/stores';
 import type { Problem } from '@visucode/shared-types';
 import styles from './ProblemTabs.module.css';
 
@@ -16,12 +17,19 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
     'official-dry-run'
   );
 
+  const handleTabChange = (tab: 'official-dry-run' | 'live-dry-run' | 'code') => {
+    setActiveTab(tab);
+    if (tab === 'official-dry-run') {
+      useVisualizerStore.getState().reset(problem.dryRunSteps?.length || 0);
+    }
+  };
+
   return (
     <div className={styles.tabsContainer}>
       <div className={styles.tabHeader} role="tablist">
         <button
           className={`${styles.tabBtn} ${activeTab === 'official-dry-run' ? styles.active : ''}`}
-          onClick={() => setActiveTab('official-dry-run')}
+          onClick={() => handleTabChange('official-dry-run')}
           role="tab"
           aria-selected={activeTab === 'official-dry-run'}
         >
@@ -29,7 +37,7 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
         </button>
         <button
           className={`${styles.tabBtn} ${activeTab === 'live-dry-run' ? styles.active : ''}`}
-          onClick={() => setActiveTab('live-dry-run')}
+          onClick={() => handleTabChange('live-dry-run')}
           role="tab"
           aria-selected={activeTab === 'live-dry-run'}
         >
@@ -37,7 +45,7 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
         </button>
         <button
           className={`${styles.tabBtn} ${activeTab === 'code' ? styles.active : ''}`}
-          onClick={() => setActiveTab('code')}
+          onClick={() => handleTabChange('code')}
           role="tab"
           aria-selected={activeTab === 'code'}
         >

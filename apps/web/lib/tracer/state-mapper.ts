@@ -221,16 +221,26 @@ export function extractLinkedList(entries: [string, any][]): {
   const visitedNodes: any[] = [];
   const nodeToId = new Map<any, string>();
   const visitedSet = new Set<any>();
-
-  let curr: any = startNode;
   let idCounter = 1;
 
-  while (curr && typeof curr === 'object' && !visitedSet.has(curr) && visitedNodes.length < 16) {
-    visitedSet.add(curr);
-    const nodeId = `node-${idCounter++}`;
-    nodeToId.set(curr, nodeId);
-    visitedNodes.push(curr);
-    curr = curr.next;
+  const traverseChain = (node: any) => {
+    let curr: any = node;
+    while (curr && typeof curr === 'object' && !visitedSet.has(curr) && visitedNodes.length < 16) {
+      visitedSet.add(curr);
+      const nodeId = `node-${idCounter++}`;
+      nodeToId.set(curr, nodeId);
+      visitedNodes.push(curr);
+      curr = curr.next;
+    }
+  };
+
+  traverseChain(startNode);
+
+  // Traverse any other candidate nodes not reached from startNode (e.g. unreversed fragment in curr/nxt)
+  for (const [, candidateNode] of candidateEntries) {
+    if (!visitedSet.has(candidateNode) && visitedNodes.length < 16) {
+      traverseChain(candidateNode);
+    }
   }
 
   if (visitedNodes.length === 0) {
@@ -324,48 +334,61 @@ export function extractTree(entries: [string, any][]): {
   const visitedSet = new Set<any>();
   let idCounter = 1;
 
-  const queue: any[] = [rootNode];
-  visitedSet.add(rootNode);
-  nodeToId.set(rootNode, `tree-node-${idCounter++}`);
-
-  while (queue.length > 0 && nodes.length < 31) {
-    const curr = queue.shift()!;
-    const id = nodeToId.get(curr)!;
-    const rawVal =
-      curr.val !== undefined
-        ? curr.val
-        : curr.value !== undefined
-        ? curr.value
-        : curr.data !== undefined
-        ? curr.data
-        : '';
-
-    const value =
-      typeof rawVal === 'number' || typeof rawVal === 'string'
-        ? rawVal
-        : safeStringify(rawVal);
-
-    let leftId: string | undefined;
-    if (curr.left && typeof curr.left === 'object' && !visitedSet.has(curr.left)) {
-      leftId = `tree-node-${idCounter++}`;
-      nodeToId.set(curr.left, leftId);
-      visitedSet.add(curr.left);
-      queue.push(curr.left);
-    } else if (curr.left && typeof curr.left === 'object' && visitedSet.has(curr.left)) {
-      leftId = nodeToId.get(curr.left);
+  const traverseSubtree = (startNode: any) => {
+    const queue: any[] = [startNode];
+    visitedSet.add(startNode);
+    if (!nodeToId.has(startNode)) {
+      nodeToId.set(startNode, `tree-node-${idCounter++}`);
     }
 
-    let rightId: string | undefined;
-    if (curr.right && typeof curr.right === 'object' && !visitedSet.has(curr.right)) {
-      rightId = `tree-node-${idCounter++}`;
-      nodeToId.set(curr.right, rightId);
-      visitedSet.add(curr.right);
-      queue.push(curr.right);
-    } else if (curr.right && typeof curr.right === 'object' && visitedSet.has(curr.right)) {
-      rightId = nodeToId.get(curr.right);
-    }
+    while (queue.length > 0 && nodes.length < 31) {
+      const curr = queue.shift()!;
+      const id = nodeToId.get(curr)!;
+      const rawVal =
+        curr.val !== undefined
+          ? curr.val
+          : curr.value !== undefined
+          ? curr.value
+          : curr.data !== undefined
+          ? curr.data
+          : '';
 
-    nodes.push({ id, value, leftId, rightId });
+      const value =
+        typeof rawVal === 'number' || typeof rawVal === 'string'
+          ? rawVal
+          : safeStringify(rawVal);
+
+      let leftId: string | undefined;
+      if (curr.left && typeof curr.left === 'object' && !visitedSet.has(curr.left)) {
+        leftId = `tree-node-${idCounter++}`;
+        nodeToId.set(curr.left, leftId);
+        visitedSet.add(curr.left);
+        queue.push(curr.left);
+      } else if (curr.left && typeof curr.left === 'object' && visitedSet.has(curr.left)) {
+        leftId = nodeToId.get(curr.left);
+      }
+
+      let rightId: string | undefined;
+      if (curr.right && typeof curr.right === 'object' && !visitedSet.has(curr.right)) {
+        rightId = `tree-node-${idCounter++}`;
+        nodeToId.set(curr.right, rightId);
+        visitedSet.add(curr.right);
+        queue.push(curr.right);
+      } else if (curr.right && typeof curr.right === 'object' && visitedSet.has(curr.right)) {
+        rightId = nodeToId.get(curr.right);
+      }
+
+      nodes.push({ id, value, leftId, rightId });
+    }
+  };
+
+  traverseSubtree(rootNode);
+
+  // Traverse any other candidate tree nodes not reached from root (e.g. temporary/detached nodes)
+  for (const [, candidateNode] of candidateEntries) {
+    if (!visitedSet.has(candidateNode) && nodes.length < 31) {
+      traverseSubtree(candidateNode);
+    }
   }
 
   const pointers: Pointer[] = [];
