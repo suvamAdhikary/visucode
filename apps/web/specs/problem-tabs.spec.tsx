@@ -43,6 +43,8 @@ const mockProblem: Problem = {
   constraints: ['2 <= nums.length <= 10^4'],
   hints: ['Use a hash map'],
   realWorldUseCases: [],
+  externalLinks: [],
+  accessLevel: 'free',
   starterCode: {
     javascript: 'function twoSum(nums, target) {\n  let diff = target - nums[0];\n  return [0, 1];\n}',
   },
@@ -63,25 +65,25 @@ const mockProblem: Problem = {
   ],
   dryRunSteps: [
     {
-      stepIndex: 0,
+      stepNumber: 0,
       line: 1,
       explanation: 'Authored Step 1: Initialize hash map',
-      variables: [{ name: 'map', value: '{}' }],
+      variables: [{ name: 'map', value: '{}', type: 'object' }],
+      pointers: [{ name: 'i', index: 0, color: '#6366f1' }],
       arrayState: {
         elements: [2, 7, 11, 15],
-        highlightedIndices: [0],
-        pointers: [{ name: 'i', index: 0, color: '#6366f1' }],
+        highlightIndices: [0],
       },
     },
     {
-      stepIndex: 1,
+      stepNumber: 1,
       line: 2,
       explanation: 'Authored Step 2: Found pair',
-      variables: [{ name: 'diff', value: '7' }],
+      variables: [{ name: 'diff', value: '7', type: 'number' }],
+      pointers: [{ name: 'i', index: 1, color: '#6366f1' }],
       arrayState: {
         elements: [2, 7, 11, 15],
-        highlightedIndices: [0, 1],
-        pointers: [{ name: 'i', index: 1, color: '#6366f1' }],
+        highlightIndices: [0, 1],
       },
     },
   ],
