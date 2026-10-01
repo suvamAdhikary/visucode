@@ -279,5 +279,9 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
   3. `[arr, number]` cycle restriction: cycle conversion is strictly restricted to cycle problems (`hasCycle`, `pos`), preserving multi-argument functions like `removeNthFromEnd(head, n)` as `[ListNode, number]`. Tested in `hydrator.spec.ts`.
   4. Playground auto hydration: robust detection for `function …(head)`, `(head) =>`, and `.next` (and `root`, `.left`/`.right` for trees) allows arbitrary playground code to automatically hydrate array inputs into visualizable structures. Tested in `hydrator.spec.ts`.
   All 12 suites (573 tests) passing on `npx nx test web --skip-nx-cache`, production build verified, and 0 diff on `next-env.d.ts`.
+- 2026-10-01: Refined cycle problem heuristic and playground store cleanup:
+  - Cycle problem detection strictly narrowed to `/\b(hasCycle|detectCycle)\b/i`, eliminating false-positive cycle conversions on functions with `pos` parameters (e.g. `insertAt(head, pos)`) or `loop` counter variables. Proven in `hydrator.spec.ts`.
+  - Removed redundant `useVisualizerStore.getState().reset(...)` call and unused import from `PlaygroundClient.tsx`, relying solely on `DryRunViewer`'s scoped store lifecycle.
+  - All 12 suites (574 tests) passing on `npx nx test web --skip-nx-cache`.
 
 

@@ -124,6 +124,15 @@ describe('Tracer Hydrator (F-LDR-S3-03)', () => {
       expect(hydrated[1]).toBe(2);
     });
 
+    it('does not treat functions with pos parameters or loop counters as cycle problems', () => {
+      const posCode = 'function insertAt(head, pos) { let loop = 0; while (loop < pos) loop++; }';
+      const hydrated = hydrateArgs([[1, 2, 3], 1], 'linked-list', posCode);
+      expect(hydrated.length).toBe(2);
+      expect(hydrated[0]).toBeInstanceOf(ListNode);
+      expect(hydrated[0].next?.next?.next).toBeNull();
+      expect(hydrated[1]).toBe(1);
+    });
+
     it('auto-detects linked-list from function ... (head) or .next in playground scripts', () => {
       const code1 = 'function customSolve(head) { return head ? head.val : 0; }';
       const hydrated1 = hydrateArgs([[10, 20]], 'auto', code1);

@@ -125,7 +125,7 @@ export function hydrateArgs(
         /\bhead\s*=>/i.test(code) ||
         /\b[a-zA-Z0-9_$]+\??\.next\b/.test(code) ||
         /\bListNode\b/.test(code) ||
-        /\b(reverseList|mergeTwoLists|hasCycle|detectCycle|cycle|deleteNode|removeNthFromEnd|reorderList|middleNode|deleteDuplicates|removeElements)\b/i.test(code);
+        /\b(reverseList|mergeTwoLists|hasCycle|detectCycle|deleteNode|removeNthFromEnd|reorderList|middleNode|deleteDuplicates|removeElements)\b/i.test(code);
 
       // Matches function ... (root), (root) =>, root =>, .left / .right property access, or known tree helpers
       const isTree =
@@ -144,10 +144,10 @@ export function hydrateArgs(
   }
 
   if (resolvedType === 'linked-list') {
-    // Only treat [arr, pos] as a cycle when the code specifically represents a cycle problem (e.g. hasCycle)
-    // Preserves multi-argument functions like removeNthFromEnd(head, n)
+    // Only treat [arr, pos] as a cycle when the code specifically represents a cycle problem (hasCycle / detectCycle)
+    // Preserves multi-argument functions like removeNthFromEnd(head, n) or insertAt(head, pos)
     const isCycleProblem =
-      Boolean(code && (/\b(hasCycle|detectCycle|cycle|loop)\b/i.test(code) || /\bpos\b/i.test(code)));
+      Boolean(code && /\b(hasCycle|detectCycle)\b/i.test(code));
 
     if (isCycleProblem && args.length === 2 && Array.isArray(args[0]) && typeof args[1] === 'number') {
       return [arrayToList(args[0], args[1])];

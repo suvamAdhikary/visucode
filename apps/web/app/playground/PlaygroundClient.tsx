@@ -13,7 +13,6 @@ import { DryRunViewer } from '../components/visualizer/DryRunViewer';
 import { traceUserCode } from '../../lib/tracer/tracer';
 import { validatePreflightInput } from '../../lib/tracer/input-validator';
 import type { LiveTraceResult, TraceDiagnostic, DiagnosticKind } from '../../lib/tracer/types';
-import { useVisualizerStore } from '../../lib/stores';
 import styles from './page.module.css';
 
 // Lazy-load Monaco
@@ -221,7 +220,6 @@ export default function PlaygroundClient() {
       setTraceResult(result);
 
       if (result.steps.length > 0) {
-        useVisualizerStore.getState().reset(result.steps.length);
         setActiveTab('stepper');
       }
 
