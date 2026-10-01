@@ -110,28 +110,50 @@ describe('ProblemTabs — Three Surfaces and F-LDR-S3-03', () => {
 
     // Default view is Official Dry Run rendering authored JSON explanation
     expect(screen.getByText('Authored Step 1: Initialize hash map')).toBeTruthy();
+
+    // Verify pane visibility
+    expect(screen.getByTestId('pane-official-dry-run').style.display).toBe('flex');
+    expect(screen.getByTestId('pane-live-dry-run').style.display).toBe('none');
+    expect(screen.getByTestId('pane-code').style.display).toBe('none');
   });
 
-  it('switches between Official Dry Run, Live Dry Run, and Code tabs', () => {
+  it('switches between Official Dry Run, Live Dry Run, and Code tabs and toggles pane visibility', () => {
     render(<ProblemTabs problem={mockProblem} />);
 
+    // Initial state
+    expect(screen.getByTestId('pane-official-dry-run').style.display).toBe('flex');
+    expect(screen.getByTestId('pane-live-dry-run').style.display).toBe('none');
+    expect(screen.getByTestId('pane-code').style.display).toBe('none');
+
+    // Switch to Live Dry Run
     const liveTab = screen.getByRole('tab', { name: /dry run my code/i });
     fireEvent.click(liveTab);
 
     expect(liveTab.getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByTestId('pane-official-dry-run').style.display).toBe('none');
+    expect(screen.getByTestId('pane-live-dry-run').style.display).toBe('flex');
+    expect(screen.getByTestId('pane-code').style.display).toBe('none');
     expect(screen.getByText(/ready to dry run your code/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /run dry run/i })).toBeTruthy();
 
+    // Switch to Code
     const codeTab = screen.getByRole('tab', { name: /your code/i });
     fireEvent.click(codeTab);
 
     expect(codeTab.getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByTestId('pane-official-dry-run').style.display).toBe('none');
+    expect(screen.getByTestId('pane-live-dry-run').style.display).toBe('none');
+    expect(screen.getByTestId('pane-code').style.display).toBe('flex');
     expect(screen.getByText(/solution\.js/i)).toBeTruthy();
 
+    // Switch back to Official Dry Run
     const officialTab = screen.getByRole('tab', { name: /official dry run/i });
     fireEvent.click(officialTab);
 
     expect(officialTab.getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByTestId('pane-official-dry-run').style.display).toBe('flex');
+    expect(screen.getByTestId('pane-live-dry-run').style.display).toBe('none');
+    expect(screen.getByTestId('pane-code').style.display).toBe('none');
     expect(screen.getByText('Authored Step 1: Initialize hash map')).toBeTruthy();
   });
 
@@ -167,6 +189,53 @@ describe('ProblemTabs — Three Surfaces and F-LDR-S3-03', () => {
 
     // Official Dry Run still renders authored JSON content
     expect(screen.getByText('Authored Step 1: Initialize hash map')).toBeTruthy();
+  });
+
+  it('falls back to example[0].input when testCases are absent', () => {
+    const problemWithoutTestCases: Problem = {
+      ...mockProblem,
+      testCases: [],
+      examples: [
+        {
+          input: 'nums = [2,7,11,15], target = 9',
+          output: '[0,1]',
+        },
+      ],
+    };
+
+    render(<ProblemTabs problem={problemWithoutTestCases} />);
+
+    const liveTab = screen.getByRole('tab', { name: /dry run my code/i });
+    fireEvent.click(liveTab);
+
+    const inputField = screen.getByTitle(/execution input arguments/i) as HTMLInputElement;
+    expect(inputField.value).toBe('nums = [2,7,11,15], target = 9');
+  });
+
+  it('executes custom user code edited in Monaco within Live Dry Run tab', async () => {
+    render(<ProblemTabs problem={mockProblem} />);
+
+    const liveTab = screen.getByRole('tab', { name: /dry run my code/i });
+    fireEvent.click(liveTab);
+
+    // Find Monaco editor mock in Live Dry Run pane
+    const livePane = screen.getByTestId('pane-live-dry-run');
+    const editor = livePane.querySelector('textarea') as HTMLTextAreaElement;
+
+    const customUserCode = `function twoSum(nums, target) {
+  let a = nums[0];
+  let b = nums[1];
+  return [0, 1];
+}`;
+
+    fireEvent.change(editor, { target: { value: customUserCode } });
+
+    const runBtn = screen.getByRole('button', { name: /run dry run/i });
+    fireEvent.click(runBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/⚡ live dry run/i)).toBeTruthy();
+    });
   });
 
   it('rejects oversized inputs at preflight in Live Dry Run tab (F-LDR-S1-08)', () => {

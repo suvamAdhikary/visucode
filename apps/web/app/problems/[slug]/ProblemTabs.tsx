@@ -49,6 +49,7 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
         {/* display:none preserves Monaco and stepper state when switching tabs */}
         <div
           className={styles.tabPane}
+          data-testid="pane-official-dry-run"
           style={{ display: activeTab === 'official-dry-run' ? 'flex' : 'none' }}
         >
           <DryRunViewer problem={problem} />
@@ -56,6 +57,7 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
 
         <div
           className={styles.tabPane}
+          data-testid="pane-live-dry-run"
           style={{ display: activeTab === 'live-dry-run' ? 'flex' : 'none' }}
         >
           <LiveDryRunTab problem={problem} />
@@ -63,6 +65,7 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
 
         <div
           className={styles.tabPane}
+          data-testid="pane-code"
           style={{ display: activeTab === 'code' ? 'flex' : 'none' }}
         >
           <CodeSubmit
