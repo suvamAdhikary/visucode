@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { LinkedListVisualizerState, Pointer } from '@visucode/shared-types';
-import { useVisualizerStore } from '../../../lib/stores';
+import { useScopedVisualizerStore } from '../../../lib/stores';
 import styles from './LinkedListVisualizer.module.css';
 
 interface LinkedListVisualizerProps {
@@ -29,7 +29,7 @@ export function LinkedListVisualizer({
   const containerRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [arrows, setArrows] = useState<ArrowLine[]>([]);
-  const { speed } = useVisualizerStore();
+  const { speed } = useScopedVisualizerStore();
 
   const animDuration = `${300 / speed}ms`;
 

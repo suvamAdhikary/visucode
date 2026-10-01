@@ -33,19 +33,34 @@ export function validatePreflightInput(rawInput: string | unknown): TracePreflig
       };
     }
 
-    try {
-      const parsed = JSON.parse(trimmed);
-      args = Array.isArray(parsed) ? parsed : [parsed];
-    } catch {
-      // Try wrapping in array if user passed comma-separated arguments: e.g. [1, 2, 3], 6
+    // Check if input uses LeetCode assignment prose like "head = [1,2,3,4,5]" or "nums = [2,7,11,15], target = 9"
+    const hasAssignments = /^[a-zA-Z_$][a-zA-Z0-9_$]*\s*=/i.test(trimmed);
+    if (hasAssignments) {
       try {
-        const wrapped = JSON.parse(`[${trimmed}]`);
-        args = wrapped;
+        const stripped = trimmed.replace(/\b[a-zA-Z_$][a-zA-Z0-9_$]*\s*=\s*/g, '');
+        const wrappedStripped = JSON.parse(`[${stripped}]`);
+        args = Array.isArray(wrappedStripped) ? wrappedStripped : [wrappedStripped];
       } catch {
         return {
           valid: false,
-          error: 'Input is not valid JSON. Please check syntax.',
+          error: 'Input has assignment syntax but contains invalid JSON values. Please check syntax.',
         };
+      }
+    } else {
+      try {
+        const parsed = JSON.parse(trimmed);
+        args = Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        // Try wrapping in array if user passed comma-separated arguments: e.g. [1, 2, 3], 6
+        try {
+          const wrapped = JSON.parse(`[${trimmed}]`);
+          args = wrapped;
+        } catch {
+          return {
+            valid: false,
+            error: 'Input is not valid JSON. Please check syntax.',
+          };
+        }
       }
     }
   } else if (Array.isArray(rawInput)) {

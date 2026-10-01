@@ -58,6 +58,19 @@
   margin-left: 0.25rem;
 }
 
+.liveBadge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  font-size: 0.625rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-left: 0.25rem;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
 .tabContent {
   flex: 1;
   position: relative;

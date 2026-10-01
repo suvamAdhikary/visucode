@@ -43,6 +43,15 @@ if (typeof self !== 'undefined' && typeof postMessage === 'function') {
       const executor = new Function(
         '__vc',
         `
+        var ListNode = typeof ListNode !== 'undefined' ? ListNode : function(val, next) {
+          this.val = (val === undefined ? 0 : val);
+          this.next = (next === undefined ? null : next);
+        };
+        var TreeNode = typeof TreeNode !== 'undefined' ? TreeNode : function(val, left, right) {
+          this.val = (val === undefined ? 0 : val);
+          this.left = (left === undefined ? null : left);
+          this.right = (right === undefined ? null : right);
+        };
         ${instrumentedCode}
         if (typeof ${functionName} === 'function') {
           return ${functionName}(...arguments[1]);

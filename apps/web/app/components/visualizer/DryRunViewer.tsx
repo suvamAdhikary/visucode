@@ -6,7 +6,7 @@
 // Connects CodeViewer + Visualizers + StepController + VariableInspector
 // Accepts either an authored Problem or arbitrary live { code, dryRunSteps }
 
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import type { Problem, DryRunStep } from '@visucode/shared-types';
 import { ArrayVisualizer } from './ArrayVisualizer';
 import { LinkedListVisualizer } from './LinkedListVisualizer';
@@ -22,7 +22,11 @@ import { BacktrackingVisualizer } from './BacktrackingVisualizer';
 import { StepController } from './StepController';
 import { VariableInspector } from './VariableInspector';
 import { CodeViewer } from '../editor/CodeViewer';
-import { useVisualizerStore } from '../../../lib/stores';
+import {
+  createVisualizerStore,
+  VisualizerStoreContext,
+  type VisualizerStoreType,
+} from '../../../lib/stores';
 import styles from './DryRunViewer.module.css';
 
 export interface DryRunViewerProps {
@@ -36,6 +40,7 @@ export interface DryRunViewerProps {
     timeComplexity?: string;
     spaceComplexity?: string;
   };
+  store?: VisualizerStoreType;
 }
 
 // Pattern color mapping
@@ -63,10 +68,22 @@ export function DryRunViewer({
   accentColor: customAccent,
   codeTitle = 'Code',
   complexity: customComplexity,
+  store: customStore,
 }: DryRunViewerProps) {
-  const { currentStep } = useVisualizerStore();
-
   const steps = problem?.dryRunSteps ?? customSteps ?? [];
+  const [localStore, setLocalStore] = useState(() => customStore ?? createVisualizerStore(steps.length));
+
+  useEffect(() => {
+    if (customStore) {
+      setLocalStore(customStore);
+    }
+  }, [customStore]);
+
+  useEffect(() => {
+    localStore.getState().reset(steps.length);
+  }, [steps, localStore]);
+
+  const currentStep = localStore((s) => s.currentStep);
   const step = steps[currentStep] ?? steps[0];
 
   const code = problem ? problem.solutions[0]?.code : customCode;
@@ -90,7 +107,8 @@ export function DryRunViewer({
   }
 
   return (
-    <div className={styles.dryRunViewer}>
+    <VisualizerStoreContext.Provider value={localStore}>
+      <div className={styles.dryRunViewer}>
       <h2 className={styles.dryRunTitle}>{title}</h2>
 
       {/* Code Viewer with active line highlight */}
@@ -195,5 +213,6 @@ export function DryRunViewer({
         onStepChange={handleStepChange}
       />
     </div>
-  );
+  </VisualizerStoreContext.Provider>
+);
 }

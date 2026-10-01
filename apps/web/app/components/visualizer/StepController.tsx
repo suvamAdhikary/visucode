@@ -7,7 +7,7 @@
 // Used in problem detail pages and dry run mode
 
 import { useEffect, useRef, useCallback } from 'react';
-import { useVisualizerStore } from '../../../lib/stores';
+import { useScopedVisualizerStore } from '../../../lib/stores';
 import styles from './StepController.module.css';
 
 interface StepControllerProps {
@@ -31,7 +31,7 @@ export function StepController({
     togglePlay,
     setSpeed,
     reset,
-  } = useVisualizerStore();
+  } = useScopedVisualizerStore();
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 

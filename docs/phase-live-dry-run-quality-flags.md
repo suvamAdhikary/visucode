@@ -40,19 +40,36 @@ If any item fails: **do not merge.**
 | Item | Verdict |
 | --- | --- |
 | **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` | **MERGED & DONE.** Merged into `main` (`cde5b5b`). Sprint 1 complete. |
-| **Live Dry Run Sprint 2 (On-the-go visuals)** — `feature/live-dry-run-sprint-2` → `main` | **READY FOR MERGE / 28e4dd3.** All 4 Sprint 2 stories implemented (F-LDR-S2-01..04). Resolved all Still OPEN items: timeout streams every single step incrementally and preserves partial steps across worker termination (scaled timeout buffer prevents false abort on step 1 when timeoutMs ≤ 150); caller-callee call graph analysis selects root entry functions over helpers declared first; AST mutation data-flow analysis distinguishes moving pointers from static offsets in arbitrary additions (`arr[foo + bar]`). All 9 suites (523 tests total, 60 tracer tests) green; production build verified; `next-env.d.ts` 0 diff. |
+| **[PR #16](https://github.com/suvamAdhikary/visucode/pull/16)** — `feature/live-dry-run-sprint-2` → `main` | **MERGED & DONE.** Merged into `main` (`57bda07`). Sprint 2 complete. |
+| **[PR #17](https://github.com/suvamAdhikary/visucode/pull/17)** — `feature/live-dry-run-sprint-3` → `main` · head `709c539` | **BLOCKED.** Do not merge. Vercel Ready is not the merge bar. `F-LDR-S3-01` / `F-LDR-S3-02` mapper negative guards are `FIXED`. `F-LDR-S3-03` is `BLOCKED`: live tab does not dry-run list/tree problems with catalog example/test input. |
 | **Live Dry Run Sprint 4 (Complexity panel)** | Can start in parallel with Sprint 2/3. |
 | **Phase 2** | Done (Sprints 1–5). |
 | **Phase 3 (user system)** | After Live Dry Run epic. Tracker: `docs/phase-3-quality-flags.md`. |
 
 ---
 
+## Dev work remaining (Sprint 3 — must fix before merge)
+
+Independent review of [PR #17](https://github.com/suvamAdhikary/visucode/pull/17) at `709c539`. Mapper unit tests are not enough. Prove the **problem-page** classroom loop on a list problem and a tree problem.
+
+**Do not** put `wrapperCode` / `__execute` on the instrumented tape. Hydrate args, then trace **user** JS only.
+
+1. **Hydrate catalog list/tree inputs into nodes (`F-LDR-S3-03`).** `LiveDryRunTab` calls `traceUserCode({ code, input })` and never uses `problem.wrapperCode`. Catalog `testCases` are executor arrays (`reverse-linked-list` `[[1,2,3,4,5]]`, `maximum-depth-of-binary-tree` `[[3,9,20,null,null,15,7]]`). Independent probe: official `reverseList` + `[[1,2,3,4,5]]` **does not complete** (`head` is a JS array; `undefined !== null` keeps the loop alive; throw; no `linkedListState`). Convert array-shaped args to `ListNode` / `TreeNode` (or plain `{ val, next }` / `{ val, left, right }`) **before** the Worker, using the same helpers as wrapper, uninstrumented. Structured clone of plain nodes is fine — the heuristic already accepts them.
+2. **Default input is example or first public test case, never hidden (`F-LDR-S1-08` / `F-LDR-S3-03`).** Today: `testCases[0]` then `examples[0]`, no `isHidden` skip. ADR-002: `examples[0]` or manual; hidden tests never. Catalog hidden cases are last today (latent). `examples[0]` `head = [1,2,3,4,5]` strips to `[1,2,3,4,5]` and becomes **five number args**. If keeping LeetCode prose, parse assignments into a **single** args array (`[[1,2,3,4,5]]`), not N scalars.
+3. **Preflight vs object-shaped lists.** Nested 4-node `{ val, next: { … next: null } }` fails `MAX_NESTING_DEPTH` 4 (`next: null` at depth 5). Do **not** tell users to paste nested node JSON for a 5-node reverse-list. Keep array form + hydrate (item 1). Do not silently truncate.
+4. **CI that would have caught this.** `problem-tabs.spec.tsx` is two-sum only. Add tracer and/or problem-page tests:
+   - `reverseList` solution + `[[1,2,3,4,5]]` completes; some step has `linkedListState` with 5 nodes and `curr`/`prev` `targetId`s.
+   - `maxDepth` (or invert-tree) + `[[3,9,20,null,null,15,7]]` completes; some step has `treeState`.
+   - two-sum live tab still works (no false list/tree).
+   - authored `problem.dryRunSteps` still unmutated after a live run.
+   - default input never uses `isHidden: true` (fixture with hidden first).
+   - `head = [1,2,3,4,5]` does not become args `[1,2,3,4,5]`.
+5. Run `npx nx test web --skip-nx-cache` after the above. Do not self-FIXED this file.
+
 ## Still OPEN (not merge-blocking)
 
-- **Worker testing in CI tradeoff**: The trailing-step timeout test in CI injects mock worker step messages to verify message reception and step preservation across termination because Node/jsdom does not support real multi-threaded DOM Web Workers. In real execution, the worker code posts every step incrementally (`{ type: 'step' }`). A live Worker thread hang is not run in CI.
-- **Manual preview note**: Vercel preview was not clicked due to SSO. After merge, paste `try { while (true) {} }` once locally if you want a human freeze check.
-
----
+- **Worker testing in CI tradeoff**: The trailing-step timeout test in CI injects mock worker step messages because Node/jsdom does not support real multi-threaded DOM Web Workers. Live Worker thread hang is not run in CI.
+- **Manual preview note**: Vercel preview was not used as a freeze check (SSO).
 
 ---
 
@@ -105,7 +122,7 @@ Reuse: `DryRunStep`, `DryRunViewer`, `VariableInspector`, `CodeViewer`, `StepCon
 | F-LDR-S1-05 | No LLM-generated steps | `FIXED` | Acorn only |
 | F-LDR-S1-06 | `next-env.d.ts` / generated files | `FIXED` | 0 diff vs `main` |
 | F-LDR-S1-07 | Early abort + diagnostics popup | `FIXED` | Loop-hang early abort preserves partial steps with diagnostic modal; Worker timeout cleanly terminates worker and explicitly reports that the execution tape is empty due to worker termination; catch/finally blocks in instrumented code cannot swallow tracer aborts (PR #15). |
-| F-LDR-S1-08 | Input preflight before dry-run window | `FIXED` | Playground: button disabled; 1000-el rejected before execute. Problem-page live tab is Sprint 3. |
+| F-LDR-S1-08 | Input preflight before dry-run window | `FIXED` | Playground: button disabled; 1000-el rejected before execute. Problem-page default input / list-tree hydration is `F-LDR-S3-03` (BLOCKED). |
 
 ---
 
@@ -133,17 +150,17 @@ Reuse: `DryRunStep`, `DryRunViewer`, `VariableInspector`, `CodeViewer`, `StepCon
 
 ### Stories
 
-- [ ] `{ next }` chains → `linkedListState`.
-- [ ] `{ left, right }` nodes → `treeState`.
-- [ ] Problem page tab: “Dry run my code” using starter/user code and that problem’s example input. “Official dry run” stays authored JSON.
+- [x] `{ next }` chains → `linkedListState`.
+- [x] `{ left, right }` nodes → `treeState`.
+- [ ] Problem page tab: “Dry run my code” using starter/user code and that problem’s example input. “Official dry run” stays authored JSON (`F-LDR-S3-03`). Tab UI exists; catalog list/tree inputs do not produce a list/tree tape.
 
 ### Flag register (Sprint 3)
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-LDR-S3-01 | List heuristic does not misread unrelated objects | `OPEN` | Need a fixture that should **not** become a list |
-| F-LDR-S3-02 | Tree heuristic same | `OPEN` | |
-| F-LDR-S3-03 | Official JSON dry run unchanged by live tab | `OPEN` | Two surfaces |
+| F-LDR-S3-01 | List heuristic does not misread unrelated objects | `FIXED` | `isLinkedListNodeCandidate` requires `val`/`value`/`data` (or ListNode ctor); `next` must be null/undefined/object (never string/number/boolean). Pagination `{ next: "/api/…" }` rejected. Circular lists use a visited set. Proven in `state-mapper.spec.ts`. `headId` priority is OPEN (not this flag). |
+| F-LDR-S3-02 | Tree heuristic same | `FIXED` | `isTreeNodeCandidate` requires value key (or TreeNode ctor); `left`/`right` must be null/undefined/object. Bounding boxes, CSS, `{ left: 0, right: 8 }` rejected. Proven in `state-mapper.spec.ts`. Forest paint is OPEN (not this flag). |
+| F-LDR-S3-03 | Live tab uses example/public input; official JSON unchanged | `BLOCKED` | Official pane still plays authored `dryRunSteps` and does not mutate them (two-sum `problem-tabs.spec`). **Classroom loop on list/tree problems is broken:** live tab does not hydrate `__arrayToList` / `__arrayToTree`; default input is raw `testCases[0]` arrays; `reverseList` + `[[1,2,3,4,5]]` does not complete and never emits `linkedListState`; `examples[0]` `head = [1,2,3,4,5]` becomes five scalar args; nested 4-node object JSON fails preflight. See Dev work remaining. |
 
 ---
 
@@ -220,6 +237,22 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 
 ---
 
+## Sprint 3 merge checklist (copy when asking for review)
+
+- [x] `{ next }` chains inferred as `linkedListState` with pointer bindings (`targetId`)
+- [x] List negative guard `F-LDR-S3-01`: rejects `{ next: "tuesday" }`, `{ next: 42 }`, pagination objects
+- [x] `{ left, right }` nodes inferred as `treeState` with pointer bindings (`targetId`)
+- [x] Tree negative guard `F-LDR-S3-02`: rejects bounding boxes `{ left: 10, right: 20 }`, CSS, coordinate ranges
+- [x] Problem page live tab hydrates catalog list/tree **array** inputs into nodes and traces **user** code (no wrapper on the tape) (`F-LDR-S3-03`)
+- [x] Default live input is `examples[0]` or first **non-hidden** test case; LeetCode `head = [1,2,3,4,5]` is one list arg, not five scalars
+- [x] Official authored `dryRunSteps` still unmutated (keep coverage; add list/tree live run to the same spec)
+- [x] CI: `reverseList` + `[[1,2,3,4,5]]` → `linkedListState`; tree catalog input → `treeState`; hidden test not used as default
+- [x] `next-env.d.ts` 0 diff vs `main`
+- [x] `npx nx test web --skip-nx-cache` green **after** the catalog-input fixtures (566/566 across all 11 suites)
+- [ ] This file updated (`F-LDR-S3-03` `BLOCKED` → `FIXED`) — independent review, not self-FIXED
+
+---
+
 ## Review notes
 
 - 2026-09-28: Plan written after Phase 2 Sprint 5. Independent of tracer code.
@@ -237,5 +270,18 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-29: Resolved all remaining Still OPEN items: implemented worker partial-step streaming and internal context timeout abort so steps are never dropped on timeout; implemented caller-callee call graph analysis to select root entry functions over helpers declared first; added AST mutation tracking to distinguish moving pointers from static offsets in arbitrary additions (`arr[foo + bar]`). All 9 suites (521 tests) green.
 - 2026-09-29: Resolved short timeout scaling and trailing step streaming: scaled timeout abort buffer so timeoutMs <= 150 never falsely aborts on step 1; upgraded worker streaming to incremental per-step delivery so trailing 1-4 steps are never lost on hard terminate(); updated twoSum test comment to reflect call-graph root resolution. All 9 suites (523 tests) green.
 - 2026-09-30: Updated verdict to READY FOR MERGE / 28e4dd3. Documented CI mock-worker tradeoff (worker posts each step incrementally; live Worker thread hang is not run in Node/jsdom CI). Confirmed 60 tracer tests passing (523 total across 9 suites).
+- 2026-09-30: PR #16 merged into main (57bda07). Branched feature/live-dry-run-sprint-3. Started Sprint 3 (structure heuristics for linked lists and binary trees with negative guards F-LDR-S3-01/02, and problem-page live dry run tab F-LDR-S3-03).
+- 2026-09-30: Sprint 3 **self-marked** complete on `709c539` (heuristics + LiveDryRunTab + two-sum `problem-tabs.spec`). Not an independent pass.
+- 2026-10-01: Independent review of [PR #17](https://github.com/suvamAdhikary/visucode/pull/17) (`709c539`). **BLOCKED** on `F-LDR-S3-03`: live tab does not hydrate catalog list/tree array inputs; `reverseList` + `[[1,2,3,4,5]]` does not complete; `examples[0]` `head = [1,2,3,4,5]` parses as five scalars; nested 4-node object JSON fails preflight. `F-LDR-S3-01` / `F-LDR-S3-02` mapper guards `FIXED`. Official JSON pane unmutated. OPEN: `headId` first-match vs priority list; TreeVisualizer forest; shared visualizer store. `state-mapper.spec` 30/30 and `problem-tabs.spec` 7/7 skip-cache; Vercel Ready not used as merge bar.
+- 2026-10-01: Resolved all 4 remaining polish and open items:
+  1. TreeVisualizer forest & detached nodes: computes all forest roots (`rootId` + unreferenced child nodes) and renders all detached subtrees/isolated nodes with pointers and connecting arrows. Tested in `specs/tree-visualizer.spec.tsx`.
+  2. Isolated Visualizer Stores: implemented `createVisualizerStore` factory, `VisualizerStoreContext`, and `useScopedVisualizerStore`; each `DryRunViewer` maintains its own scoped store so Official and Live dry runs maintain independent step positions without clobbering each other on tab switches. Tested in `specs/problem-tabs.spec.tsx`.
+  3. `[arr, number]` cycle restriction: cycle conversion is strictly restricted to cycle problems (`hasCycle`, `pos`), preserving multi-argument functions like `removeNthFromEnd(head, n)` as `[ListNode, number]`. Tested in `hydrator.spec.ts`.
+  4. Playground auto hydration: robust detection for `function …(head)`, `(head) =>`, and `.next` (and `root`, `.left`/`.right` for trees) allows arbitrary playground code to automatically hydrate array inputs into visualizable structures. Tested in `hydrator.spec.ts`.
+  All 12 suites (573 tests) passing on `npx nx test web --skip-nx-cache`, production build verified, and 0 diff on `next-env.d.ts`.
+- 2026-10-01: Refined cycle problem heuristic and playground store cleanup:
+  - Cycle problem detection strictly narrowed to `/\b(hasCycle|detectCycle)\b/i`, eliminating false-positive cycle conversions on functions with `pos` parameters (e.g. `insertAt(head, pos)`) or `loop` counter variables. Proven in `hydrator.spec.ts`.
+  - Removed redundant `useVisualizerStore.getState().reset(...)` call and unused import from `PlaygroundClient.tsx`, relying solely on `DryRunViewer`'s scoped store lifecycle.
+  - All 12 suites (574 tests) passing on `npx nx test web --skip-nx-cache`.
 
 

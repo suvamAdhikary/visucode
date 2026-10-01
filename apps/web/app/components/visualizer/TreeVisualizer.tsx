@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { TreeVisualizerState, Pointer } from '@visucode/shared-types';
-import { useVisualizerStore } from '../../../lib/stores';
+import { useScopedVisualizerStore } from '../../../lib/stores';
 import styles from './TreeVisualizer.module.css';
 
 interface TreeVisualizerProps {
@@ -27,7 +27,7 @@ export function TreeVisualizer({
   const containerRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [arrows, setArrows] = useState<ArrowLine[]>([]);
-  const { speed } = useVisualizerStore();
+  const { speed } = useScopedVisualizerStore();
 
   const animDuration = `${300 / speed}ms`;
 
@@ -84,9 +84,31 @@ export function TreeVisualizer({
     }
   });
 
+  const childIds = new Set<string>();
+  treeState.nodes.forEach((n) => {
+    if (n.leftId) childIds.add(n.leftId);
+    if (n.rightId) childIds.add(n.rightId);
+  });
+
+  const forestRoots: string[] = [];
+  if (treeState.rootId && treeState.nodes.some((n) => n.id === treeState.rootId)) {
+    forestRoots.push(treeState.rootId);
+  }
+
+  // Any node not referenced as a child of another node is a detached root
+  treeState.nodes.forEach((n) => {
+    if (!childIds.has(n.id) && !forestRoots.includes(n.id)) {
+      forestRoots.push(n.id);
+    }
+  });
+
+  const renderedNodes = new Set<string>();
+
   const renderNode = (nodeId: string): React.ReactNode => {
+    if (renderedNodes.has(nodeId)) return null;
     const node = treeState.nodes.find(n => n.id === nodeId);
     if (!node) return null;
+    renderedNodes.add(nodeId);
 
     const isHighlighted = treeState.highlightIds?.includes(node.id);
     const nodePointers = pointersByNode[node.id] || [];
@@ -154,7 +176,10 @@ export function TreeVisualizer({
         ))}
       </svg>
       <div className={styles.treeContainer}>
-        {treeState.rootId && renderNode(treeState.rootId)}
+        {forestRoots.map((rootId) => renderNode(rootId))}
+        {treeState.nodes
+          .filter((n) => !renderedNodes.has(n.id))
+          .map((n) => renderNode(n.id))}
       </div>
     </div>
   );
