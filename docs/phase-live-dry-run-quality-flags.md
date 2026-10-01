@@ -246,12 +246,12 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - [x] List negative guard `F-LDR-S3-01`: rejects `{ next: "tuesday" }`, `{ next: 42 }`, pagination objects
 - [x] `{ left, right }` nodes inferred as `treeState` with pointer bindings (`targetId`)
 - [x] Tree negative guard `F-LDR-S3-02`: rejects bounding boxes `{ left: 10, right: 20 }`, CSS, coordinate ranges
-- [ ] Problem page live tab hydrates catalog list/tree **array** inputs into nodes and traces **user** code (no wrapper on the tape) (`F-LDR-S3-03`)
-- [ ] Default live input is `examples[0]` or first **non-hidden** test case; LeetCode `head = [1,2,3,4,5]` is one list arg, not five scalars
+- [x] Problem page live tab hydrates catalog list/tree **array** inputs into nodes and traces **user** code (no wrapper on the tape) (`F-LDR-S3-03`)
+- [x] Default live input is `examples[0]` or first **non-hidden** test case; LeetCode `head = [1,2,3,4,5]` is one list arg, not five scalars
 - [x] Official authored `dryRunSteps` still unmutated (keep coverage; add list/tree live run to the same spec)
-- [ ] CI: `reverseList` + `[[1,2,3,4,5]]` → `linkedListState`; tree catalog input → `treeState`; hidden test not used as default
+- [x] CI: `reverseList` + `[[1,2,3,4,5]]` → `linkedListState`; tree catalog input → `treeState`; hidden test not used as default
 - [x] `next-env.d.ts` 0 diff vs `main`
-- [ ] `npx nx test web --skip-nx-cache` green **after** the catalog-input fixtures
+- [x] `npx nx test web --skip-nx-cache` green **after** the catalog-input fixtures (566/566 across all 11 suites)
 - [ ] This file updated (`F-LDR-S3-03` `BLOCKED` → `FIXED`) — independent review, not self-FIXED
 
 ---
@@ -276,5 +276,6 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-09-30: PR #16 merged into main (57bda07). Branched feature/live-dry-run-sprint-3. Started Sprint 3 (structure heuristics for linked lists and binary trees with negative guards F-LDR-S3-01/02, and problem-page live dry run tab F-LDR-S3-03).
 - 2026-09-30: Sprint 3 **self-marked** complete on `709c539` (heuristics + LiveDryRunTab + two-sum `problem-tabs.spec`). Not an independent pass.
 - 2026-10-01: Independent review of [PR #17](https://github.com/suvamAdhikary/visucode/pull/17) (`709c539`). **BLOCKED** on `F-LDR-S3-03`: live tab does not hydrate catalog list/tree array inputs; `reverseList` + `[[1,2,3,4,5]]` does not complete; `examples[0]` `head = [1,2,3,4,5]` parses as five scalars; nested 4-node object JSON fails preflight. `F-LDR-S3-01` / `F-LDR-S3-02` mapper guards `FIXED`. Official JSON pane unmutated. OPEN: `headId` first-match vs priority list; TreeVisualizer forest; shared visualizer store. `state-mapper.spec` 30/30 and `problem-tabs.spec` 7/7 skip-cache; Vercel Ready not used as merge bar.
+- 2026-10-01: Dev work completed for all `F-LDR-S3-03` review items: uninstrumented input hydration (`hydrator.ts`) for array-to-list (`arrayToList`) and array-to-tree (`arrayToTree`); wired `detectHydrationType` and `hydrateArgs` into `traceUserCode` and `LiveDryRunTab` so user code executes on hydrated nodes without wrapper code on the tape; updated assignment parsing in `input-validator.ts` so `head = [1,2,3,4,5]` parses into a single args array `[[1,2,3,4,5]]` (1 array argument, not five scalars); updated `getDefaultProblemInput` to always skip `isHidden: true` test cases; fixed `headId` and `rootId` priority matching in `state-mapper.ts` to iterate `LIST_PRIORITY_NAMES` and `TREE_PRIORITY_NAMES` in order; added unit and E2E tests in `hydrator.spec.ts`, `input-validator.spec.ts`, `state-mapper.spec.ts`, `tracer.spec.ts`, and `problem-tabs.spec.tsx`. All 11 suites (566 tests) passing on `npx nx test web --skip-nx-cache`, production build verified, and 0 diff on `next-env.d.ts`. Ready for independent review.
 
 

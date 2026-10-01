@@ -351,5 +351,96 @@ function second(x) { return x * 2; }`;
       (global as any).Worker = originalWorker;
     }
   });
+
+  describe('Hydrated Catalog Data Structure Execution (F-LDR-S3-03)', () => {
+    it('executes reverseList with catalog array input [[1,2,3,4,5]] and emits linkedListState with 5 nodes and curr/prev pointers', async () => {
+      const code = `function reverseList(head) {
+  let prev = null;
+  let curr = head;
+  while (curr !== null) {
+    let nxt = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = nxt;
+  }
+  return prev;
+}`;
+
+      const result = await traceUserCode({
+        code,
+        input: '[[1,2,3,4,5]]',
+        hydration: 'linked-list',
+      });
+
+      expect(result.completed).toBe(true);
+      expect(result.steps.length).toBeGreaterThan(0);
+
+      // Verify that linkedListState is captured on steps
+      const stepsWithList = result.steps.filter((s) => s.linkedListState !== undefined);
+      expect(stepsWithList.length).toBeGreaterThan(0);
+
+      // Some step has 5 nodes
+      const fiveNodeStep = stepsWithList.find((s) => s.linkedListState?.nodes.length === 5);
+      expect(fiveNodeStep).toBeDefined();
+      expect(fiveNodeStep?.linkedListState?.nodes.map((n) => n.value)).toEqual([1, 2, 3, 4, 5]);
+
+      // Verify pointers target node IDs
+      const stepWithCurr = result.steps.find((s) => s.pointers?.some((p) => p.name === 'curr'));
+      expect(stepWithCurr).toBeDefined();
+      const currPtr = stepWithCurr?.pointers?.find((p) => p.name === 'curr');
+      expect(currPtr?.targetId).toMatch(/^node-\d+$/);
+
+      const stepWithPrev = result.steps.find((s) => s.pointers?.some((p) => p.name === 'prev'));
+      expect(stepWithPrev).toBeDefined();
+      const prevPtr = stepWithPrev?.pointers?.find((p) => p.name === 'prev');
+      expect(prevPtr?.targetId).toMatch(/^node-\d+$/);
+    });
+
+    it('executes maxDepth with catalog tree input [[3,9,20,null,null,15,7]] and emits treeState', async () => {
+      const code = `function maxDepth(root) {
+  if (!root) return 0;
+  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+}`;
+
+      const result = await traceUserCode({
+        code,
+        input: '[[3,9,20,null,null,15,7]]',
+        hydration: 'tree',
+      });
+
+      expect(result.completed).toBe(true);
+      expect(result.returnValue).toBe(3);
+
+      const stepWithTree = result.steps.find((s) => s.treeState !== undefined);
+      expect(stepWithTree).toBeDefined();
+      expect(stepWithTree?.treeState?.nodes.length).toBeGreaterThanOrEqual(5);
+      expect(stepWithTree?.treeState?.nodes[0].value).toBe(3);
+    });
+
+    it('executes reverseList with LeetCode prose input "head = [1,2,3,4,5]"', async () => {
+      const code = `function reverseList(head) {
+  let prev = null;
+  let curr = head;
+  while (curr !== null) {
+    let nxt = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = nxt;
+  }
+  return prev;
+}`;
+
+      const result = await traceUserCode({
+        code,
+        input: 'head = [1,2,3,4,5]',
+        hydration: 'linked-list',
+      });
+
+      expect(result.completed).toBe(true);
+      const fiveNodeStep = result.steps.find((s) => s.linkedListState?.nodes.length === 5);
+      expect(fiveNodeStep).toBeDefined();
+    });
+  });
 });
+
 

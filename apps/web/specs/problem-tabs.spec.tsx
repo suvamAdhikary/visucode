@@ -274,4 +274,196 @@ describe('ProblemTabs — Three Surfaces and F-LDR-S3-03', () => {
 
     expect(inputField.value).toBe('[[2,7,11,15], 9]');
   });
+
+  it('hydrates linked list array input [[1,2,3,4,5]] and dry runs reverseList successfully (F-LDR-S3-03)', async () => {
+    const listProblem: Problem = {
+      slug: 'reverse-linked-list',
+      title: 'Reverse Linked List',
+      difficulty: 'Easy',
+      category: 'linked-list',
+      patterns: ['two-pointers'],
+      companies: ['Amazon'],
+      description: 'Reverse a singly linked list',
+      examples: [{ input: 'head = [1,2,3,4,5]', output: '[5,4,3,2,1]' }],
+      constraints: [],
+      hints: [],
+      realWorldUseCases: [],
+      externalLinks: [],
+      accessLevel: 'free',
+      starterCode: {
+        javascript: `function reverseList(head) {
+  let prev = null;
+  let curr = head;
+  while (curr !== null) {
+    let nxt = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = nxt;
+  }
+  return prev;
+}`,
+      },
+      solutions: [],
+      testCases: [
+        {
+          id: '1',
+          input: '[[1,2,3,4,5]]',
+          expected: '[5,4,3,2,1]',
+        },
+      ],
+      dryRunSteps: [
+        {
+          stepNumber: 0,
+          line: 1,
+          explanation: 'Authored reverse list step',
+          variables: [],
+        },
+      ],
+    };
+
+    render(<ProblemTabs problem={listProblem} />);
+
+    const liveTab = screen.getByRole('tab', { name: /dry run my code/i });
+    fireEvent.click(liveTab);
+
+    const inputField = screen.getByTitle(/execution input arguments/i) as HTMLInputElement;
+    expect(inputField.value).toBe('[[1,2,3,4,5]]');
+
+    const runBtn = screen.getByRole('button', { name: /run dry run/i });
+    fireEvent.click(runBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/⚡ live dry run/i)).toBeTruthy();
+    });
+
+    // Ensure authored JSON dryRunSteps unmutated
+    expect(listProblem.dryRunSteps[0].explanation).toBe('Authored reverse list step');
+  });
+
+  it('hydrates binary tree array input [[3,9,20,null,null,15,7]] and dry runs maxDepth successfully (F-LDR-S3-03)', async () => {
+    const treeProblem: Problem = {
+      slug: 'maximum-depth-of-binary-tree',
+      title: 'Maximum Depth of Binary Tree',
+      difficulty: 'Easy',
+      category: 'tree',
+      patterns: ['dfs'],
+      companies: ['Amazon'],
+      description: 'Maximum depth of binary tree',
+      examples: [{ input: 'root = [3,9,20,null,null,15,7]', output: '3' }],
+      constraints: [],
+      hints: [],
+      realWorldUseCases: [],
+      externalLinks: [],
+      accessLevel: 'free',
+      starterCode: {
+        javascript: `function maxDepth(root) {
+  if (!root) return 0;
+  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+}`,
+      },
+      solutions: [],
+      testCases: [
+        {
+          id: '1',
+          input: '[[3,9,20,null,null,15,7]]',
+          expected: '3',
+        },
+      ],
+      dryRunSteps: [
+        {
+          stepNumber: 0,
+          line: 1,
+          explanation: 'Authored tree step',
+          variables: [],
+        },
+      ],
+    };
+
+    render(<ProblemTabs problem={treeProblem} />);
+
+    const liveTab = screen.getByRole('tab', { name: /dry run my code/i });
+    fireEvent.click(liveTab);
+
+    const inputField = screen.getByTitle(/execution input arguments/i) as HTMLInputElement;
+    expect(inputField.value).toBe('[[3,9,20,null,null,15,7]]');
+
+    const runBtn = screen.getByRole('button', { name: /run dry run/i });
+    fireEvent.click(runBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/⚡ live dry run/i)).toBeTruthy();
+    });
+  });
+
+  it('skips hidden test cases when selecting default live dry run input (ADR-002, F-LDR-S1-08)', () => {
+    const problemWithHiddenFirst: Problem = {
+      ...mockProblem,
+      testCases: [
+        {
+          id: 'secret-1',
+          input: '[[99999], 1]',
+          expected: '[-1, -1]',
+          isHidden: true,
+        },
+        {
+          id: 'public-1',
+          input: '[[2,7,11,15], 9]',
+          expected: '[0, 1]',
+          isHidden: false,
+        },
+      ],
+    };
+
+    render(<ProblemTabs problem={problemWithHiddenFirst} />);
+
+    const liveTab = screen.getByRole('tab', { name: /dry run my code/i });
+    fireEvent.click(liveTab);
+
+    const inputField = screen.getByTitle(/execution input arguments/i) as HTMLInputElement;
+    // Must be the first non-hidden test case!
+    expect(inputField.value).toBe('[[2,7,11,15], 9]');
+  });
+
+  it('handles LeetCode prose input head = [1,2,3,4,5] without converting to five scalar args', async () => {
+    const proseProblem: Problem = {
+      ...mockProblem,
+      slug: 'reverse-linked-list',
+      category: 'linked-list',
+      starterCode: {
+        javascript: `function reverseList(head) {
+  let prev = null;
+  let curr = head;
+  while (curr !== null) {
+    let nxt = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = nxt;
+  }
+  return prev;
+}`,
+      },
+      testCases: [],
+      examples: [
+        {
+          input: 'head = [1,2,3,4,5]',
+          output: '[5,4,3,2,1]',
+        },
+      ],
+    };
+
+    render(<ProblemTabs problem={proseProblem} />);
+
+    const liveTab = screen.getByRole('tab', { name: /dry run my code/i });
+    fireEvent.click(liveTab);
+
+    const inputField = screen.getByTitle(/execution input arguments/i) as HTMLInputElement;
+    expect(inputField.value).toBe('head = [1,2,3,4,5]');
+
+    const runBtn = screen.getByRole('button', { name: /run dry run/i });
+    fireEvent.click(runBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/⚡ live dry run/i)).toBeTruthy();
+    });
+  });
 });

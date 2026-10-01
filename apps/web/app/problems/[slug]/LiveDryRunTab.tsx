@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { DryRunViewer } from './DryRunViewer';
 import { traceUserCode } from '../../../lib/tracer/tracer';
 import { validatePreflightInput } from '../../../lib/tracer/input-validator';
+import { detectHydrationType } from '../../../lib/tracer/hydrator';
 import type { LiveTraceResult, TraceDiagnostic } from '../../../lib/tracer/types';
 import { useVisualizerStore } from '../../../lib/stores';
 import type { Problem } from '@visucode/shared-types';
@@ -30,12 +31,21 @@ interface LiveDryRunTabProps {
   problem: Problem;
 }
 
+export function getDefaultProblemInput(problem: Problem): string {
+  // ADR-002: examples[0] or first public test case, never hidden tests
+  const publicTestCase = problem.testCases?.find((tc) => !tc.isHidden);
+  if (publicTestCase?.input) {
+    return publicTestCase.input;
+  }
+  if (problem.examples?.[0]?.input) {
+    return problem.examples[0].input;
+  }
+  return '[]';
+}
+
 export function LiveDryRunTab({ problem }: LiveDryRunTabProps) {
   const initialCode = problem.starterCode?.['javascript'] || '';
-  const initialInput =
-    problem.testCases?.[0]?.input ||
-    problem.examples?.[0]?.input ||
-    '[]';
+  const initialInput = getDefaultProblemInput(problem);
 
   const [code, setCode] = useState(initialCode);
   const [input, setInput] = useState(initialInput);
@@ -60,8 +70,9 @@ export function LiveDryRunTab({ problem }: LiveDryRunTabProps) {
     setDiagnostic(null);
 
     try {
-      // 2. Sandboxed execution in Web Worker
-      const result = await traceUserCode({ code, input });
+      // 2. Sandboxed execution in Web Worker with input hydration (F-LDR-S3-03)
+      const hydration = detectHydrationType(problem);
+      const result = await traceUserCode({ code, input, hydration });
       setTraceResult(result);
 
       if (result.steps.length > 0) {

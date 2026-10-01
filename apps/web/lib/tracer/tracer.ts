@@ -1,6 +1,7 @@
 import type { DryRunStep } from '@visucode/shared-types';
 import { validatePreflightInput } from './input-validator';
 import { instrumentCode } from './instrumenter';
+import { hydrateArgs, type HydrationType } from './hydrator';
 import type { LiveTraceResult, DiagnosticKind } from './types';
 import {
   ExecutionTracerContext,
@@ -19,6 +20,7 @@ export interface TraceOptions {
   input: string | unknown;
   timeoutMs?: number;
   functionName?: string;
+  hydration?: HydrationType;
 }
 
 /**
@@ -32,7 +34,13 @@ export interface TraceOptions {
  * - Fails closed in production if Web Worker is unavailable (zero UI-thread new Function)
  */
 export async function traceUserCode(options: TraceOptions): Promise<LiveTraceResult> {
-  const { code, input, timeoutMs = 2000, functionName: requestedFunctionName } = options;
+  const {
+    code,
+    input,
+    timeoutMs = 2000,
+    functionName: requestedFunctionName,
+    hydration,
+  } = options;
 
   // 1. Preflight input validation (before Worker or navigation)
   const preflight = validatePreflightInput(input);
@@ -70,7 +78,8 @@ export async function traceUserCode(options: TraceOptions): Promise<LiveTraceRes
     detectedIndexVariables,
     detectedCoordinatePairs,
   } = instrumentResult;
-  const args = preflight.args || [];
+  const rawArgs = preflight.args || [];
+  const args = hydrateArgs(rawArgs, hydration, code);
 
   // 3. Worker environment check (F-LDR-S1-01)
   if (typeof Worker === 'undefined') {
@@ -222,6 +231,15 @@ export function executeTraceSync(
     const executor = new Function(
       '__vc',
       `
+      var ListNode = typeof ListNode !== 'undefined' ? ListNode : function(val, next) {
+        this.val = (val === undefined ? 0 : val);
+        this.next = (next === undefined ? null : next);
+      };
+      var TreeNode = typeof TreeNode !== 'undefined' ? TreeNode : function(val, left, right) {
+        this.val = (val === undefined ? 0 : val);
+        this.left = (left === undefined ? null : left);
+        this.right = (right === undefined ? null : right);
+      };
       ${instrumentedCode}
       if (typeof ${functionName} === 'function') {
         return ${functionName}(...arguments[1]);

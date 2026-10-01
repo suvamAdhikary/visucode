@@ -102,4 +102,31 @@ describe('validatePreflightInput', () => {
     expect(res.valid).toBe(false);
     expect(res.error).toContain('exceeds maximum limit of 2KB');
   });
+
+  describe('LeetCode assignment prose parsing (F-LDR-S3-03)', () => {
+    it('parses head = [1,2,3,4,5] into a single array argument, not five scalars', () => {
+      const res = validatePreflightInput('head = [1,2,3,4,5]');
+      expect(res.valid).toBe(true);
+      expect(res.args).toBeDefined();
+      expect(res.args?.length).toBe(1);
+      expect(res.args?.[0]).toEqual([1, 2, 3, 4, 5]);
+    });
+
+    it('parses nums = [2,7,11,15], target = 9 into two arguments: [array, scalar]', () => {
+      const res = validatePreflightInput('nums = [2,7,11,15], target = 9');
+      expect(res.valid).toBe(true);
+      expect(res.args).toBeDefined();
+      expect(res.args?.length).toBe(2);
+      expect(res.args?.[0]).toEqual([2, 7, 11, 15]);
+      expect(res.args?.[1]).toBe(9);
+    });
+
+    it('parses root = [3,9,20,null,null,15,7] into a single array argument', () => {
+      const res = validatePreflightInput('root = [3,9,20,null,null,15,7]');
+      expect(res.valid).toBe(true);
+      expect(res.args?.length).toBe(1);
+      expect(res.args?.[0]).toEqual([3, 9, 20, null, null, 15, 7]);
+    });
+  });
 });
+

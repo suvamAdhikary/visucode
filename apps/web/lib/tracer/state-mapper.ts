@@ -203,10 +203,15 @@ export function extractLinkedList(entries: [string, any][]): {
     return { pointers: [], nodeObjects: new Set() };
   }
 
-  // 1. Identify head/start node
-  let rootEntry = candidateEntries.find(([k]) =>
-    LIST_PRIORITY_NAMES.includes(k.toLowerCase())
-  );
+  // 1. Identify head/start node (walk priority list in order so 'head' takes precedence over 'curr')
+  let rootEntry: [string, any] | undefined;
+  for (const prio of LIST_PRIORITY_NAMES) {
+    const found = candidateEntries.find(([k]) => k.toLowerCase() === prio);
+    if (found) {
+      rootEntry = found;
+      break;
+    }
+  }
   if (!rootEntry) {
     const nextRefs = new Set<any>();
     for (const [, node] of candidateEntries) {
@@ -315,10 +320,15 @@ export function extractTree(entries: [string, any][]): {
     return { pointers: [], nodeObjects: new Set() };
   }
 
-  // 1. Identify root node
-  let rootEntry = candidateEntries.find(([k]) =>
-    TREE_PRIORITY_NAMES.includes(k.toLowerCase())
-  );
+  // 1. Identify root node (walk priority list in order so 'root' takes precedence over 'node')
+  let rootEntry: [string, any] | undefined;
+  for (const prio of TREE_PRIORITY_NAMES) {
+    const found = candidateEntries.find(([k]) => k.toLowerCase() === prio);
+    if (found) {
+      rootEntry = found;
+      break;
+    }
+  }
   if (!rootEntry) {
     const childRefs = new Set<any>();
     for (const [, node] of candidateEntries) {
