@@ -9,8 +9,10 @@ import {
   setCurrentTrack,
   resetProgress,
   subscribeProgress,
+  invalidateProgressCache,
   _clearCacheForTesting,
 } from '../progress.service';
+import { usePreferencesStore } from '../../stores/preferences.store';
 
 describe('Progress Service (Phase 3 Sprint 1, F-P3S1-01, F-P3S1-02)', () => {
   beforeEach(() => {
@@ -242,4 +244,42 @@ describe('Progress Service (Phase 3 Sprint 1, F-P3S1-01, F-P3S1-02)', () => {
       expect(callback).toHaveBeenCalledTimes(3);
     });
   });
+
+  describe('Preferences Synchronization & Cache Invalidation', () => {
+    it('invalidates cache with invalidateProgressCache() and exports _clearCacheForTesting alias', () => {
+      markProblemComplete('two-sum');
+      expect(getProgress().completedProblems).toContain('two-sum');
+
+      invalidateProgressCache();
+      expect(getProgress().completedProblems).toContain('two-sum');
+      expect(_clearCacheForTesting).toBe(invalidateProgressCache);
+    });
+
+    it('synchronizes preferences store updates into the stored progress snapshot', () => {
+      // Initialize progress in localStorage
+      getProgress();
+      const uid = getProgress().userId;
+      const storageKey = `visucode_progress_${uid}`;
+
+      // Update preference in Zustand
+      usePreferencesStore.getState().setTheme('light');
+      usePreferencesStore.getState().setEditorFontSize(18);
+
+      // Verify that progress storage snapshot was updated
+      const raw = localStorage.getItem(storageKey);
+      expect(raw).toBeTruthy();
+      const parsed = JSON.parse(raw!);
+      expect(parsed.preferences.theme).toBe('light');
+      expect(parsed.preferences.editorFontSize).toBe(18);
+
+      // Verify getProgress() returns the live synchronized preferences
+      expect(getProgress().preferences.theme).toBe('light');
+      expect(getProgress().preferences.editorFontSize).toBe(18);
+
+      // Reset back to dark for other tests
+      usePreferencesStore.getState().setTheme('dark');
+      usePreferencesStore.getState().setEditorFontSize(14);
+    });
+  });
 });
+

@@ -70,12 +70,16 @@ let cachedProgress: UserProgress | null = null;
 const listeners = new Set<() => void>();
 
 /**
- * Clears in-memory snapshot cache. Used in tests to simulate fresh page load.
+ * Invalidates the in-memory progress snapshot cache.
+ * Call when storage is updated externally, upon session changes, or in tests.
  */
-export function _clearCacheForTesting(): void {
+export function invalidateProgressCache(): void {
   cachedRawString = null;
   cachedProgress = null;
 }
+
+// Retain alias for test compatibility
+export const _clearCacheForTesting = invalidateProgressCache;
 
 function notifySubscribers() {
   listeners.forEach((callback) => {
@@ -99,9 +103,42 @@ function notifySubscribers() {
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (event) => {
     if (event.key && event.key.startsWith(PROGRESS_KEY_PREFIX)) {
-      cachedRawString = null;
-      cachedProgress = null;
+      invalidateProgressCache();
       notifySubscribers();
+    }
+  });
+
+  // Keep progress snapshot in sync with canonical preferences store
+  usePreferencesStore.subscribe((state) => {
+    if (typeof localStorage === 'undefined') return;
+    const key = getStorageKey();
+    let raw: string | null = null;
+    try {
+      raw = localStorage.getItem(key);
+    } catch {
+      return;
+    }
+    if (!raw) return;
+    try {
+      const current = JSON.parse(raw);
+      const updatedPrefs: UserPreferences = {
+        theme: state.theme ?? 'dark',
+        editorFontSize: state.editorFontSize ?? 14,
+        visualizerSpeed: state.visualizerSpeed ?? 1,
+        language: (state.language === 'python' ? 'python' : 'javascript') as 'javascript' | 'python',
+      };
+      if (
+        current.preferences?.theme !== updatedPrefs.theme ||
+        current.preferences?.editorFontSize !== updatedPrefs.editorFontSize ||
+        current.preferences?.visualizerSpeed !== updatedPrefs.visualizerSpeed ||
+        current.preferences?.language !== updatedPrefs.language
+      ) {
+        current.preferences = updatedPrefs;
+        saveProgressToStorage(current);
+        notifySubscribers();
+      }
+    } catch {
+      // Safe no-op if json parse fails
     }
   });
 }

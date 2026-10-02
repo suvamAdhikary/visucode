@@ -8,11 +8,14 @@ import {
   setCurrentTrack,
   resetProgress,
 } from '../lib/services/progress.service';
-import { listProblems, listPatterns } from '../lib/services';
+import { listProblems, listPatterns, listTracks } from '../lib/services';
+import ProfilePage from '../app/profile/page';
 
 describe('Profile Page Integration (Phase 3 Sprint 1, F-P3S1-03)', () => {
   const problems = listProblems();
   const patterns = listPatterns();
+  const tracks = listTracks();
+  const totalLessons = tracks.reduce((sum, t) => sum + (t.lessons?.length || 0), 0);
 
   beforeEach(() => {
     localStorage.clear();
@@ -111,10 +114,26 @@ describe('Profile Page Integration (Phase 3 Sprint 1, F-P3S1-03)', () => {
     markLessonComplete('two-pointers-intro');
     setCurrentTrack('arrays', 3);
 
-    render(<ProfileClient allProblems={problems} patterns={patterns} totalLessons={5} />);
+    render(
+      <ProfileClient
+        allProblems={problems}
+        patterns={patterns}
+        totalLessons={totalLessons}
+      />
+    );
 
     expect(screen.getByTestId('profile-total-lessons').textContent).toBe('2');
-    expect(screen.getByText('/ 5 completed')).toBeTruthy();
+    expect(screen.getByText(`/ ${totalLessons} completed`)).toBeTruthy();
     expect(screen.getByText(/Arrays \(L3\) →/i)).toBeTruthy();
+  });
+
+  it('ProfilePage server component computes totalLessons dynamically from listTracks()', () => {
+    markLessonComplete('what-is-an-array');
+
+    render(<ProfilePage />);
+
+    expect(screen.getByText('Developer Profile')).toBeTruthy();
+    expect(screen.getByTestId('profile-total-lessons').textContent).toBe('1');
+    expect(screen.getByText(`/ ${totalLessons} completed`)).toBeTruthy();
   });
 });
