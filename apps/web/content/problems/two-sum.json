@@ -29,8 +29,12 @@
     {
       "language": "javascript",
       "code": "function twoSum(nums, target) {\n    const map = new Map();\n    for (let i = 0; i < nums.length; i++) {\n        const diff = target - nums[i];\n        if (map.has(diff)) return [map.get(diff), i];\n        map.set(nums[i], i);\n    }\n    return [];\n}",
+      "explanation": "Use a hash map to look up the complement (target - num) in O(1) time while iterating through the array.",
       "timeComplexity": "O(N)",
-      "spaceComplexity": "O(N)"
+      "spaceComplexity": "O(N)",
+      "timeComplexityWhy": "Iterates through the array of N elements once, performing O(1) hash map lookups and insertions for complements.",
+      "spaceComplexityWhy": "In the worst case where no matching pair is found until the end, the hash map stores up to N elements.",
+      "complexityClass": "linear"
     }
   ],
   "testCases": [

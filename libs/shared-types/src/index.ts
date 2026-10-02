@@ -72,12 +72,23 @@ export interface ExternalLink {
     problemId?: string;
 }
 
+export type ComplexityClass =
+    | 'constant'
+    | 'logarithmic'
+    | 'linear'
+    | 'linearithmic'
+    | 'quadratic'
+    | 'exponential';
+
 export interface Solution {
     language: Language;
     code: string;
     timeComplexity: string;
     spaceComplexity: string;
     explanation?: string;
+    timeComplexityWhy?: string;
+    spaceComplexityWhy?: string;
+    complexityClass?: ComplexityClass;
 }
 
 export interface Pointer {

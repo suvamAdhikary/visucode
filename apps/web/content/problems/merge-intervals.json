@@ -28,8 +28,12 @@
     {
       "language": "javascript",
       "code": "function merge(intervals) {\n    if (!intervals.length) return [];\n    intervals.sort((a, b) => a[0] - b[0]);\n    const res = [intervals[0]];\n    for (let i = 1; i < intervals.length; i++) {\n        const last = res[res.length - 1];\n        const curr = intervals[i];\n        if (curr[0] <= last[1]) last[1] = Math.max(last[1], curr[1]);\n        else res.push(curr);\n    }\n    return res;\n}",
+      "explanation": "Sort intervals by start time. Iterate through them, merging overlapping intervals into the current interval or starting a new interval.",
       "timeComplexity": "O(N log N)",
-      "spaceComplexity": "O(1)"
+      "spaceComplexity": "O(1)",
+      "timeComplexityWhy": "Sorting intervals by start time takes O(N log N), followed by a single linear O(N) sweep to merge overlapping pairs.",
+      "spaceComplexityWhy": "The merged intervals list stores up to N non-overlapping output intervals.",
+      "complexityClass": "linearithmic"
     }
   ],
   "testCases": [

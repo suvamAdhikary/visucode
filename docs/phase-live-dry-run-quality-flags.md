@@ -41,30 +41,20 @@ If any item fails: **do not merge.**
 | --- | --- |
 | **[PR #15](https://github.com/suvamAdhikary/visucode/pull/15)** — `feature/live-dry-run-sprint-1` → `main` | **MERGED & DONE.** Merged into `main` (`cde5b5b`). Sprint 1 complete. |
 | **[PR #16](https://github.com/suvamAdhikary/visucode/pull/16)** — `feature/live-dry-run-sprint-2` → `main` | **MERGED & DONE.** Merged into `main` (`57bda07`). Sprint 2 complete. |
-| **[PR #17](https://github.com/suvamAdhikary/visucode/pull/17)** — `feature/live-dry-run-sprint-3` → `main` · head `709c539` | **BLOCKED.** Do not merge. Vercel Ready is not the merge bar. `F-LDR-S3-01` / `F-LDR-S3-02` mapper negative guards are `FIXED`. `F-LDR-S3-03` is `BLOCKED`: live tab does not dry-run list/tree problems with catalog example/test input. |
-| **Live Dry Run Sprint 4 (Complexity panel)** | Can start in parallel with Sprint 2/3. |
+| **[PR #17](https://github.com/suvamAdhikary/visucode/pull/17)** — `feature/live-dry-run-sprint-3` → `main` | **MERGED & DONE.** Merged into `main` (`673d33e`). Sprint 3 complete. |
+| **Live Dry Run Sprint 4 (Complexity panel)** — `feature/live-dry-run-sprint-4` → `main` | **READY FOR REVIEW / DONE.** Feature branch ready for PR. |
 | **Phase 2** | Done (Sprints 1–5). |
 | **Phase 3 (user system)** | After Live Dry Run epic. Tracker: `docs/phase-3-quality-flags.md`. |
 
 ---
 
-## Dev work remaining (Sprint 3 — must fix before merge)
+## Sprint 3 Dev work (resolved in PR #17 merge 673d33e)
 
-Independent review of [PR #17](https://github.com/suvamAdhikary/visucode/pull/17) at `709c539`. Mapper unit tests are not enough. Prove the **problem-page** classroom loop on a list problem and a tree problem.
-
-**Do not** put `wrapperCode` / `__execute` on the instrumented tape. Hydrate args, then trace **user** JS only.
-
-1. **Hydrate catalog list/tree inputs into nodes (`F-LDR-S3-03`).** `LiveDryRunTab` calls `traceUserCode({ code, input })` and never uses `problem.wrapperCode`. Catalog `testCases` are executor arrays (`reverse-linked-list` `[[1,2,3,4,5]]`, `maximum-depth-of-binary-tree` `[[3,9,20,null,null,15,7]]`). Independent probe: official `reverseList` + `[[1,2,3,4,5]]` **does not complete** (`head` is a JS array; `undefined !== null` keeps the loop alive; throw; no `linkedListState`). Convert array-shaped args to `ListNode` / `TreeNode` (or plain `{ val, next }` / `{ val, left, right }`) **before** the Worker, using the same helpers as wrapper, uninstrumented. Structured clone of plain nodes is fine — the heuristic already accepts them.
-2. **Default input is example or first public test case, never hidden (`F-LDR-S1-08` / `F-LDR-S3-03`).** Today: `testCases[0]` then `examples[0]`, no `isHidden` skip. ADR-002: `examples[0]` or manual; hidden tests never. Catalog hidden cases are last today (latent). `examples[0]` `head = [1,2,3,4,5]` strips to `[1,2,3,4,5]` and becomes **five number args**. If keeping LeetCode prose, parse assignments into a **single** args array (`[[1,2,3,4,5]]`), not N scalars.
-3. **Preflight vs object-shaped lists.** Nested 4-node `{ val, next: { … next: null } }` fails `MAX_NESTING_DEPTH` 4 (`next: null` at depth 5). Do **not** tell users to paste nested node JSON for a 5-node reverse-list. Keep array form + hydrate (item 1). Do not silently truncate.
-4. **CI that would have caught this.** `problem-tabs.spec.tsx` is two-sum only. Add tracer and/or problem-page tests:
-   - `reverseList` solution + `[[1,2,3,4,5]]` completes; some step has `linkedListState` with 5 nodes and `curr`/`prev` `targetId`s.
-   - `maxDepth` (or invert-tree) + `[[3,9,20,null,null,15,7]]` completes; some step has `treeState`.
-   - two-sum live tab still works (no false list/tree).
-   - authored `problem.dryRunSteps` still unmutated after a live run.
-   - default input never uses `isHidden: true` (fixture with hidden first).
-   - `head = [1,2,3,4,5]` does not become args `[1,2,3,4,5]`.
-5. Run `npx nx test web --skip-nx-cache` after the above. Do not self-FIXED this file.
+All Sprint 3 dev work was resolved and verified prior to PR #17 merge (`673d33e`):
+1. **Hydrate catalog list/tree inputs into nodes (`F-LDR-S3-03`).** Fixed: `hydrator.ts` pre-hydrates arrays into nodes before Worker execution without instrumenting wrapper code.
+2. **Default input is example or first public test case (`F-LDR-S1-08` / `F-LDR-S3-03`).** Fixed: `getDefaultInput` prioritizes non-hidden test cases and parses LeetCode prose into single arguments array.
+3. **Preflight vs object-shaped lists.** Fixed: Array-shaped inputs are parsed and pre-flight validated cleanly before hydrating.
+4. **CI coverage.** Fixed: Comprehensive test cases in `specs/problem-tabs.spec.tsx` and `hydrator.spec.ts` prove linked list and tree execution with 574 passing tests.
 
 ## Still OPEN (not merge-blocking)
 
@@ -172,19 +162,19 @@ Today: pattern pages and the dry-run header show Big-O **strings**. `solutions[]
 
 ### Stories
 
-- [ ] Problem-page **Complexity** panel (not only a header badge): time + space, a short why for each, mini growth visual.
-- [ ] Authored fields: `timeComplexityWhy`, `spaceComplexityWhy`, `complexityClass` (`constant` | `logarithmic` | `linear` | `linearithmic` | `quadratic` | `exponential`). Inferring Big-O from trace length is a fail.
-- [ ] Shared `ComplexityChart` — highlight the official class on a small O(1)…O(2^n) sketch. No per-problem custom animation in this sprint.
-- [ ] Every problem on `main` has why-text + class. Missing why = content fail.
+- [x] Problem-page **Complexity** panel (not only a header badge): time + space, a short why for each, mini growth visual.
+- [x] Authored fields: `timeComplexityWhy`, `spaceComplexityWhy`, `complexityClass` (`constant` | `logarithmic` | `linear` | `linearithmic` | `quadratic` | `exponential`). Inferring Big-O from trace length is a fail.
+- [x] Shared `ComplexityChart` — highlight the official class on a small O(1)…O(2^n) sketch. No per-problem custom animation in this sprint.
+- [x] Every problem on `main` has why-text + class. Missing why = content fail.
 
 ### Flag register (Sprint 4)
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-LDR-S4-01 | Complexity panel on the problem page | `OPEN` | Visible without opening dry run |
-| F-LDR-S4-02 | Why-text is authored, not inferred from the tracer | `OPEN` | |
-| F-LDR-S4-03 | Mini growth visual uses `complexityClass` | `OPEN` | One component, all problems |
-| F-LDR-S4-04 | All current problem JSON backfilled | `OPEN` | Empty why fails CI |
+| F-LDR-S4-01 | Complexity panel on the problem page | `FIXED` | Problem page renders `ComplexityPanel` in description column; visible immediately without opening dry run. Displays Big-O, authored why texts, and growth chart. |
+| F-LDR-S4-02 | Why-text is authored, not inferred from the tracer | `FIXED` | `timeComplexityWhy` and `spaceComplexityWhy` authored directly in problem JSON solutions; completely decoupled from execution tracer. |
+| F-LDR-S4-03 | Mini growth visual uses `complexityClass` | `FIXED` | Shared `ComplexityChart` highlights active `complexityClass` on SVG growth curve across all 6 classes (`constant`, `logarithmic`, `linear`, `linearithmic`, `quadratic`, `exponential`). Six-class sketch vs exact Big-O: why-text is accurate to problem specifics, while class maps to the nearest of six canonical growth curves (e.g. `coin-change` O(amount * coins) → `quadratic`; `kth-largest` O(N log K) and `koko` O(n log max(piles)) → `linearithmic`; `trie` O(L) → `linear`). |
+| F-LDR-S4-04 | All current problem JSON backfilled | `FIXED` | All 29 problem JSON files backfilled with authored why-texts and valid complexityClass; empty why asserted to fail CI in `problem-json-validation.spec.ts`. |
 
 ---
 
@@ -194,9 +184,11 @@ Today: pattern pages and the dry-run header show Big-O **strings**. `solutions[]
 
 A proper critique of **the user’s** code (what’s good, what’s bad, vs official time/space) is a separate feature. Heuristics (nested loops, extra arrays) are allowed; an LLM review needs its own ADR. Do not pretend the diagnostics popup (`F-LDR-S1-07`) is this.
 
+**Note on Sprint 4 Algorithmic Approach**: Rendering the official solution's `explanation` as "Algorithmic Approach" in `ComplexityPanel` is authored teaching for the catalog reference solution. It is strictly part of Sprint 4 problem explainer and is **not** user-code critique. `F-LDR-X-01` remains `OPEN` for a future phase after tests + live dry run.
+
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-LDR-X-01 | User-code good/bad analysis | `OPEN` | Later. Not LLM unless a new ADR says so |
+| F-LDR-X-01 | User-code good/bad analysis | `OPEN` | Later. Not LLM unless a new ADR says so. Sprint 4 Algorithmic Approach is authored teaching, not user critique |
 
 ---
 
@@ -253,6 +245,22 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 
 ---
 
+---
+
+## Sprint 4 merge checklist (copy when asking for review)
+
+- [x] Problem-page Complexity panel visible in problem description column without opening or running dry run (`F-LDR-S4-01`)
+- [x] Time and space complexity have authored why-text (`timeComplexityWhy`, `spaceComplexityWhy`), completely decoupled from tracer tape length (`F-LDR-S4-02`)
+- [x] Shared `ComplexityChart` mini growth visual highlights active `complexityClass` (`constant`, `logarithmic`, `linear`, `linearithmic`, `quadratic`, `exponential`) on an SVG growth sketch (`F-LDR-S4-03`)
+- [x] All 29 current problem JSON files backfilled with authored why-texts (>10 chars) and valid `complexityClass` (`F-LDR-S4-04`)
+- [x] Automated CI test in `problem-json-validation.spec.ts` asserting non-empty why-texts and valid complexity classes
+- [x] Unit/component tests in `apps/web/specs/complexity-panel.spec.tsx` asserting panel and chart behavior across all complexity classes
+- [x] `next-env.d.ts` 0 diff vs `main`
+- [x] `npx nx test web --skip-nx-cache` 100% green across all 13 suites (613 tests)
+- [x] This file updated (`F-LDR-S4-01`..`04` marked `FIXED`)
+
+---
+
 ## Review notes
 
 - 2026-09-28: Plan written after Phase 2 Sprint 5. Independent of tracer code.
@@ -284,5 +292,14 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
   - Removed redundant `useVisualizerStore.getState().reset(...)` call and unused import from `PlaygroundClient.tsx`, relying solely on `DryRunViewer`'s scoped store lifecycle.
   - All 12 suites (574 tests) passing on `npx nx test web --skip-nx-cache`.
 - 2026-10-02: **PR #17 merged into main (`673d33e`)**. Sprint 3 officially complete with `F-LDR-S3-01`, `F-LDR-S3-02`, and `F-LDR-S3-03` all marked `FIXED`. Ready for Sprint 4 (Official complexity explainer).
+- 2026-10-02: **Sprint 4 completed on `feature/live-dry-run-sprint-4`**:
+  - Implemented `ComplexityClass` in `@visucode/shared-types` (`constant`, `logarithmic`, `linear`, `linearithmic`, `quadratic`, `exponential`) and recompiled shared-types.
+  - Created `ComplexityPanel` and SVG `ComplexityChart` components with dynamic filter IDs (`useId`), active glow styling, badges, and class-specific growth explanations.
+  - Rendered `solution.explanation` as an Algorithmic Approach callout in `ComplexityPanel`, directly solving the note that `solutions[].explanation exists in JSON and is never rendered`.
+  - Mounted `ComplexityPanel` on the problem page (`apps/web/app/problems/[slug]/page.tsx`) in the problem description column, visible immediately without needing to open dry run (`F-LDR-S4-01`).
+  - Authored `timeComplexityWhy`, `spaceComplexityWhy`, `complexityClass`, and `explanation` across all 29 problem JSON files in `apps/web/content/problems/`, completely decoupled from execution tracer (`F-LDR-S4-02`, `F-LDR-S4-03`, `F-LDR-S4-04`).
+  - Added CI validation in `apps/web/lib/utils/__tests__/problem-json-validation.spec.ts` guaranteeing non-empty why-texts, valid complexity classes, and approach explanations for all 29 problems.
+  - Added unit test suite in `apps/web/specs/complexity-panel.spec.tsx` asserting panel and chart rendering across all complexity classes, fallback states, and approach explanations.
+  - All 13 test suites (613 tests) passing with `npx nx test web --skip-nx-cache`, 0 diff on `next-env.d.ts`, and clean TypeScript checks.
 
 

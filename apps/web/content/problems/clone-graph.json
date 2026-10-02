@@ -49,7 +49,10 @@
       "timeComplexity": "O(V + E)",
       "spaceComplexity": "O(V)",
       "explanation": "Traverse the graph using BFS. Use a Hash Map to record visited nodes and store mapping from original node to cloned node.",
-      "code": "function cloneGraph(node) {\n    if (!node) return null;\n    const clones = new Map();\n    const queue = [node];\n    clones.set(node, new _Node(node.val));\n\n    while (queue.length > 0) {\n        const curr = queue.shift();\n        for (const neighbor of curr.neighbors) {\n            if (!clones.has(neighbor)) {\n                clones.set(neighbor, new _Node(neighbor.val));\n                queue.push(neighbor);\n            }\n            clones.get(curr).neighbors.push(clones.get(neighbor));\n        }\n    }\n    return clones.get(node);\n}"
+      "code": "function cloneGraph(node) {\n    if (!node) return null;\n    const clones = new Map();\n    const queue = [node];\n    clones.set(node, new _Node(node.val));\n\n    while (queue.length > 0) {\n        const curr = queue.shift();\n        for (const neighbor of curr.neighbors) {\n            if (!clones.has(neighbor)) {\n                clones.set(neighbor, new _Node(neighbor.val));\n                queue.push(neighbor);\n            }\n            clones.get(curr).neighbors.push(clones.get(neighbor));\n        }\n    }\n    return clones.get(node);\n}",
+      "timeComplexityWhy": "BFS/DFS visits every unique node V and traverses each undirected edge E exactly once in O(V + E) time.",
+      "spaceComplexityWhy": "A hash map stores visited clones for up to V nodes, plus the traversal queue/stack holds up to V vertices.",
+      "complexityClass": "linear"
     }
   ],
   "testCases": [
@@ -75,25 +78,69 @@
       "line": 5,
       "explanation": "Initialize queue with Node 1 and clone Node 1 into the hash map.",
       "variables": [
-        { "name": "queue", "value": "[Node(1)]", "type": "Array" },
-        { "name": "clones.size", "value": "1", "type": "number" }
+        {
+          "name": "queue",
+          "value": "[Node(1)]",
+          "type": "Array"
+        },
+        {
+          "name": "clones.size",
+          "value": "1",
+          "type": "number"
+        }
       ],
       "graphState": {
         "nodes": [
-          { "id": "1", "label": "1", "x": 25, "y": 25 },
-          { "id": "2", "label": "2", "x": 75, "y": 25 },
-          { "id": "3", "label": "3", "x": 75, "y": 75 },
-          { "id": "4", "label": "4", "x": 25, "y": 75 }
+          {
+            "id": "1",
+            "label": "1",
+            "x": 25,
+            "y": 25
+          },
+          {
+            "id": "2",
+            "label": "2",
+            "x": 75,
+            "y": 25
+          },
+          {
+            "id": "3",
+            "label": "3",
+            "x": 75,
+            "y": 75
+          },
+          {
+            "id": "4",
+            "label": "4",
+            "x": 25,
+            "y": 75
+          }
         ],
         "edges": [
-          { "source": "1", "target": "2" },
-          { "source": "1", "target": "4" },
-          { "source": "2", "target": "3" },
-          { "source": "3", "target": "4" }
+          {
+            "source": "1",
+            "target": "2"
+          },
+          {
+            "source": "1",
+            "target": "4"
+          },
+          {
+            "source": "2",
+            "target": "3"
+          },
+          {
+            "source": "3",
+            "target": "4"
+          }
         ],
         "activeNodeId": "1",
-        "queueNodeIds": ["1"],
-        "visitedNodeIds": ["1"]
+        "queueNodeIds": [
+          "1"
+        ],
+        "visitedNodeIds": [
+          "1"
+        ]
       }
     },
     {
@@ -101,26 +148,79 @@
       "line": 8,
       "explanation": "Dequeue Node 1. Inspect neighbors [2, 4]. Clone Node 2 and Node 4, then enqueue both.",
       "variables": [
-        { "name": "curr", "value": "Node(1)", "type": "Node" },
-        { "name": "queue", "value": "[Node(2), Node(4)]", "type": "Array" },
-        { "name": "clones.size", "value": "3", "type": "number" }
+        {
+          "name": "curr",
+          "value": "Node(1)",
+          "type": "Node"
+        },
+        {
+          "name": "queue",
+          "value": "[Node(2), Node(4)]",
+          "type": "Array"
+        },
+        {
+          "name": "clones.size",
+          "value": "3",
+          "type": "number"
+        }
       ],
       "graphState": {
         "nodes": [
-          { "id": "1", "label": "1", "x": 25, "y": 25 },
-          { "id": "2", "label": "2", "x": 75, "y": 25 },
-          { "id": "3", "label": "3", "x": 75, "y": 75 },
-          { "id": "4", "label": "4", "x": 25, "y": 75 }
+          {
+            "id": "1",
+            "label": "1",
+            "x": 25,
+            "y": 25
+          },
+          {
+            "id": "2",
+            "label": "2",
+            "x": 75,
+            "y": 25
+          },
+          {
+            "id": "3",
+            "label": "3",
+            "x": 75,
+            "y": 75
+          },
+          {
+            "id": "4",
+            "label": "4",
+            "x": 25,
+            "y": 75
+          }
         ],
         "edges": [
-          { "source": "1", "target": "2", "highlighted": true },
-          { "source": "1", "target": "4", "highlighted": true },
-          { "source": "2", "target": "3" },
-          { "source": "3", "target": "4" }
+          {
+            "source": "1",
+            "target": "2",
+            "highlighted": true
+          },
+          {
+            "source": "1",
+            "target": "4",
+            "highlighted": true
+          },
+          {
+            "source": "2",
+            "target": "3"
+          },
+          {
+            "source": "3",
+            "target": "4"
+          }
         ],
         "activeNodeId": "1",
-        "queueNodeIds": ["2", "4"],
-        "visitedNodeIds": ["1", "2", "4"]
+        "queueNodeIds": [
+          "2",
+          "4"
+        ],
+        "visitedNodeIds": [
+          "1",
+          "2",
+          "4"
+        ]
       }
     },
     {
@@ -128,26 +228,79 @@
       "line": 8,
       "explanation": "Dequeue Node 2. Inspect neighbor Node 3. Clone Node 3 and add to queue.",
       "variables": [
-        { "name": "curr", "value": "Node(2)", "type": "Node" },
-        { "name": "queue", "value": "[Node(4), Node(3)]", "type": "Array" },
-        { "name": "clones.size", "value": "4", "type": "number" }
+        {
+          "name": "curr",
+          "value": "Node(2)",
+          "type": "Node"
+        },
+        {
+          "name": "queue",
+          "value": "[Node(4), Node(3)]",
+          "type": "Array"
+        },
+        {
+          "name": "clones.size",
+          "value": "4",
+          "type": "number"
+        }
       ],
       "graphState": {
         "nodes": [
-          { "id": "1", "label": "1", "x": 25, "y": 25 },
-          { "id": "2", "label": "2", "x": 75, "y": 25 },
-          { "id": "3", "label": "3", "x": 75, "y": 75 },
-          { "id": "4", "label": "4", "x": 25, "y": 75 }
+          {
+            "id": "1",
+            "label": "1",
+            "x": 25,
+            "y": 25
+          },
+          {
+            "id": "2",
+            "label": "2",
+            "x": 75,
+            "y": 25
+          },
+          {
+            "id": "3",
+            "label": "3",
+            "x": 75,
+            "y": 75
+          },
+          {
+            "id": "4",
+            "label": "4",
+            "x": 25,
+            "y": 75
+          }
         ],
         "edges": [
-          { "source": "1", "target": "2" },
-          { "source": "1", "target": "4" },
-          { "source": "2", "target": "3", "highlighted": true },
-          { "source": "3", "target": "4" }
+          {
+            "source": "1",
+            "target": "2"
+          },
+          {
+            "source": "1",
+            "target": "4"
+          },
+          {
+            "source": "2",
+            "target": "3",
+            "highlighted": true
+          },
+          {
+            "source": "3",
+            "target": "4"
+          }
         ],
         "activeNodeId": "2",
-        "queueNodeIds": ["4", "3"],
-        "visitedNodeIds": ["1", "2", "4", "3"]
+        "queueNodeIds": [
+          "4",
+          "3"
+        ],
+        "visitedNodeIds": [
+          "1",
+          "2",
+          "4",
+          "3"
+        ]
       }
     },
     {
@@ -155,25 +308,74 @@
       "line": 8,
       "explanation": "Dequeue Node 4. Neighbors [1, 3] are already cloned. Link cloned edges.",
       "variables": [
-        { "name": "curr", "value": "Node(4)", "type": "Node" },
-        { "name": "queue", "value": "[Node(3)]", "type": "Array" }
+        {
+          "name": "curr",
+          "value": "Node(4)",
+          "type": "Node"
+        },
+        {
+          "name": "queue",
+          "value": "[Node(3)]",
+          "type": "Array"
+        }
       ],
       "graphState": {
         "nodes": [
-          { "id": "1", "label": "1", "x": 25, "y": 25 },
-          { "id": "2", "label": "2", "x": 75, "y": 25 },
-          { "id": "3", "label": "3", "x": 75, "y": 75 },
-          { "id": "4", "label": "4", "x": 25, "y": 75 }
+          {
+            "id": "1",
+            "label": "1",
+            "x": 25,
+            "y": 25
+          },
+          {
+            "id": "2",
+            "label": "2",
+            "x": 75,
+            "y": 25
+          },
+          {
+            "id": "3",
+            "label": "3",
+            "x": 75,
+            "y": 75
+          },
+          {
+            "id": "4",
+            "label": "4",
+            "x": 25,
+            "y": 75
+          }
         ],
         "edges": [
-          { "source": "1", "target": "2" },
-          { "source": "1", "target": "4", "highlighted": true },
-          { "source": "2", "target": "3" },
-          { "source": "3", "target": "4", "highlighted": true }
+          {
+            "source": "1",
+            "target": "2"
+          },
+          {
+            "source": "1",
+            "target": "4",
+            "highlighted": true
+          },
+          {
+            "source": "2",
+            "target": "3"
+          },
+          {
+            "source": "3",
+            "target": "4",
+            "highlighted": true
+          }
         ],
         "activeNodeId": "4",
-        "queueNodeIds": ["3"],
-        "visitedNodeIds": ["1", "2", "3", "4"]
+        "queueNodeIds": [
+          "3"
+        ],
+        "visitedNodeIds": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
       }
     },
     {
@@ -181,25 +383,72 @@
       "line": 8,
       "explanation": "Dequeue Node 3. Inspect neighbors [2, 4]; both are already cloned. Link edges. Queue is now empty.",
       "variables": [
-        { "name": "curr", "value": "Node(3)", "type": "Node" },
-        { "name": "queue", "value": "[]", "type": "Array" }
+        {
+          "name": "curr",
+          "value": "Node(3)",
+          "type": "Node"
+        },
+        {
+          "name": "queue",
+          "value": "[]",
+          "type": "Array"
+        }
       ],
       "graphState": {
         "nodes": [
-          { "id": "1", "label": "1", "x": 25, "y": 25 },
-          { "id": "2", "label": "2", "x": 75, "y": 25 },
-          { "id": "3", "label": "3", "x": 75, "y": 75 },
-          { "id": "4", "label": "4", "x": 25, "y": 75 }
+          {
+            "id": "1",
+            "label": "1",
+            "x": 25,
+            "y": 25
+          },
+          {
+            "id": "2",
+            "label": "2",
+            "x": 75,
+            "y": 25
+          },
+          {
+            "id": "3",
+            "label": "3",
+            "x": 75,
+            "y": 75
+          },
+          {
+            "id": "4",
+            "label": "4",
+            "x": 25,
+            "y": 75
+          }
         ],
         "edges": [
-          { "source": "1", "target": "2" },
-          { "source": "1", "target": "4" },
-          { "source": "2", "target": "3", "highlighted": true },
-          { "source": "3", "target": "4", "highlighted": true }
+          {
+            "source": "1",
+            "target": "2"
+          },
+          {
+            "source": "1",
+            "target": "4"
+          },
+          {
+            "source": "2",
+            "target": "3",
+            "highlighted": true
+          },
+          {
+            "source": "3",
+            "target": "4",
+            "highlighted": true
+          }
         ],
         "activeNodeId": "3",
         "queueNodeIds": [],
-        "visitedNodeIds": ["1", "2", "3", "4"]
+        "visitedNodeIds": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
       }
     },
     {
@@ -207,25 +456,74 @@
       "line": 17,
       "explanation": "Queue is empty. All nodes and edges copied. Return cloned Node 1.",
       "variables": [
-        { "name": "queue", "value": "[]", "type": "Array" },
-        { "name": "result", "value": "Cloned Node(1)", "type": "Node" }
+        {
+          "name": "queue",
+          "value": "[]",
+          "type": "Array"
+        },
+        {
+          "name": "result",
+          "value": "Cloned Node(1)",
+          "type": "Node"
+        }
       ],
       "graphState": {
         "nodes": [
-          { "id": "1", "label": "1", "x": 25, "y": 25 },
-          { "id": "2", "label": "2", "x": 75, "y": 25 },
-          { "id": "3", "label": "3", "x": 75, "y": 75 },
-          { "id": "4", "label": "4", "x": 25, "y": 75 }
+          {
+            "id": "1",
+            "label": "1",
+            "x": 25,
+            "y": 25
+          },
+          {
+            "id": "2",
+            "label": "2",
+            "x": 75,
+            "y": 25
+          },
+          {
+            "id": "3",
+            "label": "3",
+            "x": 75,
+            "y": 75
+          },
+          {
+            "id": "4",
+            "label": "4",
+            "x": 25,
+            "y": 75
+          }
         ],
         "edges": [
-          { "source": "1", "target": "2", "highlighted": true },
-          { "source": "1", "target": "4", "highlighted": true },
-          { "source": "2", "target": "3", "highlighted": true },
-          { "source": "3", "target": "4", "highlighted": true }
+          {
+            "source": "1",
+            "target": "2",
+            "highlighted": true
+          },
+          {
+            "source": "1",
+            "target": "4",
+            "highlighted": true
+          },
+          {
+            "source": "2",
+            "target": "3",
+            "highlighted": true
+          },
+          {
+            "source": "3",
+            "target": "4",
+            "highlighted": true
+          }
         ],
         "activeNodeId": "1",
         "queueNodeIds": [],
-        "visitedNodeIds": ["1", "2", "3", "4"]
+        "visitedNodeIds": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
       }
     }
   ],

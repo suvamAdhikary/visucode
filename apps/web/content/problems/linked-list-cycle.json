@@ -33,7 +33,10 @@
       "timeComplexity": "O(N)",
       "spaceComplexity": "O(1)",
       "explanation": "Floyd cycle finding algorithm.",
-      "code": "function hasCycle(head) {\n    let slow = head, fast = head;\n    while (fast && fast.next) {\n        slow = slow.next;\n        fast = fast.next.next;\n        if (slow === fast) return true;\n    }\n    return false;\n}"
+      "code": "function hasCycle(head) {\n    let slow = head, fast = head;\n    while (fast && fast.next) {\n        slow = slow.next;\n        fast = fast.next.next;\n        if (slow === fast) return true;\n    }\n    return false;\n}",
+      "timeComplexityWhy": "Floyd's Tortoise and Hare algorithm guarantees the fast pointer meets slow in at most N steps if a cycle exists, or reaches null in N/2 steps.",
+      "spaceComplexityWhy": "Only two pointer variables (slow and fast) are maintained in memory without extra node sets.",
+      "complexityClass": "linear"
     }
   ],
   "testCases": [

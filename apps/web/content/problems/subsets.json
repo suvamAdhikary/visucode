@@ -57,7 +57,10 @@
       "timeComplexity": "O(N * 2^N)",
       "spaceComplexity": "O(N)",
       "explanation": "Backtracking / DFS state-space tree traversal. At each step, copy current subset into result, then iterate through remaining choices, push, recurse, and pop.",
-      "code": "function subsets(nums) {\n    const result = [];\n    const current = [];\n\n    function backtrack(startIndex) {\n        result.push([...current]);\n\n        for (let i = startIndex; i < nums.length; i++) {\n            current.push(nums[i]);\n            backtrack(i + 1);\n            current.pop();\n        }\n    }\n\n    backtrack(0);\n    return result;\n}"
+      "code": "function subsets(nums) {\n    const result = [];\n    const current = [];\n\n    function backtrack(startIndex) {\n        result.push([...current]);\n\n        for (let i = startIndex; i < nums.length; i++) {\n            current.push(nums[i]);\n            backtrack(i + 1);\n            current.pop();\n        }\n    }\n\n    backtrack(0);\n    return result;\n}",
+      "timeComplexityWhy": "There are 2^N total subsets for N elements; each subset requires up to O(N) time to construct and copy into results.",
+      "spaceComplexityWhy": "Backtracking recursion call stack and current subset path array consume at most O(N) auxiliary space.",
+      "complexityClass": "exponential"
     }
   ],
   "testCases": [
@@ -89,20 +92,43 @@
       "line": 6,
       "explanation": "Call backtrack(0) with empty path current = []. Save [] to result.",
       "variables": [
-        { "name": "startIndex", "value": "0", "type": "number" },
-        { "name": "current", "value": "[]", "type": "array" },
-        { "name": "result.length", "value": "1", "type": "number" }
+        {
+          "name": "startIndex",
+          "value": "0",
+          "type": "number"
+        },
+        {
+          "name": "current",
+          "value": "[]",
+          "type": "array"
+        },
+        {
+          "name": "result.length",
+          "value": "1",
+          "type": "number"
+        }
       ],
       "backtrackingState": {
         "nodes": [
-          { "id": "root", "label": "[]", "state": "success", "depth": 0 }
+          {
+            "id": "root",
+            "label": "[]",
+            "state": "success",
+            "depth": 0
+          }
         ],
         "currentPath": [],
-        "solutionsFound": ["[]"],
+        "solutionsFound": [
+          "[]"
+        ],
         "activeNodeId": "root"
       },
       "pointers": [
-        { "name": "current", "targetId": "root", "label": "backtrack(0)" }
+        {
+          "name": "current",
+          "targetId": "root",
+          "label": "backtrack(0)"
+        }
       ]
     },
     {
@@ -110,21 +136,52 @@
       "line": 9,
       "explanation": "Include nums[0] = 1 into current. current becomes [1]. Call backtrack(1).",
       "variables": [
-        { "name": "i", "value": "0", "type": "number" },
-        { "name": "nums[0]", "value": "1", "type": "number" },
-        { "name": "current", "value": "[1]", "type": "array" }
+        {
+          "name": "i",
+          "value": "0",
+          "type": "number"
+        },
+        {
+          "name": "nums[0]",
+          "value": "1",
+          "type": "number"
+        },
+        {
+          "name": "current",
+          "value": "[1]",
+          "type": "array"
+        }
       ],
       "backtrackingState": {
         "nodes": [
-          { "id": "root", "label": "[]", "state": "normal", "depth": 0 },
-          { "id": "n1", "label": "[1]", "state": "active", "parentId": "root", "depth": 1 }
+          {
+            "id": "root",
+            "label": "[]",
+            "state": "normal",
+            "depth": 0
+          },
+          {
+            "id": "n1",
+            "label": "[1]",
+            "state": "active",
+            "parentId": "root",
+            "depth": 1
+          }
         ],
-        "currentPath": ["+1"],
-        "solutionsFound": ["[]"],
+        "currentPath": [
+          "+1"
+        ],
+        "solutionsFound": [
+          "[]"
+        ],
         "activeNodeId": "n1"
       },
       "pointers": [
-        { "name": "current", "targetId": "n1", "label": "backtrack(1)" }
+        {
+          "name": "current",
+          "targetId": "n1",
+          "label": "backtrack(1)"
+        }
       ]
     },
     {
@@ -132,21 +189,53 @@
       "line": 6,
       "explanation": "In backtrack(1), record subset [1] into result.",
       "variables": [
-        { "name": "startIndex", "value": "1", "type": "number" },
-        { "name": "current", "value": "[1]", "type": "array" },
-        { "name": "result.length", "value": "2", "type": "number" }
+        {
+          "name": "startIndex",
+          "value": "1",
+          "type": "number"
+        },
+        {
+          "name": "current",
+          "value": "[1]",
+          "type": "array"
+        },
+        {
+          "name": "result.length",
+          "value": "2",
+          "type": "number"
+        }
       ],
       "backtrackingState": {
         "nodes": [
-          { "id": "root", "label": "[]", "state": "normal", "depth": 0 },
-          { "id": "n1", "label": "[1]", "state": "success", "parentId": "root", "depth": 1 }
+          {
+            "id": "root",
+            "label": "[]",
+            "state": "normal",
+            "depth": 0
+          },
+          {
+            "id": "n1",
+            "label": "[1]",
+            "state": "success",
+            "parentId": "root",
+            "depth": 1
+          }
         ],
-        "currentPath": ["+1"],
-        "solutionsFound": ["[]", "[1]"],
+        "currentPath": [
+          "+1"
+        ],
+        "solutionsFound": [
+          "[]",
+          "[1]"
+        ],
         "activeNodeId": "n1"
       },
       "pointers": [
-        { "name": "current", "targetId": "n1", "label": "record [1]" }
+        {
+          "name": "current",
+          "targetId": "n1",
+          "label": "record [1]"
+        }
       ]
     },
     {
@@ -154,22 +243,62 @@
       "line": 9,
       "explanation": "Include nums[1] = 2. current becomes [1, 2]. Call backtrack(2).",
       "variables": [
-        { "name": "i", "value": "1", "type": "number" },
-        { "name": "nums[1]", "value": "2", "type": "number" },
-        { "name": "current", "value": "[1, 2]", "type": "array" }
+        {
+          "name": "i",
+          "value": "1",
+          "type": "number"
+        },
+        {
+          "name": "nums[1]",
+          "value": "2",
+          "type": "number"
+        },
+        {
+          "name": "current",
+          "value": "[1, 2]",
+          "type": "array"
+        }
       ],
       "backtrackingState": {
         "nodes": [
-          { "id": "root", "label": "[]", "state": "normal", "depth": 0 },
-          { "id": "n1", "label": "[1]", "state": "normal", "parentId": "root", "depth": 1 },
-          { "id": "n1_2", "label": "[1, 2]", "state": "success", "parentId": "n1", "depth": 2 }
+          {
+            "id": "root",
+            "label": "[]",
+            "state": "normal",
+            "depth": 0
+          },
+          {
+            "id": "n1",
+            "label": "[1]",
+            "state": "normal",
+            "parentId": "root",
+            "depth": 1
+          },
+          {
+            "id": "n1_2",
+            "label": "[1, 2]",
+            "state": "success",
+            "parentId": "n1",
+            "depth": 2
+          }
         ],
-        "currentPath": ["+1", "+2"],
-        "solutionsFound": ["[]", "[1]", "[1, 2]"],
+        "currentPath": [
+          "+1",
+          "+2"
+        ],
+        "solutionsFound": [
+          "[]",
+          "[1]",
+          "[1, 2]"
+        ],
         "activeNodeId": "n1_2"
       },
       "pointers": [
-        { "name": "current", "targetId": "n1_2", "label": "record [1, 2]" }
+        {
+          "name": "current",
+          "targetId": "n1_2",
+          "label": "record [1, 2]"
+        }
       ]
     },
     {
@@ -177,21 +306,54 @@
       "line": 11,
       "explanation": "Backtrack: pop 2 from current. current returns to [1]. Then pop 1 to return current to [].",
       "variables": [
-        { "name": "popped", "value": "2", "type": "number" },
-        { "name": "current", "value": "[]", "type": "array" }
+        {
+          "name": "popped",
+          "value": "2",
+          "type": "number"
+        },
+        {
+          "name": "current",
+          "value": "[]",
+          "type": "array"
+        }
       ],
       "backtrackingState": {
         "nodes": [
-          { "id": "root", "label": "[]", "state": "normal", "depth": 0 },
-          { "id": "n1", "label": "[1]", "state": "backtrack", "parentId": "root", "depth": 1 },
-          { "id": "n1_2", "label": "[1, 2]", "state": "normal", "parentId": "n1", "depth": 2 }
+          {
+            "id": "root",
+            "label": "[]",
+            "state": "normal",
+            "depth": 0
+          },
+          {
+            "id": "n1",
+            "label": "[1]",
+            "state": "backtrack",
+            "parentId": "root",
+            "depth": 1
+          },
+          {
+            "id": "n1_2",
+            "label": "[1, 2]",
+            "state": "normal",
+            "parentId": "n1",
+            "depth": 2
+          }
         ],
         "currentPath": [],
-        "solutionsFound": ["[]", "[1]", "[1, 2]"],
+        "solutionsFound": [
+          "[]",
+          "[1]",
+          "[1, 2]"
+        ],
         "activeNodeId": "root"
       },
       "pointers": [
-        { "name": "current", "targetId": "root", "label": "backtrack" }
+        {
+          "name": "current",
+          "targetId": "root",
+          "label": "backtrack"
+        }
       ]
     },
     {
@@ -199,24 +361,74 @@
       "line": 9,
       "explanation": "In backtrack(0) loop advances to i = 1 (element 2). Push 2 -> current = [2]. Record [2].",
       "variables": [
-        { "name": "i", "value": "1", "type": "number" },
-        { "name": "nums[1]", "value": "2", "type": "number" },
-        { "name": "current", "value": "[2]", "type": "array" },
-        { "name": "result.length", "value": "4", "type": "number" }
+        {
+          "name": "i",
+          "value": "1",
+          "type": "number"
+        },
+        {
+          "name": "nums[1]",
+          "value": "2",
+          "type": "number"
+        },
+        {
+          "name": "current",
+          "value": "[2]",
+          "type": "array"
+        },
+        {
+          "name": "result.length",
+          "value": "4",
+          "type": "number"
+        }
       ],
       "backtrackingState": {
         "nodes": [
-          { "id": "root", "label": "[]", "state": "normal", "depth": 0 },
-          { "id": "n1", "label": "[1]", "state": "normal", "parentId": "root", "depth": 1 },
-          { "id": "n1_2", "label": "[1, 2]", "state": "normal", "parentId": "n1", "depth": 2 },
-          { "id": "n2", "label": "[2]", "state": "success", "parentId": "root", "depth": 1 }
+          {
+            "id": "root",
+            "label": "[]",
+            "state": "normal",
+            "depth": 0
+          },
+          {
+            "id": "n1",
+            "label": "[1]",
+            "state": "normal",
+            "parentId": "root",
+            "depth": 1
+          },
+          {
+            "id": "n1_2",
+            "label": "[1, 2]",
+            "state": "normal",
+            "parentId": "n1",
+            "depth": 2
+          },
+          {
+            "id": "n2",
+            "label": "[2]",
+            "state": "success",
+            "parentId": "root",
+            "depth": 1
+          }
         ],
-        "currentPath": ["+2"],
-        "solutionsFound": ["[]", "[1]", "[1, 2]", "[2]"],
+        "currentPath": [
+          "+2"
+        ],
+        "solutionsFound": [
+          "[]",
+          "[1]",
+          "[1, 2]",
+          "[2]"
+        ],
         "activeNodeId": "n2"
       },
       "pointers": [
-        { "name": "current", "targetId": "n2", "label": "record [2]" }
+        {
+          "name": "current",
+          "targetId": "n2",
+          "label": "record [2]"
+        }
       ]
     },
     {
@@ -224,21 +436,57 @@
       "line": 16,
       "explanation": "Backtrack pops 2. All branches explored. Return all 4 unique subsets.",
       "variables": [
-        { "name": "return", "value": "[[], [1], [1, 2], [2]]", "type": "array" }
+        {
+          "name": "return",
+          "value": "[[], [1], [1, 2], [2]]",
+          "type": "array"
+        }
       ],
       "backtrackingState": {
         "nodes": [
-          { "id": "root", "label": "[]", "state": "normal", "depth": 0 },
-          { "id": "n1", "label": "[1]", "state": "normal", "parentId": "root", "depth": 1 },
-          { "id": "n1_2", "label": "[1, 2]", "state": "normal", "parentId": "n1", "depth": 2 },
-          { "id": "n2", "label": "[2]", "state": "normal", "parentId": "root", "depth": 1 }
+          {
+            "id": "root",
+            "label": "[]",
+            "state": "normal",
+            "depth": 0
+          },
+          {
+            "id": "n1",
+            "label": "[1]",
+            "state": "normal",
+            "parentId": "root",
+            "depth": 1
+          },
+          {
+            "id": "n1_2",
+            "label": "[1, 2]",
+            "state": "normal",
+            "parentId": "n1",
+            "depth": 2
+          },
+          {
+            "id": "n2",
+            "label": "[2]",
+            "state": "normal",
+            "parentId": "root",
+            "depth": 1
+          }
         ],
         "currentPath": [],
-        "solutionsFound": ["[]", "[1]", "[1, 2]", "[2]"],
+        "solutionsFound": [
+          "[]",
+          "[1]",
+          "[1, 2]",
+          "[2]"
+        ],
         "activeNodeId": "root"
       },
       "pointers": [
-        { "name": "done", "targetId": "root", "label": "complete" }
+        {
+          "name": "done",
+          "targetId": "root",
+          "label": "complete"
+        }
       ]
     }
   ],

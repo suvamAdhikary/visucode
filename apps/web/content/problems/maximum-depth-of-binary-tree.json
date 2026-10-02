@@ -39,7 +39,10 @@
       "timeComplexity": "O(N)",
       "spaceComplexity": "O(H)",
       "explanation": "DFS to find depth.",
-      "code": "function maxDepth(root) {\n    if (!root) return 0;\n    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n}"
+      "code": "function maxDepth(root) {\n    if (!root) return 0;\n    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n}",
+      "timeComplexityWhy": "Depth-First Search (DFS) visits every node in the binary tree exactly once to evaluate max depth.",
+      "spaceComplexityWhy": "The recursion call stack depth equals the height of the tree H (O(log N) average, O(N) worst-case skewed).",
+      "complexityClass": "linear"
     }
   ],
   "testCases": [

@@ -37,7 +37,10 @@
       "timeComplexity": "O(N)",
       "spaceComplexity": "O(1)",
       "explanation": "Iterate through the list, changing the next pointer to point to the previous node.",
-      "code": "function reverseList(head) {\n    let prev = null;\n    let curr = head;\n    while (curr !== null) {\n        let nxt = curr.next;\n        curr.next = prev;\n        prev = curr;\n        curr = nxt;\n    }\n    return prev;\n}"
+      "code": "function reverseList(head) {\n    let prev = null;\n    let curr = head;\n    while (curr !== null) {\n        let nxt = curr.next;\n        curr.next = prev;\n        prev = curr;\n        curr = nxt;\n    }\n    return prev;\n}",
+      "timeComplexityWhy": "Iterates through the linked list of N nodes once, reversing each node's next pointer in O(1) time.",
+      "spaceComplexityWhy": "Only three pointer variables (prev, curr, nxt) are modified in-place without allocating new nodes.",
+      "complexityClass": "linear"
     }
   ],
   "testCases": [
