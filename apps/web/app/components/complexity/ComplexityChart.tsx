@@ -7,6 +7,19 @@ export interface ComplexityChartProps {
   compact?: boolean;
 }
 
+/**
+ * Canonical 6-class Big-O growth curves plotted on a standard 2D axis.
+ *
+ * Note on Six-Class Sketch vs Exact Problem Big-O:
+ * The growth sketch plots the 6 fundamental single-variable asymptotic curves:
+ * O(1), O(log N), O(N), O(N log N), O(N²), and O(2ⁿ).
+ * Problems with multi-variable or non-standard notation map to the nearest canonical curve:
+ * - coin-change: O(amount * coins) -> quadratic (nested iterations)
+ * - kth-largest: O(N log K) and koko: O(n log max(piles)) -> linearithmic (log-factor product)
+ * - implement-trie: O(L) -> linear (proportional word length scan)
+ *
+ * The authored `timeComplexityWhy` and `spaceComplexityWhy` texts detail the exact formulas and parameters.
+ */
 export const COMPLEXITY_METADATA: Record<
   ComplexityClass,
   {
