@@ -9,6 +9,7 @@ const navLinks = [
     { href: '/problems', label: 'Problems', icon: '💡' },
     { href: '/patterns', label: 'Patterns', icon: '🧩' },
     { href: '/playground', label: 'Playground', icon: '🎮' },
+    { href: '/profile', label: 'Profile', icon: '👤' },
 ];
 
 export function Navbar() {

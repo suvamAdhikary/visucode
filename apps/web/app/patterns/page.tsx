@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { listPatterns } from '../../lib/services/pattern.service';
+import { PatternProgressBadge } from './PatternProgressBadge';
 import styles from './page.module.css';
 
 export const metadata = {
@@ -48,6 +49,7 @@ export default function PatternsPage() {
               <span className={`${styles.badge} ${styles.problems}`}>
                 {pattern.problems.length} problems
               </span>
+              <PatternProgressBadge problemSlugs={pattern.problems} />
             </div>
 
             {/* Description */}

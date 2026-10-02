@@ -28,9 +28,10 @@ interface CodeSubmitProps {
   starterCode: string;
   wrapperCode?: string;
   testCases: TestCase[];
+  problemSlug?: string;
 }
 
-export function CodeSubmit({ starterCode, wrapperCode, testCases }: CodeSubmitProps) {
+export function CodeSubmit({ starterCode, wrapperCode, testCases, problemSlug }: CodeSubmitProps) {
   const [code, setCode] = useState(starterCode);
 
   const resetCode = () => setCode(starterCode);
@@ -59,7 +60,13 @@ export function CodeSubmit({ starterCode, wrapperCode, testCases }: CodeSubmitPr
       </div>
 
       <div className={styles.testRunnerSection}>
-        <TestRunner code={code} starterCode={starterCode} wrapperCode={wrapperCode} testCases={testCases} />
+        <TestRunner
+          code={code}
+          starterCode={starterCode}
+          wrapperCode={wrapperCode}
+          testCases={testCases}
+          problemSlug={problemSlug}
+        />
       </div>
     </div>
   );

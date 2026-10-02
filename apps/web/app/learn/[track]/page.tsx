@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getLearningTrack, getLessonsForTrack } from '../../../lib/services';
+import { TrackProgressBar } from './TrackProgressBar';
 import styles from './page.module.css';
 
 interface TrackPageProps {
@@ -46,18 +47,11 @@ export default async function TrackPage({ params }: TrackPageProps) {
         </div>
       </div>
 
-      {/* Lesson Progress Bar */}
-      <div className={styles.progressBar}>
-        <div className={styles.progressTrack}>
-          <div
-            className={styles.progressFill}
-            style={{ width: '0%', background: track.color }}
-          />
-        </div>
-        <span className={styles.progressText}>
-          0 / {lessons.length} completed
-        </span>
-      </div>
+      {/* Lesson Progress Bar (Dynamic from progress.service) */}
+      <TrackProgressBar
+        lessonSlugs={lessons.map((l) => l.slug)}
+        trackColor={track.color}
+      />
 
       {/* Lesson List */}
       <div className={styles.lessonList}>

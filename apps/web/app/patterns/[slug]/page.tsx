@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import type { PatternSlug } from '@visucode/shared-types';
 import { getPattern, listPatterns } from '../../../lib/services/pattern.service';
 import { getProblemSummariesForPattern } from '../../../lib/services/problem.service';
+import { ProblemCompletionBadge } from '../../problems/ProblemCompletionBadge';
 import styles from './page.module.css';
 
 // Generate static params for all known patterns
@@ -183,6 +184,7 @@ export default async function PatternDetailPage({
                   >
                     {p.difficulty}
                   </span>
+                  <ProblemCompletionBadge slug={p.slug} />
                 </div>
                 <span className={styles.problemArrow}>→</span>
               </Link>

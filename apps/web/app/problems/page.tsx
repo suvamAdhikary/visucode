@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { listProblems } from '../../lib/services';
 import type { Difficulty, PatternSlug, Category } from '@visucode/shared-types';
+import { ProblemCompletionBadge } from './ProblemCompletionBadge';
 import styles from './page.module.css';
 
 interface ProblemsPageProps {
@@ -148,7 +149,10 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
             id={`problem-${problem.slug}`}
           >
             <div className={styles.problemInfo}>
-              <h3>{problem.title}</h3>
+              <div className={styles.problemTitleRow}>
+                <h3>{problem.title}</h3>
+                <ProblemCompletionBadge slug={problem.slug} />
+              </div>
               <div className={styles.problemTags}>
                 <span
                   className={`badge badge-${problem.difficulty.toLowerCase()}`}

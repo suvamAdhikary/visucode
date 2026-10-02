@@ -7,6 +7,7 @@ import {
   type ExecutionResult,
   type TestResult,
 } from '../../../lib/utils/test-executor';
+import { markProblemComplete } from '../../../lib/services/progress.service';
 import type { TestCase } from '@visucode/shared-types';
 import styles from './TestRunner.module.css';
 
@@ -15,9 +16,16 @@ interface TestRunnerProps {
   starterCode: string;
   wrapperCode?: string;
   testCases: TestCase[];
+  problemSlug?: string;
 }
 
-export function TestRunner({ code, starterCode, wrapperCode, testCases }: TestRunnerProps) {
+export function TestRunner({
+  code,
+  starterCode,
+  wrapperCode,
+  testCases,
+  problemSlug,
+}: TestRunnerProps) {
   const [result, setResult] = useState<ExecutionResult | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [expandedTests, setExpandedTests] = useState<Set<string>>(new Set());
@@ -39,6 +47,11 @@ export function TestRunner({ code, starterCode, wrapperCode, testCases }: TestRu
     setResult(execResult);
     setIsStale(false);
     setIsRunning(false);
+
+    // Auto-mark problem as complete if all test cases passed (F-P3S1-01)
+    if (problemSlug && execResult.totalFailed === 0 && execResult.totalPassed > 0) {
+      markProblemComplete(problemSlug);
+    }
 
     // Auto-expand failed tests, or first test if all passed
     const newExpanded = new Set<string>();
