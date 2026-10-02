@@ -7,14 +7,14 @@ import {
   markLessonComplete,
   resetProgress,
   isLessonCompleted,
-  _clearCacheForTesting,
+  invalidateProgressCache,
 } from '../lib/services/progress.service';
 import type { Lesson } from '@visucode/shared-types';
 
 describe('Learning Progress Integration (Phase 3 Sprint 1, LessonViewer & TrackProgressBar)', () => {
   beforeEach(() => {
     localStorage.clear();
-    _clearCacheForTesting();
+    invalidateProgressCache();
     resetProgress();
     jest.clearAllMocks();
   });

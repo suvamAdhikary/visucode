@@ -78,9 +78,6 @@ export function invalidateProgressCache(): void {
   cachedProgress = null;
 }
 
-// Retain alias for test compatibility
-export const _clearCacheForTesting = invalidateProgressCache;
-
 function notifySubscribers() {
   listeners.forEach((callback) => {
     try {
@@ -108,45 +105,39 @@ if (typeof window !== 'undefined') {
     }
   });
 
-  // Keep progress snapshot in sync with canonical preferences store
-  usePreferencesStore.subscribe((state) => {
-    if (typeof localStorage === 'undefined') return;
-    const key = getStorageKey();
-    let raw: string | null = null;
-    try {
-      raw = localStorage.getItem(key);
-    } catch {
-      return;
-    }
-    if (!raw) return;
-    try {
-      const current = JSON.parse(raw);
-      const updatedPrefs: UserPreferences = {
-        theme: state.theme ?? 'dark',
-        editorFontSize: state.editorFontSize ?? 14,
-        visualizerSpeed: state.visualizerSpeed ?? 1,
-        language: (state.language === 'python' ? 'python' : 'javascript') as 'javascript' | 'python',
+  // Reactively update in-memory snapshot and notify subscribers when editor preferences change
+  usePreferencesStore.subscribe(() => {
+    if (cachedProgress) {
+      cachedProgress = {
+        ...cachedProgress,
+        preferences: getLivePreferences(),
       };
-      if (
-        current.preferences?.theme !== updatedPrefs.theme ||
-        current.preferences?.editorFontSize !== updatedPrefs.editorFontSize ||
-        current.preferences?.visualizerSpeed !== updatedPrefs.visualizerSpeed ||
-        current.preferences?.language !== updatedPrefs.language
-      ) {
-        current.preferences = updatedPrefs;
-        saveProgressToStorage(current);
-        notifySubscribers();
-      }
-    } catch {
-      // Safe no-op if json parse fails
+      notifySubscribers();
     }
   });
+}
+
+interface StoredProgressData {
+  userId: string;
+  completedProblems: string[];
+  completedLessons: string[];
+  currentTrack: string;
+  currentLesson: number;
+  role: UserProgress['role'];
 }
 
 function saveProgressToStorage(progress: UserProgress): void {
   if (typeof window === 'undefined') return;
   try {
-    const raw = JSON.stringify(progress);
+    const dataToStore: StoredProgressData = {
+      userId: progress.userId,
+      completedProblems: progress.completedProblems,
+      completedLessons: progress.completedLessons,
+      currentTrack: progress.currentTrack,
+      currentLesson: progress.currentLesson,
+      role: progress.role,
+    };
+    const raw = JSON.stringify(dataToStore);
     localStorage.setItem(getStorageKey(), raw);
     cachedRawString = raw;
     cachedProgress = progress;

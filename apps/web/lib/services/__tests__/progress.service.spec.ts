@@ -10,14 +10,13 @@ import {
   resetProgress,
   subscribeProgress,
   invalidateProgressCache,
-  _clearCacheForTesting,
 } from '../progress.service';
 import { usePreferencesStore } from '../../stores/preferences.store';
 
 describe('Progress Service (Phase 3 Sprint 1, F-P3S1-01, F-P3S1-02)', () => {
   beforeEach(() => {
     localStorage.clear();
-    _clearCacheForTesting();
+    invalidateProgressCache();
     jest.clearAllMocks();
   });
 
@@ -105,7 +104,7 @@ describe('Progress Service (Phase 3 Sprint 1, F-P3S1-01, F-P3S1-02)', () => {
       expect(parsedInStorage.completedProblems).toEqual(['two-sum', 'lru-cache']);
 
       // 2. Clear in-memory cache completely to simulate page reload / unmount
-      _clearCacheForTesting();
+      invalidateProgressCache();
 
       // 3. Cold call to getProgress() must read & deserialize from localStorage
       const reloaded = getProgress();
@@ -245,36 +244,42 @@ describe('Progress Service (Phase 3 Sprint 1, F-P3S1-01, F-P3S1-02)', () => {
     });
   });
 
-  describe('Preferences Synchronization & Cache Invalidation', () => {
-    it('invalidates cache with invalidateProgressCache() and exports _clearCacheForTesting alias', () => {
+  describe('Preferences Single Source of Truth & Cache Invalidation', () => {
+    it('invalidates cache with invalidateProgressCache()', () => {
       markProblemComplete('two-sum');
       expect(getProgress().completedProblems).toContain('two-sum');
 
       invalidateProgressCache();
       expect(getProgress().completedProblems).toContain('two-sum');
-      expect(_clearCacheForTesting).toBe(invalidateProgressCache);
     });
 
-    it('synchronizes preferences store updates into the stored progress snapshot', () => {
+    it('keeps preferences solely in visucode-preferences and does not store redundant duplicate in progress JSON', () => {
       // Initialize progress in localStorage
       getProgress();
       const uid = getProgress().userId;
       const storageKey = `visucode_progress_${uid}`;
 
+      // Verify that progress storage ONLY contains progress fields, not preferences
+      const raw = localStorage.getItem(storageKey);
+      expect(raw).toBeTruthy();
+      const parsed = JSON.parse(raw!);
+      expect(parsed.preferences).toBeUndefined();
+      expect(parsed.userId).toBe(uid);
+      expect(Array.isArray(parsed.completedProblems)).toBe(true);
+
+      // Verify that preferences are dynamically populated from usePreferencesStore
+      expect(getProgress().preferences).toBeDefined();
+      expect(getProgress().preferences.theme).toBe('dark');
+
       // Update preference in Zustand
       usePreferencesStore.getState().setTheme('light');
       usePreferencesStore.getState().setEditorFontSize(18);
 
-      // Verify that progress storage snapshot was updated
-      const raw = localStorage.getItem(storageKey);
-      expect(raw).toBeTruthy();
-      const parsed = JSON.parse(raw!);
-      expect(parsed.preferences.theme).toBe('light');
-      expect(parsed.preferences.editorFontSize).toBe(18);
-
-      // Verify getProgress() returns the live synchronized preferences
+      // Verify getProgress() returns the live updated preferences without writing duplicate data to progress key
       expect(getProgress().preferences.theme).toBe('light');
       expect(getProgress().preferences.editorFontSize).toBe(18);
+      const rawAfter = localStorage.getItem(storageKey);
+      expect(JSON.parse(rawAfter!).preferences).toBeUndefined();
 
       // Reset back to dark for other tests
       usePreferencesStore.getState().setTheme('dark');
