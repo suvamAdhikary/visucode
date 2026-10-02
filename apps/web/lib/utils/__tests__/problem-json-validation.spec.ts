@@ -1,6 +1,6 @@
 /**
  * Problem JSON Validation Tests
- * Verifies all 15 problem JSON files are valid and complete
+ * Verifies all 29 problem JSON files are valid and complete
  */
 
 import { readFileSync, readdirSync } from 'fs';
@@ -13,39 +13,45 @@ const PROBLEMS_DIR = path.join(__dirname, '../../../content/problems');
 const problemFiles = readdirSync(PROBLEMS_DIR).filter(f => f.endsWith('.json'));
 
 describe('Problem JSON Validation', () => {
-  it('should have at least 15 problem files', () => {
-    expect(problemFiles.length).toBeGreaterThanOrEqual(15);
+  it('should have all 29 problem files', () => {
+    expect(problemFiles.length).toBe(29);
   });
 
   const expectedSlugs = [
+    '3sum',
+    'best-time-to-buy-sell-stock',
+    'binary-search',
+    'clone-graph',
+    'coin-change',
+    'container-with-most-water',
+    'find-minimum-rotated-sorted-array',
+    'find-peak-element',
+    'implement-trie-prefix-tree',
+    'invert-binary-tree',
+    'koko-eating-bananas',
+    'kth-largest-element-in-an-array',
+    'linked-list-cycle',
+    'longest-common-subsequence',
+    'longest-repeating-character-replacement',
+    'longest-substring-without-repeating',
+    'max-subarray-sum-k',
+    'maximum-depth-of-binary-tree',
+    'merge-intervals',
+    'merge-two-sorted-lists',
+    'minimum-window-substring',
+    'reverse-linked-list',
+    'search-in-rotated-sorted-array',
+    'subsets',
+    'trapping-rain-water',
+    'two-sum',
     'two-sum-sorted',
     'valid-palindrome',
-    'container-with-most-water',
-    'best-time-to-buy-sell-stock',
-    'max-subarray-sum-k',
-    'binary-search',
-    '3sum',
-    'trapping-rain-water',
-    'longest-substring-without-repeating',
-    'minimum-window-substring',
-    'longest-repeating-character-replacement',
-    'search-in-rotated-sorted-array',
-    'find-minimum-rotated-sorted-array',
-    'koko-eating-bananas',
-    'find-peak-element',
-    'two-sum',
     'valid-parentheses',
-    'merge-intervals',
-    'clone-graph',
-    'kth-largest-element-in-an-array',
-    'implement-trie-prefix-tree',
-    'coin-change',
-    'longest-common-subsequence',
-    'subsets',
   ];
 
   it('should have all expected problem files', () => {
     const fileSlugs = problemFiles.map(f => f.replace('.json', ''));
+    expect(fileSlugs.sort()).toEqual([...expectedSlugs].sort());
     for (const slug of expectedSlugs) {
       expect(fileSlugs).toContain(slug);
     }

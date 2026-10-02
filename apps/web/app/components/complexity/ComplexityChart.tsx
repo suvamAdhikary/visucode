@@ -193,7 +193,12 @@ export function ComplexityChart({ complexityClass, compact = false }: Complexity
           const opacity = isActive ? 1 : 0.28;
 
           return (
-            <g key={curve.key} className={isActive ? styles.activeGroup : styles.inactiveGroup}>
+            <g
+              key={curve.key}
+              className={isActive ? styles.activeGroup : styles.inactiveGroup}
+              data-testid={`curve-group-${curve.key}`}
+              data-active={isActive ? 'true' : 'false'}
+            >
               <path
                 d={curve.d}
                 fill="none"
@@ -203,6 +208,8 @@ export function ComplexityChart({ complexityClass, compact = false }: Complexity
                 opacity={opacity}
                 filter={isActive ? `url(#${filterId})` : undefined}
                 className={styles.curvePath}
+                data-testid={`curve-path-${curve.key}`}
+                data-active={isActive ? 'true' : 'false'}
               />
 
               {/* End Dot on Active Curve */}
@@ -213,6 +220,7 @@ export function ComplexityChart({ complexityClass, compact = false }: Complexity
                   r="4"
                   fill={curveMeta.color}
                   className={styles.glowDot}
+                  data-testid={`curve-dot-${curve.key}`}
                 />
               )}
 

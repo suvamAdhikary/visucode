@@ -56,13 +56,35 @@ describe('ComplexityChart (Sprint 4, F-LDR-S4-03)', () => {
     'exponential',
   ];
 
-  it.each(classes)('highlights active complexity class %s on growth curve', (cls) => {
+  it.each(classes)('highlights active complexity class %s on growth curve with active SVG stroke and marker dot', (cls) => {
     render(<ComplexityChart complexityClass={cls} />);
 
     const meta = COMPLEXITY_METADATA[cls];
     expect(screen.getByText(meta.badgeText)).toBeTruthy();
     expect(screen.getByText(meta.description)).toBeTruthy();
     expect(screen.getByRole('figure')).toBeTruthy();
+
+    // Verify active SVG curve path attributes
+    const activePath = screen.getByTestId(`curve-path-${cls}`);
+    expect(activePath.getAttribute('stroke')).toBe(meta.color);
+    expect(activePath.getAttribute('stroke-width')).toBe('3');
+    expect(activePath.getAttribute('opacity')).toBe('1');
+    expect(activePath.getAttribute('data-active')).toBe('true');
+
+    // Verify active marker dot
+    const activeDot = screen.getByTestId(`curve-dot-${cls}`);
+    expect(activeDot).toBeTruthy();
+    expect(activeDot.getAttribute('fill')).toBe(meta.color);
+
+    // Verify non-active curves are in neutral background stroke
+    const inactiveClasses = classes.filter((c) => c !== cls);
+    for (const other of inactiveClasses) {
+      const inactivePath = screen.getByTestId(`curve-path-${other}`);
+      expect(inactivePath.getAttribute('stroke-width')).toBe('1.25');
+      expect(inactivePath.getAttribute('opacity')).toBe('0.28');
+      expect(inactivePath.getAttribute('data-active')).toBe('false');
+      expect(screen.queryByTestId(`curve-dot-${other}`)).toBeNull();
+    }
   });
 
   it('renders all curves in neutral mode when complexityClass is undefined', () => {
@@ -70,5 +92,13 @@ describe('ComplexityChart (Sprint 4, F-LDR-S4-03)', () => {
 
     expect(screen.getByText('Big-O Growth Curve')).toBeTruthy();
     expect(screen.getByRole('figure')).toBeTruthy();
+
+    // All curves should be neutral with stroke-width 1.25 and no active dots
+    for (const cls of classes) {
+      const path = screen.getByTestId(`curve-path-${cls}`);
+      expect(path.getAttribute('stroke-width')).toBe('1.25');
+      expect(path.getAttribute('data-active')).toBe('false');
+      expect(screen.queryByTestId(`curve-dot-${cls}`)).toBeNull();
+    }
   });
 });
