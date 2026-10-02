@@ -36,8 +36,8 @@ If any item fails: **do not merge.**
 
 | Item | Verdict |
 | --- | --- |
-| **Phase 3** | **NOT STARTED.** Plan only. Sequenced after Live Dry Run Sprint 1. Do not open this Sprint 2 until this Sprint 1 `BLOCKED` flags are `FIXED`. |
-| **Live Dry Run** | Next product work. [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). |
+| **Phase 3** | **Sprint 1 Complete.** Anonymous progress, problem completion toggle, catalog badges, and developer profile all verified. Ready for Sprint 2. |
+| **Live Dry Run** | Done (Sprints 1–4 merged into `main`). [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). |
 | **Phase 2** | Done (Sprints 1–5). Trackers under `docs/phase-2-*-quality-flags.md`. |
 
 ---
@@ -75,20 +75,20 @@ Reuse what already exists:
 
 ### Stories
 
-- [ ] `progress.service.ts` — `getProgress`, `markProblemComplete`, `markLessonComplete`. Adapter = localStorage keyed by `visucode_uid`.
-- [ ] Problem page: mark complete after tests pass (or explicit “Mark done”). Idempotent.
-- [ ] Catalog / pattern lists show completed state.
-- [ ] Profile page: counts from `UserProgress` (problems, lessons, current track).
-- [ ] No NextAuth, no Prisma, no premium in this sprint.
+- [x] `progress.service.ts` — `getProgress`, `markProblemComplete`, `markLessonComplete`. Adapter = localStorage keyed by `visucode_uid`.
+- [x] Problem page: mark complete after tests pass (or explicit “Mark done”). Idempotent.
+- [x] Catalog / pattern lists show completed state.
+- [x] Profile page: counts from `UserProgress` (problems, lessons, current track).
+- [x] No NextAuth, no Prisma, no premium in this sprint.
 
 ### Flag register (Sprint 1)
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-P3S1-01 | Progress only through service layer | `OPEN` | Components must not read/write `localStorage` for completions |
-| F-P3S1-02 | Wrong slug / lost set on refresh | `OPEN` | Prove with unit tests on the adapter |
-| F-P3S1-03 | Profile matches catalog completions | `OPEN` | Same source as list badges |
-| F-P3S1-04 | `next-env.d.ts` / generated files | `OPEN` | 0 diff vs `main` |
+| F-P3S1-01 | Progress only through service layer | `FIXED` | Components must not read/write `localStorage` for completions. Strictly encapsulated in `progress.service.ts`. |
+| F-P3S1-02 | Wrong slug / lost set on refresh | `FIXED` | Proved with comprehensive unit tests in `apps/web/lib/services/__tests__/progress.service.spec.ts`. |
+| F-P3S1-03 | Profile matches catalog completions | `FIXED` | Proved with integration tests in `apps/web/specs/profile-page.spec.tsx` and `problem-completion.spec.tsx`. Same reactive `useUserProgress` hook. |
+| F-P3S1-04 | `next-env.d.ts` / generated files | `FIXED` | 0 diff vs `main`. |
 
 ---
 
@@ -156,13 +156,13 @@ Phase 3 default: `feature/phase-3-sprint-N` → `main`. Use `develop` only after
 
 ## Sprint 1 merge checklist (copy when asking for review)
 
-- [ ] `progress.service` is the only completion read/write
-- [ ] Completing a problem is idempotent; refresh keeps the set
-- [ ] Profile counts match catalog badges
-- [ ] No Auth.js / Prisma in the Sprint 1 diff
-- [ ] `next-env.d.ts` 0 diff vs `main`
-- [ ] `npx nx test web` green
-- [ ] This file updated (`OPEN` → `FIXED` for Sprint 1 flags)
+- [x] `progress.service` is the only completion read/write
+- [x] Completing a problem is idempotent; refresh keeps the set
+- [x] Profile counts match catalog badges
+- [x] No Auth.js / Prisma in the Sprint 1 diff
+- [x] `next-env.d.ts` 0 diff vs `main`
+- [x] `npx nx test web` green
+- [x] This file updated (`OPEN` → `FIXED` for Sprint 1 flags)
 
 ---
 

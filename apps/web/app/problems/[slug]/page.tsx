@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getProblem } from '../../../lib/services';
 import { ProblemTabs } from './ProblemTabs';
 import { ComplexityPanel } from '../../components/complexity/ComplexityPanel';
+import { ProblemCompletionToggle } from './ProblemCompletionToggle';
 import styles from './page.module.css';
 
 interface ProblemPageProps {
@@ -40,6 +41,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
           <span>{problem.title}</span>
         </nav>
         <div className={styles.topActions}>
+          <ProblemCompletionToggle slug={problem.slug} />
           {problem.externalLinks?.map((link, idx) => {
             const platform = typeof link.platform === 'string' ? link.platform : 'link';
             return (

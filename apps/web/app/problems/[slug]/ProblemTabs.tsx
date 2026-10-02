@@ -76,6 +76,7 @@ export function ProblemTabs({ problem }: ProblemTabsProps) {
             starterCode={problem.starterCode?.['javascript'] || ''}
             wrapperCode={problem.wrapperCode?.['javascript']}
             testCases={problem.testCases}
+            problemSlug={problem.slug}
           />
         </div>
       </div>

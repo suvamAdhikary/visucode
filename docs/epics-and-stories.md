@@ -81,12 +81,12 @@ Start after Live Dry Run Sprint 1 is merge-ready. Auth.js still waits until this
 
 Reuse existing types (`UserProgress`, `UserPreferences`) and `visucode_uid`. UI must go through a service adapter, same as `getProblem()`.
 
-### Sprint 1: Anonymous progress (TODO)
+### Sprint 1: Anonymous progress (DONE)
 *Focus: localStorage completions + profile. No auth, no database.*
-- [ ] **Story**: Add `progress.service.ts` (`getProgress`, `markProblemComplete`, `markLessonComplete`) with a localStorage adapter keyed by `visucode_uid`.
-- [ ] **Story**: Mark a problem complete from the problem page (after tests pass and/or explicit Mark done). Idempotent; survives refresh.
-- [ ] **Story**: Show completed state on problem catalog and pattern pages.
-- [ ] **Story**: Profile page with completion stats from `UserProgress` (not a second store).
+- [x] **Story**: Add `progress.service.ts` (`getProgress`, `markProblemComplete`, `markLessonComplete`) with a localStorage adapter keyed by `visucode_uid`.
+- [x] **Story**: Mark a problem complete from the problem page (after tests pass and/or explicit Mark done). Idempotent; survives refresh.
+- [x] **Story**: Show completed state on problem catalog and pattern pages.
+- [x] **Story**: Profile page with completion stats from `UserProgress` (not a second store).
 
 ### Sprint 2: Identity (TODO)
 *Start only after Sprint 1 is merge-ready. Auth.js (NextAuth v5) on Next.js 16, not Auth v4.*

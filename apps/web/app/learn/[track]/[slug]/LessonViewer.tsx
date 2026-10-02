@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { Lesson } from '@visucode/shared-types';
+import { markLessonComplete, setCurrentTrack } from '../../../../lib/services/progress.service';
 import styles from './page.module.css';
 
 interface LessonViewerProps {
@@ -10,10 +11,24 @@ interface LessonViewerProps {
   trackColor: string;
 }
 
-export function LessonViewer({ lesson, trackColor }: LessonViewerProps) {
+export function LessonViewer({ lesson, trackSlug, trackColor }: LessonViewerProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = lesson.animationSteps.length;
   const step = lesson.animationSteps[currentStep];
+
+  const handleCompletion = useCallback(() => {
+    markLessonComplete(lesson.slug);
+    if (trackSlug) {
+      setCurrentTrack(trackSlug, lesson.order);
+    }
+  }, [lesson.slug, lesson.order, trackSlug]);
+
+  useEffect(() => {
+    // If lesson has no mini-exercise, completing all animation steps marks it complete
+    if (currentStep === totalSteps - 1 && !lesson.miniExercise) {
+      handleCompletion();
+    }
+  }, [currentStep, totalSteps, lesson.miniExercise, handleCompletion]);
 
   const goNext = useCallback(() => {
     setCurrentStep((s) => Math.min(s + 1, totalSteps - 1));
@@ -154,7 +169,11 @@ export function LessonViewer({ lesson, trackColor }: LessonViewerProps) {
 
       {/* Mini Exercise (shown after animation) */}
       {lesson.miniExercise && currentStep === totalSteps - 1 && (
-        <MiniExercise exercise={lesson.miniExercise} trackColor={trackColor} />
+        <MiniExercise
+          exercise={lesson.miniExercise}
+          trackColor={trackColor}
+          onSuccess={handleCompletion}
+        />
       )}
     </div>
   );
@@ -167,11 +186,19 @@ export function LessonViewer({ lesson, trackColor }: LessonViewerProps) {
 interface MiniExerciseProps {
   exercise: NonNullable<Lesson['miniExercise']>;
   trackColor: string;
+  onSuccess?: () => void;
 }
 
-function MiniExercise({ exercise, trackColor }: MiniExerciseProps) {
+function MiniExercise({ exercise, trackColor, onSuccess }: MiniExerciseProps) {
   const [answer, setAnswer] = useState<string | null>(null);
   const isCorrect = answer === exercise.correctAnswer;
+
+  const handleSelectAnswer = (selected: string) => {
+    setAnswer(selected);
+    if (selected === exercise.correctAnswer) {
+      onSuccess?.();
+    }
+  };
 
   return (
     <div className={styles.exercise}>
@@ -183,7 +210,7 @@ function MiniExercise({ exercise, trackColor }: MiniExerciseProps) {
           {exercise.options.map((option) => (
             <button
               key={option}
-              onClick={() => setAnswer(option)}
+              onClick={() => handleSelectAnswer(option)}
               className={`${styles.optionBtn} ${
                 answer === option
                   ? isCorrect
@@ -191,7 +218,7 @@ function MiniExercise({ exercise, trackColor }: MiniExerciseProps) {
                     : styles.optionWrong
                   : ''
               }`}
-              disabled={answer !== null}
+              disabled={isCorrect}
             >
               {option}
             </button>
@@ -204,7 +231,7 @@ function MiniExercise({ exercise, trackColor }: MiniExerciseProps) {
           {exercise.visualState.array.elements.map((el, i) => (
             <button
               key={i}
-              onClick={() => setAnswer(String(el))}
+              onClick={() => handleSelectAnswer(String(el))}
               className={`${styles.element} ${styles.elementClickable} ${
                 answer === String(el)
                   ? isCorrect
@@ -212,7 +239,7 @@ function MiniExercise({ exercise, trackColor }: MiniExerciseProps) {
                     : styles.optionWrong
                   : ''
               }`}
-              disabled={answer !== null}
+              disabled={isCorrect}
             >
               {el}
             </button>

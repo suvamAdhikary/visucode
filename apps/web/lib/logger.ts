@@ -6,7 +6,7 @@
 import type { LogEntry, LogLevel } from '@visucode/shared-types';
 
 // Generate a stable anonymous user ID (persisted in localStorage)
-function getUserId(): string {
+export function getUserId(): string {
     if (typeof window === 'undefined') return 'server';
     let id = localStorage.getItem('visucode_uid');
     if (!id) {
