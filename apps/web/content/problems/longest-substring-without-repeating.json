@@ -3,8 +3,15 @@
   "title": "Longest Substring Without Repeating Characters",
   "difficulty": "Medium",
   "category": "string",
-  "patterns": ["sliding-window"],
-  "companies": ["Amazon", "Meta", "Google", "Bloomberg"],
+  "patterns": [
+    "sliding-window"
+  ],
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Google",
+    "Bloomberg"
+  ],
   "description": "Given a string `s`, find the length of the **longest substring** without repeating characters.",
   "examples": [
     {
@@ -41,51 +48,165 @@
       "code": "function lengthOfLongestSubstring(s) {\n  const charSet = new Set();\n  let left = 0;\n  let maxLen = 0;\n\n  for (let right = 0; right < s.length; right++) {\n    while (charSet.has(s[right])) {\n      charSet.delete(s[left]);\n      left++;\n    }\n    charSet.add(s[right]);\n    maxLen = Math.max(maxLen, right - left + 1);\n  }\n  return maxLen;\n}",
       "timeComplexity": "O(n)",
       "spaceComplexity": "O(min(n, m))",
-      "explanation": "Sliding window with a Set. Expand right, shrink left on duplicates, track max window size."
+      "explanation": "Sliding window with a Set. Expand right, shrink left on duplicates, track max window size.",
+      "timeComplexityWhy": "Sliding window with two pointers scans each character at most twice (once upon enter, once upon exit).",
+      "spaceComplexityWhy": "A hash set or map stores at most min(n, m) characters, bounded by the character set size m.",
+      "complexityClass": "linear"
     }
   ],
   "testCases": [
-    { "id": "1", "input": "[\"abcabcbb\"]", "expected": "3" },
-    { "id": "2", "input": "[\"bbbbb\"]", "expected": "1" },
-    { "id": "3", "input": "[\"pwwkew\"]", "expected": "3" },
-    { "id": "4", "input": "[\"\"]", "expected": "0" },
-    { "id": "5", "input": "[\"dvdf\"]", "expected": "3", "isHidden": true }
+    {
+      "id": "1",
+      "input": "[\"abcabcbb\"]",
+      "expected": "3"
+    },
+    {
+      "id": "2",
+      "input": "[\"bbbbb\"]",
+      "expected": "1"
+    },
+    {
+      "id": "3",
+      "input": "[\"pwwkew\"]",
+      "expected": "3"
+    },
+    {
+      "id": "4",
+      "input": "[\"\"]",
+      "expected": "0"
+    },
+    {
+      "id": "5",
+      "input": "[\"dvdf\"]",
+      "expected": "3",
+      "isHidden": true
+    }
   ],
   "dryRunSteps": [
     {
       "stepNumber": 1,
       "line": 2,
       "variables": [
-        { "name": "charSet", "value": "{}", "type": "set", "changed": true },
-        { "name": "left", "value": "0", "type": "number", "changed": true },
-        { "name": "maxLen", "value": "0", "type": "number", "changed": true }
+        {
+          "name": "charSet",
+          "value": "{}",
+          "type": "set",
+          "changed": true
+        },
+        {
+          "name": "left",
+          "value": "0",
+          "type": "number",
+          "changed": true
+        },
+        {
+          "name": "maxLen",
+          "value": "0",
+          "type": "number",
+          "changed": true
+        }
       ],
-      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"] },
+      "arrayState": {
+        "elements": [
+          "a",
+          "b",
+          "c",
+          "a",
+          "b",
+          "c",
+          "b",
+          "b"
+        ]
+      },
       "explanation": "Initialize: empty Set, left=0, maxLen=0. Trace 'abcabcbb'."
     },
     {
       "stepNumber": 2,
       "line": 6,
       "variables": [
-        { "name": "right", "value": "0", "type": "number", "changed": true },
-        { "name": "s[right]", "value": "a", "type": "string" }
+        {
+          "name": "right",
+          "value": "0",
+          "type": "number",
+          "changed": true
+        },
+        {
+          "name": "s[right]",
+          "value": "a",
+          "type": "string"
+        }
       ],
-      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 0, "windowEnd": 0 },
-      "pointers": [{ "name": "L=R", "index": 0, "color": "#34d399" }],
+      "arrayState": {
+        "elements": [
+          "a",
+          "b",
+          "c",
+          "a",
+          "b",
+          "c",
+          "b",
+          "b"
+        ],
+        "windowStart": 0,
+        "windowEnd": 0
+      },
+      "pointers": [
+        {
+          "name": "L=R",
+          "index": 0,
+          "color": "#34d399"
+        }
+      ],
       "explanation": "right=0 → 'a' not in set. Add it. Window: [a], maxLen=1."
     },
     {
       "stepNumber": 3,
       "line": 11,
       "variables": [
-        { "name": "charSet", "value": "{a,b,c}", "type": "set", "changed": true },
-        { "name": "right", "value": "2", "type": "number", "changed": true },
-        { "name": "maxLen", "value": "3", "type": "number", "changed": true }
+        {
+          "name": "charSet",
+          "value": "{a,b,c}",
+          "type": "set",
+          "changed": true
+        },
+        {
+          "name": "right",
+          "value": "2",
+          "type": "number",
+          "changed": true
+        },
+        {
+          "name": "maxLen",
+          "value": "3",
+          "type": "number",
+          "changed": true
+        }
       ],
-      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 0, "windowEnd": 2 },
+      "arrayState": {
+        "elements": [
+          "a",
+          "b",
+          "c",
+          "a",
+          "b",
+          "c",
+          "b",
+          "b"
+        ],
+        "windowStart": 0,
+        "windowEnd": 2
+      },
       "pointers": [
-        { "name": "L", "index": 0, "color": "#06b6d4" },
-        { "name": "R", "index": 2, "color": "#a855f7" }
+        {
+          "name": "L",
+          "index": 0,
+          "color": "#06b6d4"
+        },
+        {
+          "name": "R",
+          "index": 2,
+          "color": "#a855f7"
+        }
       ],
       "explanation": "Add 'b','c'. Window grows to [a,b,c]. maxLen=3."
     },
@@ -93,13 +214,46 @@
       "stepNumber": 4,
       "line": 7,
       "variables": [
-        { "name": "right", "value": "3", "type": "number", "changed": true },
-        { "name": "s[right]", "value": "a", "type": "string" }
+        {
+          "name": "right",
+          "value": "3",
+          "type": "number",
+          "changed": true
+        },
+        {
+          "name": "s[right]",
+          "value": "a",
+          "type": "string"
+        }
       ],
-      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 0, "windowEnd": 3, "highlightIndices": [3] },
+      "arrayState": {
+        "elements": [
+          "a",
+          "b",
+          "c",
+          "a",
+          "b",
+          "c",
+          "b",
+          "b"
+        ],
+        "windowStart": 0,
+        "windowEnd": 3,
+        "highlightIndices": [
+          3
+        ]
+      },
       "pointers": [
-        { "name": "L", "index": 0, "color": "#06b6d4" },
-        { "name": "R", "index": 3, "color": "#a855f7" }
+        {
+          "name": "L",
+          "index": 0,
+          "color": "#06b6d4"
+        },
+        {
+          "name": "R",
+          "index": 3,
+          "color": "#a855f7"
+        }
       ],
       "explanation": "right=3 → 'a' already in set! Must shrink window from left."
     },
@@ -107,13 +261,44 @@
       "stepNumber": 5,
       "line": 8,
       "variables": [
-        { "name": "charSet", "value": "{b,c,a}", "type": "set", "changed": true },
-        { "name": "left", "value": "1", "type": "number", "changed": true }
+        {
+          "name": "charSet",
+          "value": "{b,c,a}",
+          "type": "set",
+          "changed": true
+        },
+        {
+          "name": "left",
+          "value": "1",
+          "type": "number",
+          "changed": true
+        }
       ],
-      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 1, "windowEnd": 3 },
+      "arrayState": {
+        "elements": [
+          "a",
+          "b",
+          "c",
+          "a",
+          "b",
+          "c",
+          "b",
+          "b"
+        ],
+        "windowStart": 1,
+        "windowEnd": 3
+      },
       "pointers": [
-        { "name": "L", "index": 1, "color": "#06b6d4" },
-        { "name": "R", "index": 3, "color": "#a855f7" }
+        {
+          "name": "L",
+          "index": 1,
+          "color": "#06b6d4"
+        },
+        {
+          "name": "R",
+          "index": 3,
+          "color": "#a855f7"
+        }
       ],
       "explanation": "Remove s[0]='a' from set. left→1. Now add s[3]='a'. Window: [b,c,a]."
     },
@@ -121,13 +306,46 @@
       "stepNumber": 6,
       "line": 7,
       "variables": [
-        { "name": "right", "value": "4", "type": "number", "changed": true },
-        { "name": "s[right]", "value": "b", "type": "string" }
+        {
+          "name": "right",
+          "value": "4",
+          "type": "number",
+          "changed": true
+        },
+        {
+          "name": "s[right]",
+          "value": "b",
+          "type": "string"
+        }
       ],
-      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 1, "windowEnd": 4, "highlightIndices": [4] },
+      "arrayState": {
+        "elements": [
+          "a",
+          "b",
+          "c",
+          "a",
+          "b",
+          "c",
+          "b",
+          "b"
+        ],
+        "windowStart": 1,
+        "windowEnd": 4,
+        "highlightIndices": [
+          4
+        ]
+      },
       "pointers": [
-        { "name": "L", "index": 1, "color": "#06b6d4" },
-        { "name": "R", "index": 4, "color": "#a855f7" }
+        {
+          "name": "L",
+          "index": 1,
+          "color": "#06b6d4"
+        },
+        {
+          "name": "R",
+          "index": 4,
+          "color": "#a855f7"
+        }
       ],
       "explanation": "right=4 → 'b' already in set! Shrink: remove s[1]='b', left→2."
     },
@@ -135,20 +353,57 @@
       "stepNumber": 7,
       "line": 12,
       "variables": [
-        { "name": "left", "value": "2", "type": "number", "changed": true },
-        { "name": "maxLen", "value": "3", "type": "number" }
+        {
+          "name": "left",
+          "value": "2",
+          "type": "number",
+          "changed": true
+        },
+        {
+          "name": "maxLen",
+          "value": "3",
+          "type": "number"
+        }
       ],
-      "arrayState": { "elements": ["a", "b", "c", "a", "b", "c", "b", "b"], "windowStart": 2, "windowEnd": 4 },
+      "arrayState": {
+        "elements": [
+          "a",
+          "b",
+          "c",
+          "a",
+          "b",
+          "c",
+          "b",
+          "b"
+        ],
+        "windowStart": 2,
+        "windowEnd": 4
+      },
       "pointers": [
-        { "name": "L", "index": 2, "color": "#06b6d4" },
-        { "name": "R", "index": 4, "color": "#a855f7" }
+        {
+          "name": "L",
+          "index": 2,
+          "color": "#06b6d4"
+        },
+        {
+          "name": "R",
+          "index": 4,
+          "color": "#a855f7"
+        }
       ],
       "explanation": "Window [c,a,b], size 3 = maxLen. Pattern continues until end. Return 3."
     }
   ],
   "externalLinks": [
-    { "platform": "leetcode", "url": "https://leetcode.com/problems/longest-substring-without-repeating-characters/", "problemId": "3" },
-    { "platform": "neetcode", "url": "https://neetcode.io/problems/longest-substring-without-duplicates" }
+    {
+      "platform": "leetcode",
+      "url": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+      "problemId": "3"
+    },
+    {
+      "platform": "neetcode",
+      "url": "https://neetcode.io/problems/longest-substring-without-duplicates"
+    }
   ],
   "realWorldUseCases": [
     {

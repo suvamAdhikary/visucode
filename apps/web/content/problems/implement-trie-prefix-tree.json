@@ -49,7 +49,10 @@
       "timeComplexity": "O(L) per operation",
       "spaceComplexity": "O(N * L)",
       "explanation": "Store characters in a tree hierarchy where each edge represents a letter. Maintain an isEnd flag to distinguish complete words from prefixes.",
-      "code": "function Trie() {\n    this.children = {};\n    this.isEnd = false;\n}\n\nTrie.prototype.insert = function(word) {\n    let curr = this;\n    for (const ch of word) {\n        if (!curr.children[ch]) {\n            curr.children[ch] = new Trie();\n        }\n        curr = curr.children[ch];\n    }\n    curr.isEnd = true;\n};\n\nTrie.prototype.search = function(word) {\n    let curr = this;\n    for (const ch of word) {\n        if (!curr.children[ch]) return false;\n        curr = curr.children[ch];\n    }\n    return curr.isEnd === true;\n};\n\nTrie.prototype.startsWith = function(prefix) {\n    let curr = this;\n    for (const ch of prefix) {\n        if (!curr.children[ch]) return false;\n        curr = curr.children[ch];\n    }\n    return true;\n};"
+      "code": "function Trie() {\n    this.children = {};\n    this.isEnd = false;\n}\n\nTrie.prototype.insert = function(word) {\n    let curr = this;\n    for (const ch of word) {\n        if (!curr.children[ch]) {\n            curr.children[ch] = new Trie();\n        }\n        curr = curr.children[ch];\n    }\n    curr.isEnd = true;\n};\n\nTrie.prototype.search = function(word) {\n    let curr = this;\n    for (const ch of word) {\n        if (!curr.children[ch]) return false;\n        curr = curr.children[ch];\n    }\n    return curr.isEnd === true;\n};\n\nTrie.prototype.startsWith = function(prefix) {\n    let curr = this;\n    for (const ch of prefix) {\n        if (!curr.children[ch]) return false;\n        curr = curr.children[ch];\n    }\n    return true;\n};",
+      "timeComplexityWhy": "Insert, search, and startsWith operations traverse exactly L characters of the input string in O(1) per character.",
+      "spaceComplexityWhy": "Up to N keys each of length L can generate TrieNodes with up to 26 child references each.",
+      "complexityClass": "linear"
     }
   ],
   "testCases": [
@@ -75,12 +78,21 @@
       "line": 1,
       "explanation": "Initialize Trie root with empty children map.",
       "variables": [
-        { "name": "root", "value": "TrieNode(root)", "type": "Trie" }
+        {
+          "name": "root",
+          "value": "TrieNode(root)",
+          "type": "Trie"
+        }
       ],
       "trieState": {
         "rootId": "root",
         "nodes": [
-          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": {} }
+          {
+            "id": "root",
+            "char": "ROOT",
+            "isEndOfWord": false,
+            "childrenIds": {}
+          }
         ],
         "activeNodeId": "root"
       }
@@ -90,20 +102,68 @@
       "line": 14,
       "explanation": "insert(\"apple\"): add nodes for 'a', 'p', 'p', 'l', 'e'. Set isEndOfWord = true on 'e'.",
       "variables": [
-        { "name": "word", "value": "\"apple\"", "type": "string" },
-        { "name": "curr.isEnd", "value": "true", "type": "boolean" }
+        {
+          "name": "word",
+          "value": "\"apple\"",
+          "type": "string"
+        },
+        {
+          "name": "curr.isEnd",
+          "value": "true",
+          "type": "boolean"
+        }
       ],
       "trieState": {
         "rootId": "root",
         "matchedPrefix": "apple",
         "activeNodeId": "e",
         "nodes": [
-          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
-          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
-          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
-          { "id": "p2", "char": "p", "isEndOfWord": false, "childrenIds": { "l": "l" } },
-          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
-          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+          {
+            "id": "root",
+            "char": "ROOT",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "a": "a"
+            }
+          },
+          {
+            "id": "a",
+            "char": "a",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p1"
+            }
+          },
+          {
+            "id": "p1",
+            "char": "p",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p2"
+            }
+          },
+          {
+            "id": "p2",
+            "char": "p",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "l": "l"
+            }
+          },
+          {
+            "id": "l",
+            "char": "l",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "e": "e"
+            }
+          },
+          {
+            "id": "e",
+            "char": "e",
+            "isEndOfWord": true,
+            "childrenIds": {}
+          }
         ]
       }
     },
@@ -112,20 +172,68 @@
       "line": 23,
       "explanation": "search(\"apple\"): traverse down root -> a -> p -> p -> l -> e. Node 'e' has isEnd = true. Return true.",
       "variables": [
-        { "name": "search", "value": "\"apple\"", "type": "string" },
-        { "name": "return", "value": "true", "type": "boolean" }
+        {
+          "name": "search",
+          "value": "\"apple\"",
+          "type": "string"
+        },
+        {
+          "name": "return",
+          "value": "true",
+          "type": "boolean"
+        }
       ],
       "trieState": {
         "rootId": "root",
         "matchedPrefix": "apple",
         "activeNodeId": "e",
         "nodes": [
-          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
-          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
-          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
-          { "id": "p2", "char": "p", "isEndOfWord": false, "childrenIds": { "l": "l" } },
-          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
-          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+          {
+            "id": "root",
+            "char": "ROOT",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "a": "a"
+            }
+          },
+          {
+            "id": "a",
+            "char": "a",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p1"
+            }
+          },
+          {
+            "id": "p1",
+            "char": "p",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p2"
+            }
+          },
+          {
+            "id": "p2",
+            "char": "p",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "l": "l"
+            }
+          },
+          {
+            "id": "l",
+            "char": "l",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "e": "e"
+            }
+          },
+          {
+            "id": "e",
+            "char": "e",
+            "isEndOfWord": true,
+            "childrenIds": {}
+          }
         ]
       }
     },
@@ -134,21 +242,73 @@
       "line": 23,
       "explanation": "search(\"app\"): traverse root -> a -> p -> p. Node 'p' exists but isEnd = false. Return false.",
       "variables": [
-        { "name": "search", "value": "\"app\"", "type": "string" },
-        { "name": "curr.isEnd", "value": "false", "type": "boolean" },
-        { "name": "return", "value": "false", "type": "boolean" }
+        {
+          "name": "search",
+          "value": "\"app\"",
+          "type": "string"
+        },
+        {
+          "name": "curr.isEnd",
+          "value": "false",
+          "type": "boolean"
+        },
+        {
+          "name": "return",
+          "value": "false",
+          "type": "boolean"
+        }
       ],
       "trieState": {
         "rootId": "root",
         "matchedPrefix": "app",
         "activeNodeId": "p2",
         "nodes": [
-          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
-          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
-          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
-          { "id": "p2", "char": "p", "isEndOfWord": false, "childrenIds": { "l": "l" } },
-          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
-          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+          {
+            "id": "root",
+            "char": "ROOT",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "a": "a"
+            }
+          },
+          {
+            "id": "a",
+            "char": "a",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p1"
+            }
+          },
+          {
+            "id": "p1",
+            "char": "p",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p2"
+            }
+          },
+          {
+            "id": "p2",
+            "char": "p",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "l": "l"
+            }
+          },
+          {
+            "id": "l",
+            "char": "l",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "e": "e"
+            }
+          },
+          {
+            "id": "e",
+            "char": "e",
+            "isEndOfWord": true,
+            "childrenIds": {}
+          }
         ]
       }
     },
@@ -157,20 +317,68 @@
       "line": 32,
       "explanation": "startsWith(\"app\"): traverse root -> a -> p -> p. All characters exist in path. Return true.",
       "variables": [
-        { "name": "prefix", "value": "\"app\"", "type": "string" },
-        { "name": "return", "value": "true", "type": "boolean" }
+        {
+          "name": "prefix",
+          "value": "\"app\"",
+          "type": "string"
+        },
+        {
+          "name": "return",
+          "value": "true",
+          "type": "boolean"
+        }
       ],
       "trieState": {
         "rootId": "root",
         "matchedPrefix": "app",
         "activeNodeId": "p2",
         "nodes": [
-          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
-          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
-          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
-          { "id": "p2", "char": "p", "isEndOfWord": false, "childrenIds": { "l": "l" } },
-          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
-          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+          {
+            "id": "root",
+            "char": "ROOT",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "a": "a"
+            }
+          },
+          {
+            "id": "a",
+            "char": "a",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p1"
+            }
+          },
+          {
+            "id": "p1",
+            "char": "p",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p2"
+            }
+          },
+          {
+            "id": "p2",
+            "char": "p",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "l": "l"
+            }
+          },
+          {
+            "id": "l",
+            "char": "l",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "e": "e"
+            }
+          },
+          {
+            "id": "e",
+            "char": "e",
+            "isEndOfWord": true,
+            "childrenIds": {}
+          }
         ]
       }
     },
@@ -179,20 +387,68 @@
       "line": 14,
       "explanation": "insert(\"app\"): traverse root -> a -> p -> p. Mark isEndOfWord = true on 'p'. Now search(\"app\") will return true.",
       "variables": [
-        { "name": "word", "value": "\"app\"", "type": "string" },
-        { "name": "curr.isEnd", "value": "true", "type": "boolean" }
+        {
+          "name": "word",
+          "value": "\"app\"",
+          "type": "string"
+        },
+        {
+          "name": "curr.isEnd",
+          "value": "true",
+          "type": "boolean"
+        }
       ],
       "trieState": {
         "rootId": "root",
         "matchedPrefix": "app",
         "activeNodeId": "p2",
         "nodes": [
-          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
-          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
-          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
-          { "id": "p2", "char": "p", "isEndOfWord": true, "childrenIds": { "l": "l" } },
-          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
-          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+          {
+            "id": "root",
+            "char": "ROOT",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "a": "a"
+            }
+          },
+          {
+            "id": "a",
+            "char": "a",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p1"
+            }
+          },
+          {
+            "id": "p1",
+            "char": "p",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p2"
+            }
+          },
+          {
+            "id": "p2",
+            "char": "p",
+            "isEndOfWord": true,
+            "childrenIds": {
+              "l": "l"
+            }
+          },
+          {
+            "id": "l",
+            "char": "l",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "e": "e"
+            }
+          },
+          {
+            "id": "e",
+            "char": "e",
+            "isEndOfWord": true,
+            "childrenIds": {}
+          }
         ]
       }
     },
@@ -201,21 +457,73 @@
       "line": 23,
       "explanation": "search(\"app\"): traverse root -> a -> p -> p. Node 'p' now has isEndOfWord = true. Return true.",
       "variables": [
-        { "name": "search", "value": "\"app\"", "type": "string" },
-        { "name": "curr.isEnd", "value": "true", "type": "boolean" },
-        { "name": "return", "value": "true", "type": "boolean" }
+        {
+          "name": "search",
+          "value": "\"app\"",
+          "type": "string"
+        },
+        {
+          "name": "curr.isEnd",
+          "value": "true",
+          "type": "boolean"
+        },
+        {
+          "name": "return",
+          "value": "true",
+          "type": "boolean"
+        }
       ],
       "trieState": {
         "rootId": "root",
         "matchedPrefix": "app",
         "activeNodeId": "p2",
         "nodes": [
-          { "id": "root", "char": "ROOT", "isEndOfWord": false, "childrenIds": { "a": "a" } },
-          { "id": "a", "char": "a", "isEndOfWord": false, "childrenIds": { "p": "p1" } },
-          { "id": "p1", "char": "p", "isEndOfWord": false, "childrenIds": { "p": "p2" } },
-          { "id": "p2", "char": "p", "isEndOfWord": true, "childrenIds": { "l": "l" } },
-          { "id": "l", "char": "l", "isEndOfWord": false, "childrenIds": { "e": "e" } },
-          { "id": "e", "char": "e", "isEndOfWord": true, "childrenIds": {} }
+          {
+            "id": "root",
+            "char": "ROOT",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "a": "a"
+            }
+          },
+          {
+            "id": "a",
+            "char": "a",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p1"
+            }
+          },
+          {
+            "id": "p1",
+            "char": "p",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "p": "p2"
+            }
+          },
+          {
+            "id": "p2",
+            "char": "p",
+            "isEndOfWord": true,
+            "childrenIds": {
+              "l": "l"
+            }
+          },
+          {
+            "id": "l",
+            "char": "l",
+            "isEndOfWord": false,
+            "childrenIds": {
+              "e": "e"
+            }
+          },
+          {
+            "id": "e",
+            "char": "e",
+            "isEndOfWord": true,
+            "childrenIds": {}
+          }
         ]
       }
     }

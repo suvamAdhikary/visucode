@@ -39,7 +39,10 @@
       "timeComplexity": "O(N)",
       "spaceComplexity": "O(H)",
       "explanation": "DFS to swap children.",
-      "code": "function invertTree(root) {\n    if (!root) return null;\n    let temp = root.left;\n    root.left = root.right;\n    root.right = temp;\n    invertTree(root.left);\n    invertTree(root.right);\n    return root;\n}"
+      "code": "function invertTree(root) {\n    if (!root) return null;\n    let temp = root.left;\n    root.left = root.right;\n    root.right = temp;\n    invertTree(root.left);\n    invertTree(root.right);\n    return root;\n}",
+      "timeComplexityWhy": "Each node in the binary tree is visited exactly once to swap its left and right child pointers.",
+      "spaceComplexityWhy": "Recursion call stack uses memory proportional to the tree height H, bounded by O(log N) for balanced trees and O(N) worst-case.",
+      "complexityClass": "linear"
     }
   ],
   "testCases": [

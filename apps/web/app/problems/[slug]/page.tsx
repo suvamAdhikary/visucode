@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProblem } from '../../../lib/services';
 import { ProblemTabs } from './ProblemTabs';
+import { ComplexityPanel } from '../../components/complexity/ComplexityPanel';
 import styles from './page.module.css';
 
 interface ProblemPageProps {
@@ -151,6 +152,11 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
                 </details>
               ))}
             </div>
+          )}
+
+          {/* Official Complexity Explainer (Sprint 4, F-LDR-S4-01) */}
+          {problem.solutions?.[0] && (
+            <ComplexityPanel solution={problem.solutions[0]} />
           )}
 
           {/* Real World Use Cases */}

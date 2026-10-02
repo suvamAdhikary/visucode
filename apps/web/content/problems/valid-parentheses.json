@@ -29,7 +29,10 @@
       "language": "javascript",
       "code": "function isValid(s) {\n    const stack = [];\n    const pairs = { ')': '(', ']': '[', '}': '{' };\n    for (let char of s) {\n        if (!pairs[char]) stack.push(char);\n        else if (stack.pop() !== pairs[char]) return false;\n    }\n    return stack.length === 0;\n}",
       "timeComplexity": "O(N)",
-      "spaceComplexity": "O(N)"
+      "spaceComplexity": "O(N)",
+      "timeComplexityWhy": "Processes each character of string of length N exactly once, performing O(1) push and pop operations on the stack.",
+      "spaceComplexityWhy": "In the worst case (e.g. all opening brackets '((((('), the stack holds all N characters.",
+      "complexityClass": "linear"
     }
   ],
   "testCases": [

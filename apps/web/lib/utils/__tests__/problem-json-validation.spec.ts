@@ -124,6 +124,36 @@ describe('Problem JSON Validation', () => {
       expect(solutions.length).toBeGreaterThanOrEqual(1);
     });
 
+    it('has valid solution format and authored complexity fields (F-LDR-S4-02, F-LDR-S4-04)', () => {
+      const solutions = problem.solutions as Array<{
+        language: string;
+        code: string;
+        timeComplexity: string;
+        spaceComplexity: string;
+        timeComplexityWhy?: string;
+        spaceComplexityWhy?: string;
+        complexityClass?: string;
+      }>;
+      const validClasses = ['constant', 'logarithmic', 'linear', 'linearithmic', 'quadratic', 'exponential'];
+
+      expect(solutions.length).toBeGreaterThanOrEqual(1);
+      const primarySolution = solutions[0];
+
+      expect(primarySolution.timeComplexity).toBeDefined();
+      expect(primarySolution.spaceComplexity).toBeDefined();
+
+      // F-LDR-S4-04: empty why fails CI
+      expect(primarySolution.timeComplexityWhy).toBeDefined();
+      expect(typeof primarySolution.timeComplexityWhy).toBe('string');
+      expect((primarySolution.timeComplexityWhy || '').trim().length).toBeGreaterThan(10);
+
+      expect(primarySolution.spaceComplexityWhy).toBeDefined();
+      expect(typeof primarySolution.spaceComplexityWhy).toBe('string');
+      expect((primarySolution.spaceComplexityWhy || '').trim().length).toBeGreaterThan(10);
+
+      expect(validClasses).toContain(primarySolution.complexityClass);
+    });
+
     it('has at least 3 test cases', () => {
       const testCases = problem.testCases as unknown[];
       expect(testCases.length).toBeGreaterThanOrEqual(3);
