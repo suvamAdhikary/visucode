@@ -111,9 +111,10 @@ describe('Profile Page Integration (Phase 3 Sprint 1, F-P3S1-03)', () => {
     markLessonComplete('two-pointers-intro');
     setCurrentTrack('arrays', 3);
 
-    render(<ProfileClient allProblems={problems} patterns={patterns} />);
+    render(<ProfileClient allProblems={problems} patterns={patterns} totalLessons={5} />);
 
     expect(screen.getByTestId('profile-total-lessons').textContent).toBe('2');
+    expect(screen.getByText('/ 5 completed')).toBeTruthy();
     expect(screen.getByText(/Arrays \(L3\) →/i)).toBeTruthy();
   });
 });

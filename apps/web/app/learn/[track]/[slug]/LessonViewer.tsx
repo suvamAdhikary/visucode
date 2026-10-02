@@ -218,7 +218,7 @@ function MiniExercise({ exercise, trackColor, onSuccess }: MiniExerciseProps) {
                     : styles.optionWrong
                   : ''
               }`}
-              disabled={answer !== null}
+              disabled={isCorrect}
             >
               {option}
             </button>
@@ -239,7 +239,7 @@ function MiniExercise({ exercise, trackColor, onSuccess }: MiniExerciseProps) {
                     : styles.optionWrong
                   : ''
               }`}
-              disabled={answer !== null}
+              disabled={isCorrect}
             >
               {el}
             </button>

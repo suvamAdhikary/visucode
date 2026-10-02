@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { listProblems, listPatterns } from '../../lib/services';
+import { listProblems, listPatterns, listTracks } from '../../lib/services';
 import { ProfileClient } from './ProfileClient';
 
 export const metadata: Metadata = {
@@ -11,10 +11,16 @@ export const metadata: Metadata = {
 export default function ProfilePage() {
   const problems = listProblems();
   const patterns = listPatterns();
+  const tracks = listTracks();
+  const totalLessons = tracks.reduce((sum, t) => sum + (t.lessons?.length || 0), 0);
 
   return (
     <main>
-      <ProfileClient allProblems={problems} patterns={patterns} />
+      <ProfileClient
+        allProblems={problems}
+        patterns={patterns}
+        totalLessons={totalLessons}
+      />
     </main>
   );
 }

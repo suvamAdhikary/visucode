@@ -10,6 +10,7 @@
 import { useSyncExternalStore } from 'react';
 import type { UserProgress, UserPreferences } from '@visucode/shared-types';
 import { getUserId, logger } from '../logger';
+import { usePreferencesStore } from '../stores/preferences.store';
 
 const PROGRESS_KEY_PREFIX = 'visucode_progress_';
 
@@ -19,6 +20,23 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   visualizerSpeed: 1,
   language: 'javascript',
 };
+
+function getLivePreferences(): UserPreferences {
+  if (typeof window === 'undefined') {
+    return DEFAULT_PREFERENCES;
+  }
+  try {
+    const state = usePreferencesStore.getState();
+    return {
+      theme: state.theme ?? 'dark',
+      editorFontSize: state.editorFontSize ?? 14,
+      visualizerSpeed: state.visualizerSpeed ?? 1,
+      language: (state.language === 'python' ? 'python' : 'javascript') as 'javascript' | 'python',
+    };
+  } catch {
+    return DEFAULT_PREFERENCES;
+  }
+}
 
 const SERVER_DEFAULT_PROGRESS: UserProgress = {
   userId: 'server',
@@ -42,7 +60,7 @@ function getDefaultProgress(userId?: string): UserProgress {
     currentTrack: 'arrays',
     currentLesson: 1,
     role: 'learner',
-    preferences: { ...DEFAULT_PREFERENCES },
+    preferences: getLivePreferences(),
   };
 }
 
@@ -50,6 +68,14 @@ function getDefaultProgress(userId?: string): UserProgress {
 let cachedRawString: string | null = null;
 let cachedProgress: UserProgress | null = null;
 const listeners = new Set<() => void>();
+
+/**
+ * Clears in-memory snapshot cache. Used in tests to simulate fresh page load.
+ */
+export function _clearCacheForTesting(): void {
+  cachedRawString = null;
+  cachedProgress = null;
+}
 
 function notifySubscribers() {
   listeners.forEach((callback) => {
@@ -132,12 +158,7 @@ export function getProgress(): UserProgress {
       currentTrack: typeof parsed?.currentTrack === 'string' ? parsed.currentTrack : 'arrays',
       currentLesson: typeof parsed?.currentLesson === 'number' ? parsed.currentLesson : 1,
       role: parsed?.role || 'learner',
-      preferences: {
-        theme: parsed?.preferences?.theme || 'dark',
-        editorFontSize: typeof parsed?.preferences?.editorFontSize === 'number' ? parsed.preferences.editorFontSize : 14,
-        visualizerSpeed: typeof parsed?.preferences?.visualizerSpeed === 'number' ? parsed.preferences.visualizerSpeed : 1,
-        language: parsed?.preferences?.language || 'javascript',
-      },
+      preferences: getLivePreferences(),
     };
 
     cachedRawString = raw;
@@ -293,7 +314,7 @@ export function resetProgress(): UserProgress {
   const current = getProgress();
   const reset: UserProgress = {
     ...getDefaultProgress(current.userId),
-    preferences: current.preferences,
+    preferences: getLivePreferences(),
   };
   saveProgressToStorage(reset);
   logger.info('progress.reset', { userId: reset.userId });

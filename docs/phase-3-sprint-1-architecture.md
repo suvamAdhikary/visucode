@@ -66,11 +66,12 @@ export interface UserProgress {
   currentTrack: string;        // Active learning track (e.g. 'arrays')
   currentLesson: number;       // Current lesson index (e.g. 1)
   role: UserRole;              // 'learner' | 'interviewer' | 'admin' | 'premium'
-  preferences: UserPreferences; // Synced editor & theme settings
+  preferences: UserPreferences; // Synced with canonical usePreferencesStore (visucode-preferences)
 }
 ```
 
 ### Normalization & Resilience
+- **Preferences Single Source of Truth**: `UserProgress.preferences` dynamically reflects the live Zustand `usePreferencesStore` (`visucode-preferences`) rather than storing a stale, divergent second copy.
 - **Trimming & Validation**: Incoming slugs are string-checked and trimmed.
 - **Set Semantics**: Idempotent mutations prevent duplicate entries.
 - **Corrupt Storage Recovery**: If `localStorage` contains malformed JSON or non-array fields, `getProgress()` safely falls back to defaults without throwing exceptions or corrupting the user's session.

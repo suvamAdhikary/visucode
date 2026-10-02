@@ -9,11 +9,13 @@ import {
   setCurrentTrack,
   resetProgress,
   subscribeProgress,
+  _clearCacheForTesting,
 } from '../progress.service';
 
 describe('Progress Service (Phase 3 Sprint 1, F-P3S1-01, F-P3S1-02)', () => {
   beforeEach(() => {
     localStorage.clear();
+    _clearCacheForTesting();
     jest.clearAllMocks();
   });
 
@@ -87,14 +89,27 @@ describe('Progress Service (Phase 3 Sprint 1, F-P3S1-01, F-P3S1-02)', () => {
       expect(isProblemCompleted('binary-search')).toBe(false);
     });
 
-    it('survives simulated page refresh / service re-initialization', () => {
+    it('survives simulated page refresh / service re-initialization and directly verifies localStorage persistence', () => {
       markProblemComplete('two-sum');
       markProblemComplete('lru-cache');
 
-      // Re-read progress as a fresh call to simulate page reload
+      const uid = getProgress().userId;
+      const storageKey = `visucode_progress_${uid}`;
+
+      // 1. Explicitly assert the raw value in localStorage (proves persistence in save path)
+      const rawInStorage = localStorage.getItem(storageKey);
+      expect(rawInStorage).toBeTruthy();
+      const parsedInStorage = JSON.parse(rawInStorage!);
+      expect(parsedInStorage.completedProblems).toEqual(['two-sum', 'lru-cache']);
+
+      // 2. Clear in-memory cache completely to simulate page reload / unmount
+      _clearCacheForTesting();
+
+      // 3. Cold call to getProgress() must read & deserialize from localStorage
       const reloaded = getProgress();
       expect(reloaded.completedProblems).toContain('two-sum');
       expect(reloaded.completedProblems).toContain('lru-cache');
+      expect(reloaded.completedProblems.length).toBe(2);
     });
 
     it('trims whitespace and rejects empty/invalid slugs safely', () => {

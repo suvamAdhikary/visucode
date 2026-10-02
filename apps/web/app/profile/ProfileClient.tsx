@@ -27,11 +27,13 @@ export interface ProfilePatternSummary {
 interface ProfileClientProps {
   allProblems?: ProfileProblemSummary[];
   patterns?: ProfilePatternSummary[];
+  totalLessons?: number;
 }
 
 export function ProfileClient({
   allProblems = [],
   patterns = [],
+  totalLessons = 0,
 }: ProfileClientProps) {
   const progress = useUserProgress();
 
@@ -221,7 +223,9 @@ export function ProfileClient({
               <span className={styles.statBigNumber} data-testid="profile-total-lessons">
                 {progress.completedLessons.length}
               </span>
-              <span className={styles.statTotal}>completed</span>
+              <span className={styles.statTotal}>
+                {totalLessons > 0 ? `/ ${totalLessons} completed` : 'completed'}
+              </span>
             </div>
             <Link
               href={`/learn/${progress.currentTrack}`}
@@ -235,7 +239,7 @@ export function ProfileClient({
             <div
               className={styles.progressBarFill}
               style={{
-                width: `${Math.min(100, progress.completedLessons.length > 0 ? (progress.completedLessons.length / 5) * 100 : 5)}%`,
+                width: `${totalLessons > 0 ? Math.min(100, Math.round((progress.completedLessons.length / totalLessons) * 100)) : 0}%`,
                 background: 'linear-gradient(90deg, #06b6d4, #3b82f6)',
               }}
             />
@@ -365,7 +369,7 @@ export function ProfileClient({
           <h4>Reset Progress</h4>
           <p>
             Clears all completed problem and lesson records. Your anonymous user ID and
-            editor preferences will be preserved.
+            editor preferences (stored in editor settings) will be preserved.
           </p>
         </div>
         {isConfirmingReset ? (
