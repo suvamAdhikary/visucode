@@ -69,6 +69,41 @@
   border-radius: 50%;
 }
 
+.approachSection {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.approachHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.approachIcon {
+  font-size: 0.95rem;
+}
+
+.approachLabel {
+  font-size: 0.775rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-primary-light, #a5b4fc);
+}
+
+.approachText {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-primary, #f1f5f9);
+}
+
 .panelGrid {
   display: grid;
   grid-template-columns: 1fr;

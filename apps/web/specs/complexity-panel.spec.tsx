@@ -8,6 +8,7 @@ describe('ComplexityPanel (Sprint 4, F-LDR-S4-01, F-LDR-S4-02)', () => {
   const mockSolution: Solution = {
     language: 'javascript',
     code: 'function twoSum() {}',
+    explanation: 'Use a hash map to look up the complement in O(1) time.',
     timeComplexity: 'O(N)',
     spaceComplexity: 'O(N)',
     timeComplexityWhy: 'Single linear pass through the array checking hash map complements in O(1) time.',
@@ -20,6 +21,8 @@ describe('ComplexityPanel (Sprint 4, F-LDR-S4-01, F-LDR-S4-02)', () => {
 
     expect(screen.getByTestId('complexity-panel')).toBeTruthy();
     expect(screen.getByText('Algorithm Complexity')).toBeTruthy();
+    expect(screen.getByText('Algorithmic Approach')).toBeTruthy();
+    expect(screen.getByText(mockSolution.explanation!)).toBeTruthy();
     expect(screen.getByText('Time Complexity')).toBeTruthy();
     expect(screen.getAllByText('O(N)').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(mockSolution.timeComplexityWhy!)).toBeTruthy();
@@ -39,6 +42,7 @@ describe('ComplexityPanel (Sprint 4, F-LDR-S4-01, F-LDR-S4-02)', () => {
 
     expect(screen.getByTestId('complexity-panel')).toBeTruthy();
     expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(2);
+    expect(screen.queryByText('Algorithmic Approach')).toBeNull();
   });
 });
 

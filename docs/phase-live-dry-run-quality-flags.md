@@ -302,11 +302,12 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - 2026-10-02: **PR #17 merged into main (`673d33e`)**. Sprint 3 officially complete with `F-LDR-S3-01`, `F-LDR-S3-02`, and `F-LDR-S3-03` all marked `FIXED`. Ready for Sprint 4 (Official complexity explainer).
 - 2026-10-02: **Sprint 4 completed on `feature/live-dry-run-sprint-4`**:
   - Implemented `ComplexityClass` in `@visucode/shared-types` (`constant`, `logarithmic`, `linear`, `linearithmic`, `quadratic`, `exponential`) and recompiled shared-types.
-  - Created `ComplexityPanel` and SVG `ComplexityChart` components with active glow styling, badges, and class-specific growth explanations.
+  - Created `ComplexityPanel` and SVG `ComplexityChart` components with dynamic filter IDs (`useId`), active glow styling, badges, and class-specific growth explanations.
+  - Rendered `solution.explanation` as an Algorithmic Approach callout in `ComplexityPanel`, directly solving the note that `solutions[].explanation exists in JSON and is never rendered`.
   - Mounted `ComplexityPanel` on the problem page (`apps/web/app/problems/[slug]/page.tsx`) in the problem description column, visible immediately without needing to open dry run (`F-LDR-S4-01`).
-  - Authored `timeComplexityWhy`, `spaceComplexityWhy`, and `complexityClass` across all 29 problem JSON files in `apps/web/content/problems/`, completely decoupled from execution tracer (`F-LDR-S4-02`, `F-LDR-S4-03`, `F-LDR-S4-04`).
-  - Added CI validation in `apps/web/lib/utils/__tests__/problem-json-validation.spec.ts` guaranteeing non-empty why-texts and valid complexity classes for all problems.
-  - Added unit test suite in `apps/web/specs/complexity-panel.spec.tsx` asserting panel and chart rendering across all complexity classes.
+  - Authored `timeComplexityWhy`, `spaceComplexityWhy`, `complexityClass`, and `explanation` across all 29 problem JSON files in `apps/web/content/problems/`, completely decoupled from execution tracer (`F-LDR-S4-02`, `F-LDR-S4-03`, `F-LDR-S4-04`).
+  - Added CI validation in `apps/web/lib/utils/__tests__/problem-json-validation.spec.ts` guaranteeing non-empty why-texts, valid complexity classes, and approach explanations for all 29 problems.
+  - Added unit test suite in `apps/web/specs/complexity-panel.spec.tsx` asserting panel and chart rendering across all complexity classes, fallback states, and approach explanations.
   - All 13 test suites (613 tests) passing with `npx nx test web --skip-nx-cache`, 0 diff on `next-env.d.ts`, and clean TypeScript checks.
 
 

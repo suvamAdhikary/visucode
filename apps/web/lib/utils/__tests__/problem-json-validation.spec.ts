@@ -128,6 +128,7 @@ describe('Problem JSON Validation', () => {
       const solutions = problem.solutions as Array<{
         language: string;
         code: string;
+        explanation?: string;
         timeComplexity: string;
         spaceComplexity: string;
         timeComplexityWhy?: string;
@@ -150,6 +151,10 @@ describe('Problem JSON Validation', () => {
       expect(primarySolution.spaceComplexityWhy).toBeDefined();
       expect(typeof primarySolution.spaceComplexityWhy).toBe('string');
       expect((primarySolution.spaceComplexityWhy || '').trim().length).toBeGreaterThan(10);
+
+      expect(primarySolution.explanation).toBeDefined();
+      expect(typeof primarySolution.explanation).toBe('string');
+      expect((primarySolution.explanation || '').trim().length).toBeGreaterThan(10);
 
       expect(validClasses).toContain(primarySolution.complexityClass);
     });

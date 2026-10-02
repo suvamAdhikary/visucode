@@ -10,6 +10,7 @@ export interface ComplexityPanelProps {
   timeComplexityWhy?: string;
   spaceComplexityWhy?: string;
   complexityClass?: ComplexityClass;
+  explanation?: string;
 }
 
 export function ComplexityPanel({
@@ -19,12 +20,14 @@ export function ComplexityPanel({
   timeComplexityWhy: customTimeWhy,
   spaceComplexityWhy: customSpaceWhy,
   complexityClass: customComplexityClass,
+  explanation: customExplanation,
 }: ComplexityPanelProps) {
   const timeComplexity = solution?.timeComplexity ?? customTimeComplexity ?? '—';
   const spaceComplexity = solution?.spaceComplexity ?? customSpaceComplexity ?? '—';
   const timeComplexityWhy = solution?.timeComplexityWhy ?? customTimeWhy;
   const spaceComplexityWhy = solution?.spaceComplexityWhy ?? customSpaceWhy;
   const complexityClass = solution?.complexityClass ?? customComplexityClass;
+  const explanation = solution?.explanation ?? customExplanation;
 
   const classMeta = complexityClass ? COMPLEXITY_METADATA[complexityClass] : null;
 
@@ -64,6 +67,18 @@ export function ComplexityPanel({
           </div>
         )}
       </div>
+
+      {explanation && (
+        <div className={styles.approachSection}>
+          <div className={styles.approachHeader}>
+            <span className={styles.approachIcon} aria-hidden="true">
+              💡
+            </span>
+            <span className={styles.approachLabel}>Algorithmic Approach</span>
+          </div>
+          <p className={styles.approachText}>{explanation}</p>
+        </div>
+      )}
 
       <div className={styles.panelGrid}>
         {/* Metric Cards Column */}

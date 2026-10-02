@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import type { ComplexityClass } from '@visucode/shared-types';
 import styles from './ComplexityChart.module.css';
 
@@ -130,6 +130,8 @@ const CURVES: CurveDef[] = [
 
 export function ComplexityChart({ complexityClass, compact = false }: ComplexityChartProps) {
   const activeMeta = complexityClass ? COMPLEXITY_METADATA[complexityClass] : null;
+  const rawId = useId();
+  const filterId = `active-glow-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
 
   return (
     <div
@@ -160,7 +162,7 @@ export function ComplexityChart({ complexityClass, compact = false }: Complexity
         aria-hidden="true"
       >
         <defs>
-          <filter id="active-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <filter id={filterId} x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="2.5" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
@@ -199,7 +201,7 @@ export function ComplexityChart({ complexityClass, compact = false }: Complexity
                 strokeWidth={strokeWidth}
                 strokeLinecap="round"
                 opacity={opacity}
-                filter={isActive ? 'url(#active-glow)' : undefined}
+                filter={isActive ? `url(#${filterId})` : undefined}
                 className={styles.curvePath}
               />
 
