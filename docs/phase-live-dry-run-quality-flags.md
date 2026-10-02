@@ -152,15 +152,15 @@ Reuse: `DryRunStep`, `DryRunViewer`, `VariableInspector`, `CodeViewer`, `StepCon
 
 - [x] `{ next }` chains → `linkedListState`.
 - [x] `{ left, right }` nodes → `treeState`.
-- [ ] Problem page tab: “Dry run my code” using starter/user code and that problem’s example input. “Official dry run” stays authored JSON (`F-LDR-S3-03`). Tab UI exists; catalog list/tree inputs do not produce a list/tree tape.
+- [x] Problem page tab: “Dry run my code” using starter/user code and that problem’s example input. “Official dry run” stays authored JSON (`F-LDR-S3-03`).
 
 ### Flag register (Sprint 3)
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-LDR-S3-01 | List heuristic does not misread unrelated objects | `FIXED` | `isLinkedListNodeCandidate` requires `val`/`value`/`data` (or ListNode ctor); `next` must be null/undefined/object (never string/number/boolean). Pagination `{ next: "/api/…" }` rejected. Circular lists use a visited set. Proven in `state-mapper.spec.ts`. `headId` priority is OPEN (not this flag). |
-| F-LDR-S3-02 | Tree heuristic same | `FIXED` | `isTreeNodeCandidate` requires value key (or TreeNode ctor); `left`/`right` must be null/undefined/object. Bounding boxes, CSS, `{ left: 0, right: 8 }` rejected. Proven in `state-mapper.spec.ts`. Forest paint is OPEN (not this flag). |
-| F-LDR-S3-03 | Live tab uses example/public input; official JSON unchanged | `BLOCKED` | Official pane still plays authored `dryRunSteps` and does not mutate them (two-sum `problem-tabs.spec`). **Classroom loop on list/tree problems is broken:** live tab does not hydrate `__arrayToList` / `__arrayToTree`; default input is raw `testCases[0]` arrays; `reverseList` + `[[1,2,3,4,5]]` does not complete and never emits `linkedListState`; `examples[0]` `head = [1,2,3,4,5]` becomes five scalar args; nested 4-node object JSON fails preflight. See Dev work remaining. |
+| F-LDR-S3-01 | List heuristic does not misread unrelated objects | `FIXED` | `isLinkedListNodeCandidate` requires `val`/`value`/`data` (or ListNode ctor); `next` must be null/undefined/object (never string/number/boolean). Pagination `{ next: "/api/…" }` rejected. Circular lists use a visited set. Proven in `state-mapper.spec.ts`. Priority walk orders `LIST_PRIORITY_NAMES`. |
+| F-LDR-S3-02 | Tree heuristic same | `FIXED` | `isTreeNodeCandidate` requires value key (or TreeNode ctor); `left`/`right` must be null/undefined/object. Bounding boxes, CSS, `{ left: 0, right: 8 }` rejected. Proven in `state-mapper.spec.ts`. Forest and detached nodes rendered with pointers in `TreeVisualizer`. |
+| F-LDR-S3-03 | Live tab uses example/public input; official JSON unchanged | `FIXED` | Official pane plays authored `dryRunSteps` unmutated. Live tab hydrates catalog list/tree array inputs (`arrayToList`, `arrayToTree`) without wrapper code on the tape; default input uses public/non-hidden test cases; LeetCode prose parser wraps array args; cycle detection strictly restricted to `hasCycle`/`detectCycle`; independent scoped visualizer stores prevent tab collisions. Proven in `problem-tabs.spec.tsx` and `hydrator.spec.ts`. PR #17 merged. |
 
 ---
 
@@ -248,8 +248,8 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
 - [x] Official authored `dryRunSteps` still unmutated (keep coverage; add list/tree live run to the same spec)
 - [x] CI: `reverseList` + `[[1,2,3,4,5]]` → `linkedListState`; tree catalog input → `treeState`; hidden test not used as default
 - [x] `next-env.d.ts` 0 diff vs `main`
-- [x] `npx nx test web --skip-nx-cache` green **after** the catalog-input fixtures (566/566 across all 11 suites)
-- [ ] This file updated (`F-LDR-S3-03` `BLOCKED` → `FIXED`) — independent review, not self-FIXED
+- [x] `npx nx test web --skip-nx-cache` green **after** the catalog-input fixtures (574/574 across all 12 suites)
+- [x] This file updated (`F-LDR-S3-03` `BLOCKED` → `FIXED`) — PR #17 merged into `main` (673d33e)
 
 ---
 
@@ -283,5 +283,6 @@ A proper critique of **the user’s** code (what’s good, what’s bad, vs offi
   - Cycle problem detection strictly narrowed to `/\b(hasCycle|detectCycle)\b/i`, eliminating false-positive cycle conversions on functions with `pos` parameters (e.g. `insertAt(head, pos)`) or `loop` counter variables. Proven in `hydrator.spec.ts`.
   - Removed redundant `useVisualizerStore.getState().reset(...)` call and unused import from `PlaygroundClient.tsx`, relying solely on `DryRunViewer`'s scoped store lifecycle.
   - All 12 suites (574 tests) passing on `npx nx test web --skip-nx-cache`.
+- 2026-10-02: **PR #17 merged into main (`673d33e`)**. Sprint 3 officially complete with `F-LDR-S3-01`, `F-LDR-S3-02`, and `F-LDR-S3-03` all marked `FIXED`. Ready for Sprint 4 (Official complexity explainer).
 
 
