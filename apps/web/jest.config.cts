@@ -1,7 +1,9 @@
+/// <reference types="node" />
+
 const nextJest = require('next/jest.js');
 
 const createJestConfig = nextJest({
-  dir: './',
+  dir: __dirname,
 });
 
 const config = {
@@ -15,4 +17,11 @@ const config = {
   testEnvironment: 'jsdom',
 };
 
-module.exports = createJestConfig(config);
+module.exports = async () => {
+  const resolved = await createJestConfig(config)();
+  resolved.transformIgnorePatterns = [
+    '/node_modules/(?!(next-auth|@auth|jose|@panva|oauth4webapi|preact)/)',
+  ];
+  return resolved;
+};
+

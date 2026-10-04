@@ -1,6 +1,7 @@
 import './global.css';
 import type { Metadata } from 'next';
 import { Navbar } from './components/layout/Navbar';
+import { AuthProvider } from './components/auth/AuthProvider';
 
 export const metadata: Metadata = {
   title: {
@@ -48,8 +49,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Navbar />
-        <main>{children}</main>
+        <AuthProvider>
+          <Navbar />
+          <main>{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );

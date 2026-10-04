@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signIn, signOut } from 'next-auth/react';
+import { useSafeSession } from '../../../lib/hooks/useSafeSession';
 import styles from './Navbar.module.css';
 
 const navLinks = [
@@ -14,6 +16,7 @@ const navLinks = [
 
 export function Navbar() {
     const pathname = usePathname();
+    const { data: session, status } = useSafeSession();
 
     return (
         <nav className="navbar" role="navigation" aria-label="Main navigation">
@@ -44,6 +47,51 @@ export function Navbar() {
             </ul>
 
             <div className="navbar-actions">
+                {status === 'authenticated' && session?.user ? (
+                    <div className={styles.authContainer} data-testid="navbar-user-session">
+                        <Link
+                            href="/profile"
+                            className={styles.userProfileLink}
+                            title={`Signed in as ${session.user.name || session.user.email || 'User'}`}
+                            id="nav-user-profile"
+                        >
+                            {session.user.image ? (
+                                <img
+                                    src={session.user.image}
+                                    alt={session.user.name || 'User avatar'}
+                                    className={styles.userAvatar}
+                                />
+                            ) : (
+                                <span className={styles.avatarPlaceholder} aria-hidden="true">
+                                    {(session.user.name?.[0] || session.user.email?.[0] || 'U').toUpperCase()}
+                                </span>
+                            )}
+                            <span className={styles.userName}>
+                                {session.user.name?.split(' ')[0] || session.user.email?.split('@')[0] || 'User'}
+                            </span>
+                        </Link>
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => signOut({ callbackUrl: '/' })}
+                            id="nav-auth-signout"
+                            aria-label="Sign out"
+                        >
+                            Sign Out
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => signIn()}
+                        id="nav-auth-signin"
+                        aria-label="Sign in"
+                    >
+                        Sign In
+                    </button>
+                )}
+
                 <Link href="/learn" className="btn btn-primary" id="nav-cta-start">
                     Start Learning
                 </Link>

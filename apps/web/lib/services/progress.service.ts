@@ -48,13 +48,39 @@ const SERVER_DEFAULT_PROGRESS: UserProgress = {
   preferences: DEFAULT_PREFERENCES,
 };
 
-function getStorageKey(): string {
-  return `${PROGRESS_KEY_PREFIX}${getUserId()}`;
+let activeUserId: string | null = null;
+
+/**
+ * Returns the currently active userId (either authenticated or anonymous).
+ */
+export function getActiveUserId(): string {
+  return activeUserId || (typeof window !== 'undefined' ? getUserId() : 'server');
+}
+
+/**
+ * Switches the active progress context to an authenticated user or back to anonymous.
+ */
+export function setActiveUserId(userId: string | null): void {
+  activeUserId = userId;
+  invalidateProgressCache();
+  notifySubscribers();
+}
+
+/**
+ * Clears the authenticated user context, reverting to anonymous mode.
+ */
+export function clearActiveUserId(): void {
+  setActiveUserId(null);
+}
+
+function getStorageKey(userId?: string): string {
+  const id = userId || getActiveUserId();
+  return `${PROGRESS_KEY_PREFIX}${id}`;
 }
 
 function getDefaultProgress(userId?: string): UserProgress {
   return {
-    userId: userId || (typeof window !== 'undefined' ? getUserId() : 'server'),
+    userId: userId || getActiveUserId(),
     completedProblems: [],
     completedLessons: [],
     currentTrack: 'arrays',
@@ -127,10 +153,81 @@ interface StoredProgressData {
 }
 
 function saveProgressToStorage(progress: UserProgress): void {
+  saveProgressForUser(getActiveUserId(), progress);
+}
+
+/**
+ * Reads and parses stored progress for a specific user ID.
+ */
+export function getProgressForUser(userId: string): UserProgress {
+  if (typeof window === 'undefined') {
+    return { ...SERVER_DEFAULT_PROGRESS, userId };
+  }
+
+  const key = `${PROGRESS_KEY_PREFIX}${userId}`;
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(key);
+  } catch (err) {
+    logger.warn('progress.read_error', { key, error: String(err) });
+  }
+
+  if (!raw) {
+    return getDefaultProgress(userId);
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    return {
+      userId: typeof parsed?.userId === 'string' && parsed.userId ? parsed.userId : userId,
+      completedProblems: Array.isArray(parsed?.completedProblems)
+        ? Array.from(
+            new Set<string>(
+              parsed.completedProblems.filter(
+                (p: unknown): p is string => typeof p === 'string' && p.trim().length > 0
+              )
+            )
+          )
+        : [],
+      completedLessons: Array.isArray(parsed?.completedLessons)
+        ? Array.from(
+            new Set<string>(
+              parsed.completedLessons.filter(
+                (l: unknown): l is string => typeof l === 'string' && l.trim().length > 0
+              )
+            )
+          )
+        : [],
+      currentTrack: typeof parsed?.currentTrack === 'string' ? parsed.currentTrack : 'arrays',
+      currentLesson: typeof parsed?.currentLesson === 'number' ? parsed.currentLesson : 1,
+      role: parsed?.role || 'learner',
+      preferences: getLivePreferences(),
+    };
+  } catch {
+    return getDefaultProgress(userId);
+  }
+}
+
+/**
+ * Checks whether progress has been saved to storage for a specific user ID.
+ */
+export function hasStoredProgressForUser(userId: string): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return localStorage.getItem(`${PROGRESS_KEY_PREFIX}${userId}`) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Saves progress for a specific user ID directly to storage.
+ */
+export function saveProgressForUser(userId: string, progress: UserProgress): void {
   if (typeof window === 'undefined') return;
   try {
     const dataToStore: StoredProgressData = {
-      userId: progress.userId,
+      userId: progress.userId || userId,
       completedProblems: progress.completedProblems,
       completedLessons: progress.completedLessons,
       currentTrack: progress.currentTrack,
@@ -138,12 +235,77 @@ function saveProgressToStorage(progress: UserProgress): void {
       role: progress.role,
     };
     const raw = JSON.stringify(dataToStore);
-    localStorage.setItem(getStorageKey(), raw);
-    cachedRawString = raw;
-    cachedProgress = progress;
+    localStorage.setItem(`${PROGRESS_KEY_PREFIX}${userId}`, raw);
+    if (userId === getActiveUserId()) {
+      cachedRawString = raw;
+      cachedProgress = progress;
+    }
   } catch (err) {
     logger.error('progress.save_error', err instanceof Error ? err : String(err));
   }
+}
+
+/**
+ * Lossless union merge of anonymous progress into an authenticated user account (F-P3S2-02).
+ * Copies anonymous completedProblems and completedLessons onto the authenticated account.
+ * Does NOT destroy or wipe the anonymous progress record.
+ */
+export function mergeAnonymousProgress(authenticatedUserId: string): UserProgress {
+  if (!authenticatedUserId || typeof authenticatedUserId !== 'string' || authenticatedUserId.trim().length === 0) {
+    return getProgress();
+  }
+
+  const cleanAuthId = authenticatedUserId.trim();
+  const anonId = getUserId();
+
+  if (cleanAuthId === anonId) {
+    setActiveUserId(cleanAuthId);
+    return getProgress();
+  }
+
+  const authHasRecord = hasStoredProgressForUser(cleanAuthId);
+  const anonProgress = getProgressForUser(anonId);
+  const authProgress = getProgressForUser(cleanAuthId);
+
+  const mergedProblems = Array.from(
+    new Set([...anonProgress.completedProblems, ...authProgress.completedProblems])
+  );
+  const mergedLessons = Array.from(
+    new Set([...anonProgress.completedLessons, ...authProgress.completedLessons])
+  );
+
+  // Per ADR-004: "currentTrack: Authenticated user's track, or anonymous track if authenticated user has not set one."
+  const currentTrack =
+    authHasRecord && authProgress.currentTrack
+      ? authProgress.currentTrack
+      : anonProgress.currentTrack || 'arrays';
+
+  const currentLesson = authHasRecord
+    ? Math.max(authProgress.currentLesson || 1, anonProgress.currentLesson || 1)
+    : anonProgress.currentLesson || 1;
+
+  const merged: UserProgress = {
+    userId: cleanAuthId,
+    completedProblems: mergedProblems,
+    completedLessons: mergedLessons,
+    currentTrack,
+    currentLesson,
+    role: (authHasRecord && authProgress.role) || anonProgress.role || 'learner',
+    preferences: getLivePreferences(),
+  };
+
+  saveProgressForUser(cleanAuthId, merged);
+  setActiveUserId(cleanAuthId);
+
+  logger.info('progress.account_merged', {
+    anonymousId: anonId,
+    authenticatedUserId: cleanAuthId,
+    totalProblems: merged.completedProblems.length,
+    totalLessons: merged.completedLessons.length,
+  });
+
+  notifySubscribers();
+  return merged;
 }
 
 /**
@@ -176,7 +338,7 @@ export function getProgress(): UserProgress {
   try {
     const parsed = JSON.parse(raw);
     const sanitized: UserProgress = {
-      userId: typeof parsed?.userId === 'string' && parsed.userId ? parsed.userId : getUserId(),
+      userId: typeof parsed?.userId === 'string' && parsed.userId ? parsed.userId : getActiveUserId(),
       completedProblems: Array.isArray(parsed?.completedProblems)
         ? Array.from(new Set<string>(parsed.completedProblems.filter((p: unknown): p is string => typeof p === 'string' && p.trim().length > 0)))
         : [],

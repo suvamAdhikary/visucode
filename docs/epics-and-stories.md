@@ -75,7 +75,7 @@ Classroom loop: write JS, write an input, step through **that** execution. Autho
 - [ ] **Story**: User-code good/bad analysis (what’s solid vs what’s wrong vs the official approach). After Live Dry Run + tests. No LLM until a dedicated ADR.
 
 ## Epic 3: Phase 3 - User System & Progress Tracking
-**Status**: TODO
+**Status**: IN PROGRESS (Sprint 1 & Sprint 2 DONE)
 
 Start after Live Dry Run Sprint 1 is merge-ready. Auth.js still waits until this epic’s own Sprint 1 is ready. Quality tracker: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md). Do not add problem JSON here — extra catalog volume is Phase 4. Flag IDs stay `F-P3S*`.
 
@@ -88,11 +88,11 @@ Reuse existing types (`UserProgress`, `UserPreferences`) and `visucode_uid`. UI 
 - [x] **Story**: Show completed state on problem catalog and pattern pages.
 - [x] **Story**: Profile page with completion stats from `UserProgress` (not a second store).
 
-### Sprint 2: Identity (TODO)
+### Sprint 2: Identity (DONE)
 *Start only after Sprint 1 is merge-ready. Auth.js (NextAuth v5) on Next.js 16, not Auth v4.*
-- [ ] **Story**: GitHub + Google sign-in / sign-out in the header; session on the profile page.
-- [ ] **Story**: First login merges anonymous `completedProblems` / `completedLessons` onto the account (union by default). Prove with a test.
-- [ ] **Story**: Persistence choice written in the auth PR — **A:** JWT + keep progress local until Phase 4, or **B:** thin Prisma `User` table only (problems stay JSON). Do not add GraphQL for problems here.
+- [x] **Story**: GitHub + Google sign-in / sign-out in the header; session on the profile page.
+- [x] **Story**: First login merges anonymous `completedProblems` / `completedLessons` onto the account (union by default). Prove with a test.
+- [x] **Story**: Persistence choice written in the auth PR — **A:** JWT + keep progress local until Phase 4, or **B:** thin Prisma `User` table only (problems stay JSON). Do not add GraphQL for problems here. *(Selected Option A, documented in ADR-004).*
 
 ### Sprint 3: Premium UI (TODO, skippable)
 *Only if some JSON is actually marked `premium`. Today every problem is `free`. Real entitlement is Phase 4.*
