@@ -32,6 +32,7 @@
     "app/**/*.jsx",
     "lib/**/*.ts",
     "lib/**/*.tsx",
+    "auth.ts",
     "specs/**/*.ts",
     "specs/**/*.tsx",
     "../../apps/web/.next/types/**/*.ts",

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { signIn, signOut } from 'next-auth/react';
+import { useSafeSession } from '../../lib/hooks/useSafeSession';
 import {
   useUserProgress,
   resetProgress,
@@ -35,6 +37,8 @@ export function ProfileClient({
   patterns = [],
   totalLessons = 0,
 }: ProfileClientProps) {
+  const { data: session, status } = useSafeSession();
+  const isAuthenticated = status === 'authenticated' && !!session?.user;
   const progress = useUserProgress();
 
   const [filterDifficulty, setFilterDifficulty] = useState<'All' | Difficulty>('All');
@@ -67,9 +71,13 @@ export function ProfileClient({
     return p.difficulty === filterDifficulty;
   });
 
+  const displayId = isAuthenticated
+    ? session?.user?.id || session?.user?.email || progress.userId
+    : progress.userId;
+
   const handleCopyId = async () => {
     try {
-      await navigator.clipboard.writeText(progress.userId);
+      await navigator.clipboard.writeText(displayId);
       setCopiedId(true);
       setTimeout(() => setCopiedId(false), 2000);
     } catch {
@@ -89,19 +97,48 @@ export function ProfileClient({
       <div className={styles.heroCard}>
         <div className={styles.heroHeader}>
           <div className={styles.avatar} aria-hidden="true">
-            👤
+            {isAuthenticated && session?.user?.image ? (
+              <img
+                src={session.user.image}
+                alt={session.user.name || 'User avatar'}
+                className={styles.avatarImg}
+              />
+            ) : isAuthenticated && (session?.user?.name || session?.user?.email) ? (
+              <span className={styles.avatarLetter}>
+                {(session.user.name?.[0] || session.user.email?.[0] || 'U').toUpperCase()}
+              </span>
+            ) : (
+              '👤'
+            )}
           </div>
           <div className={styles.heroInfo}>
             <div className={styles.heroTitleRow}>
-              <h1 className={styles.heroTitle}>Developer Profile</h1>
-              <span className={styles.anonBadge}>Anonymous Mode</span>
+              <h1 className={styles.heroTitle}>
+                {isAuthenticated && session?.user?.name
+                  ? session.user.name
+                  : 'Developer Profile'}
+              </h1>
+              {isAuthenticated ? (
+                <>
+                  <span className={styles.authBadge} data-testid="profile-auth-badge">
+                    ✓ Cloud Synced
+                  </span>
+                  {session?.user?.email && (
+                    <span className={styles.anonBadge}>{session.user.email}</span>
+                  )}
+                </>
+              ) : (
+                <span className={styles.anonBadge} data-testid="profile-anon-badge">
+                  Anonymous Mode
+                </span>
+              )}
             </div>
             <div className={styles.userIdRow}>
-              <span>Session ID:</span>
+              <span>{isAuthenticated ? 'Account ID:' : 'Session ID:'}</span>
               <code className={styles.userIdCode}>
-                {progress.userId.length > 20
-                  ? `${progress.userId.slice(0, 8)}...${progress.userId.slice(-6)}`
-                  : progress.userId}
+                {displayId.length > 20
+                  ? `${displayId.slice(0, 8)}...${displayId.slice(-6)}`
+                  : displayId}
               </code>
               <button
                 type="button"
@@ -115,16 +152,47 @@ export function ProfileClient({
           </div>
         </div>
 
-        <div className={styles.syncNotice}>
-          <span className={styles.noticeIcon} aria-hidden="true">
-            💡
-          </span>
-          <div>
-            <strong>Local anonymous progress:</strong> All solved problems and lesson progress
-            are safely persisted in this browser. When Auth.js (GitHub/Google sign-in) launches
-            in Sprint 2, your progress will seamlessly merge with your account.
+        {isAuthenticated ? (
+          <div className={styles.syncNoticeAuth} data-testid="profile-sync-auth">
+            <span className={styles.noticeIcon} aria-hidden="true">
+              🛡️
+            </span>
+            <div className={styles.noticeContent}>
+              <div>
+                <strong>Account Linked:</strong> Your DSA problem completions and lesson progress
+                are safely synced to your account.
+              </div>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className={styles.signOutBtn}
+                id="profile-signout-btn"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className={styles.syncNotice} data-testid="profile-sync-anon">
+            <span className={styles.noticeIcon} aria-hidden="true">
+              💡
+            </span>
+            <div className={styles.noticeContent}>
+              <div>
+                <strong>Local anonymous progress:</strong> All solved problems and lesson progress
+                are safely persisted in this browser. Sign in with GitHub or Google to permanently link and sync your progress.
+              </div>
+              <button
+                type="button"
+                onClick={() => signIn()}
+                className={styles.signInBtn}
+                id="profile-signin-btn"
+              >
+                Sign In to Sync
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Stats Grid */}

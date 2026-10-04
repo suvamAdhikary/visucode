@@ -36,7 +36,7 @@ If any item fails: **do not merge.**
 
 | Item | Verdict |
 | --- | --- |
-| **Phase 3** | **Sprint 1 Complete.** Anonymous progress, problem completion toggle, catalog badges, and developer profile all verified. Ready for Sprint 2. |
+| **Phase 3** | **Sprint 2 Complete.** Auth.js v5 identity, JWT session strategy, lossless anonymous account merge, and profile/header UI verified. |
 | **Live Dry Run** | Done (Sprints 1–4 merged into `main`). [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). |
 | **Phase 2** | Done (Sprints 1–5). Trackers under `docs/phase-2-*-quality-flags.md`. |
 
@@ -98,19 +98,19 @@ Reuse what already exists:
 
 ### Stories
 
-- [ ] **Auth.js (NextAuth v5)** on Next.js 16 — GitHub + Google. Do not scaffold NextAuth v4.
-- [ ] Sign-in / sign-out in the header. Session on the profile page.
-- [ ] First login: merge anonymous `completedProblems` / `completedLessons` onto the account. Document the conflict rule (union by default).
-- [ ] Persistence = option A or B above, written in the PR that adds auth. Default A.
+- [x] **Auth.js (NextAuth v5)** on Next.js 16 — GitHub + Google. Do not scaffold NextAuth v4.
+- [x] Sign-in / sign-out in the header. Session on the profile page.
+- [x] First login: merge anonymous `completedProblems` / `completedLessons` onto the account. Document the conflict rule (union by default).
+- [x] Persistence = option A or B above, written in the PR that adds auth. Default A.
 
 ### Flag register (Sprint 2)
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-P3S2-01 | Auth.js v5, not Auth v4 | `OPEN` | |
-| F-P3S2-02 | Anonymous merge is lossless | `OPEN` | Test: complete 2 problems signed out → sign in → still 2 |
-| F-P3S2-03 | Secrets not committed | `OPEN` | `.env.local` / Auth.js env only |
-| F-P3S2-04 | No problem GraphQL in this sprint | `OPEN` | JSON + `PROBLEM_INDEX` dual-write stays |
+| F-P3S2-01 | Auth.js v5, not Auth v4 | `FIXED` | Standardized on `next-auth@^5.0.0-beta.32` on Next.js 16 & React 19. Proved in `apps/web/specs/auth-route.spec.ts`. |
+| F-P3S2-02 | Anonymous merge is lossless | `FIXED` | Proved in `apps/web/specs/auth-identity.spec.tsx` & `progress.service.spec.ts`: complete 2 problems signed out → sign in → still 2. Local anonymous record retained. |
+| F-P3S2-03 | Secrets not committed | `FIXED` | `.env.local` strictly ignored in `.gitignore`; committed `/.env.example` as configuration template. |
+| F-P3S2-04 | No problem GraphQL in this sprint | `FIXED` | Option A adopted: zero Prisma / zero GraphQL in Sprint 2. JSON + `PROBLEM_INDEX` dual-write preserved. |
 
 ---
 
