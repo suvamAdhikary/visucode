@@ -46,7 +46,7 @@ sequenceDiagram
     Note right of Storage: visucode_progress_${anonUid} remains intact (zero data loss)
     Service->>Service: setActiveUserId(authUserId)
     Service-->>Browser: Broadcasts change via useSyncExternalStore
-    Browser-->>Learner: Displays "Cloud Synced", user avatar, and 100% of solved problems
+    Browser-->>Learner: Displays "Account Linked", user avatar, and 100% of solved problems
 ```
 
 ---
@@ -55,7 +55,7 @@ sequenceDiagram
 
 | File Path | Layer | Responsibility |
 | --- | --- | --- |
-| [`apps/web/auth.ts`](file:///d:/mh/projects/visucode/apps/web/auth.ts) | Server Auth | Configures NextAuth v5, OAuth providers (GitHub, Google), JWT callbacks, and secret resolution. |
+| [`apps/web/auth.ts`](file:///d:/mh/projects/visucode/apps/web/auth.ts) | Server Auth | Configures NextAuth v5, OAuth providers (GitHub, Google), JWT callbacks, and secret resolution. Enforces production secret guards. |
 | [`apps/web/app/api/auth/[...nextauth]/route.ts`](file:///d:/mh/projects/visucode/apps/web/app/api/auth/[...nextauth]/route.ts) | API Route | Re-exports NextAuth route handlers (`GET`, `POST`). |
 | [`apps/web/app/components/auth/AuthProvider.tsx`](file:///d:/mh/projects/visucode/apps/web/app/components/auth/AuthProvider.tsx) | Client Root | Wraps React tree with `SessionProvider` and `AuthMergeSync`. |
 | [`apps/web/app/components/auth/AuthMergeSync.tsx`](file:///d:/mh/projects/visucode/apps/web/app/components/auth/AuthMergeSync.tsx) | Client Engine | Watches session status transitions and calls `mergeAnonymousProgress` or `clearActiveUserId`. |
@@ -78,7 +78,7 @@ When an anonymous user signs into an authenticated account, the merge follows st
 2. **Lessons (`completedLessons`)**:
    - `Union(Set(anon), Set(account))`
 3. **Current Position**:
-   - `currentTrack`: Account track takes precedence if defined; falls back to anonymous track.
+   - `currentTrack`: Account track takes precedence if already set on this machine (`hasStoredProgressForUser`); otherwise anonymous track wins (e.g. anonymous trees track is preserved on first login).
    - `currentLesson`: `Math.max(anon.currentLesson, account.currentLesson)`.
 4. **Preferences**:
    - Live preferences (`usePreferencesStore`) always reflect user customizations.
@@ -91,7 +91,7 @@ When an anonymous user signs into an authenticated account, the merge follows st
 
 - **Zero committed secrets**: Production and developer credentials live exclusively in `.env.local` or deployment platform secrets (Vercel / GitHub Secrets).
 - **Gitignore Protection**: `.env`, `.env.local`, `.env.production` are strictly ignored in `.gitignore`.
-- **JWT Signature**: Tokens are signed using `AUTH_SECRET` (fallback developer string provided strictly for zero-config offline test runs).
+- **JWT Signature & Production Enforcment**: Tokens are signed using `AUTH_SECRET`. In production (`NODE_ENV === 'production'`), `AUTH_SECRET` or `NEXTAUTH_SECRET` is strictly required; fallbacks are disallowed in production to prevent signing tokens with a known public string. Fallback developer credentials are only provided when running locally in development or test.
 
 ---
 

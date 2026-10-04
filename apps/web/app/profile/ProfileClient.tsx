@@ -121,7 +121,7 @@ export function ProfileClient({
               {isAuthenticated ? (
                 <>
                   <span className={styles.authBadge} data-testid="profile-auth-badge">
-                    ✓ Cloud Synced
+                    ✓ Account Linked
                   </span>
                   {session?.user?.email && (
                     <span className={styles.anonBadge}>{session.user.email}</span>
@@ -160,7 +160,7 @@ export function ProfileClient({
             <div className={styles.noticeContent}>
               <div>
                 <strong>Account Linked:</strong> Your DSA problem completions and lesson progress
-                are safely synced to your account.
+                are safely linked to your verified account identity in this browser.
               </div>
               <button
                 type="button"
@@ -180,7 +180,7 @@ export function ProfileClient({
             <div className={styles.noticeContent}>
               <div>
                 <strong>Local anonymous progress:</strong> All solved problems and lesson progress
-                are safely persisted in this browser. Sign in with GitHub or Google to permanently link and sync your progress.
+                are safely persisted in this browser. Sign in with GitHub or Google to permanently link progress to your account identity.
               </div>
               <button
                 type="button"

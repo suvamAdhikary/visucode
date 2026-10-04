@@ -209,6 +209,18 @@ export function getProgressForUser(userId: string): UserProgress {
 }
 
 /**
+ * Checks whether progress has been saved to storage for a specific user ID.
+ */
+export function hasStoredProgressForUser(userId: string): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return localStorage.getItem(`${PROGRESS_KEY_PREFIX}${userId}`) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Saves progress for a specific user ID directly to storage.
  */
 export function saveProgressForUser(userId: string, progress: UserProgress): void {
@@ -251,6 +263,7 @@ export function mergeAnonymousProgress(authenticatedUserId: string): UserProgres
     return getProgress();
   }
 
+  const authHasRecord = hasStoredProgressForUser(cleanAuthId);
   const anonProgress = getProgressForUser(anonId);
   const authProgress = getProgressForUser(cleanAuthId);
 
@@ -261,13 +274,23 @@ export function mergeAnonymousProgress(authenticatedUserId: string): UserProgres
     new Set([...anonProgress.completedLessons, ...authProgress.completedLessons])
   );
 
+  // Per ADR-004: "currentTrack: Authenticated user's track, or anonymous track if authenticated user has not set one."
+  const currentTrack =
+    authHasRecord && authProgress.currentTrack
+      ? authProgress.currentTrack
+      : anonProgress.currentTrack || 'arrays';
+
+  const currentLesson = authHasRecord
+    ? Math.max(authProgress.currentLesson || 1, anonProgress.currentLesson || 1)
+    : anonProgress.currentLesson || 1;
+
   const merged: UserProgress = {
     userId: cleanAuthId,
     completedProblems: mergedProblems,
     completedLessons: mergedLessons,
-    currentTrack: authProgress.currentTrack || anonProgress.currentTrack || 'arrays',
-    currentLesson: Math.max(authProgress.currentLesson || 1, anonProgress.currentLesson || 1),
-    role: authProgress.role || anonProgress.role || 'learner',
+    currentTrack,
+    currentLesson,
+    role: (authHasRecord && authProgress.role) || anonProgress.role || 'learner',
     preferences: getLivePreferences(),
   };
 

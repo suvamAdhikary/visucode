@@ -16,6 +16,7 @@ import {
   getProgressForUser,
   saveProgressForUser,
   mergeAnonymousProgress,
+  hasStoredProgressForUser,
 } from '../progress.service';
 import { usePreferencesStore } from '../../stores/preferences.store';
 
@@ -384,6 +385,48 @@ describe('Progress Service (Phase 3 Sprint 1 & Sprint 2, F-P3S1-01, F-P3S2-02)',
 
       const res2 = mergeAnonymousProgress('   ');
       expect(res2.completedProblems).toEqual(current.completedProblems);
+    });
+
+    it('preserves anonymous currentTrack (e.g. trees) when logging into a brand new account (ADR-004)', () => {
+      // Anonymous user switches track to trees and advances to lesson 3
+      setCurrentTrack('trees', 3);
+      expect(getProgress().currentTrack).toBe('trees');
+      expect(getProgress().currentLesson).toBe(3);
+
+      const newAuthId = 'github|brand-new-user-123';
+      expect(hasStoredProgressForUser(newAuthId)).toBe(false);
+
+      const merged = mergeAnonymousProgress(newAuthId);
+
+      // Anonymous track and lesson must win because authenticated user has not set one
+      expect(merged.currentTrack).toBe('trees');
+      expect(merged.currentLesson).toBe(3);
+      expect(getProgress().currentTrack).toBe('trees');
+      expect(hasStoredProgressForUser(newAuthId)).toBe(true);
+    });
+
+    it('preserves authenticated user track if the account already had stored progress', () => {
+      // Pre-seed authenticated account on hashing track
+      const existingAuthId = 'google|existing-user-456';
+      saveProgressForUser(existingAuthId, {
+        userId: existingAuthId,
+        completedProblems: ['two-sum'],
+        completedLessons: ['hashing-1'],
+        currentTrack: 'hashing',
+        currentLesson: 2,
+        role: 'learner',
+        preferences: {} as any,
+      });
+      expect(hasStoredProgressForUser(existingAuthId)).toBe(true);
+
+      // Anonymous user is on trees track
+      setCurrentTrack('trees', 1);
+
+      const merged = mergeAnonymousProgress(existingAuthId);
+
+      // Authenticated account track wins because it was explicitly set
+      expect(merged.currentTrack).toBe('hashing');
+      expect(merged.currentLesson).toBe(2);
     });
   });
 });

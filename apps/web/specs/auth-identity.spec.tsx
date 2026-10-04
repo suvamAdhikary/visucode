@@ -14,6 +14,8 @@ import {
   getProgressForUser,
   mergeAnonymousProgress,
   invalidateProgressCache,
+  setCurrentTrack,
+  hasStoredProgressForUser,
 } from '../lib/services/progress.service';
 
 // Helper to provide controlled session context
@@ -116,6 +118,24 @@ describe('Auth.js v5 Identity & Account Merge (Phase 3 Sprint 2, F-P3S2-01, F-P3
       expect(anonStored.completedProblems).toEqual(['two-sum']);
       expect(anonStored.completedLessons).toEqual(['arrays-intro']);
     });
+
+    it('ensures anonymous active track (e.g. trees) wins on first login when auth account has not set one (ADR-004)', () => {
+      // User explores trees track anonymously
+      setCurrentTrack('trees', 4);
+      expect(getProgress().currentTrack).toBe('trees');
+      expect(getProgress().currentLesson).toBe(4);
+
+      const newUserId = 'github|first-time-logger-999';
+      expect(hasStoredProgressForUser(newUserId)).toBe(false);
+
+      const merged = mergeAnonymousProgress(newUserId);
+
+      // Verify trees track and lesson 4 win over default 'arrays'
+      expect(merged.currentTrack).toBe('trees');
+      expect(merged.currentLesson).toBe(4);
+      expect(getProgress().currentTrack).toBe('trees');
+      expect(getProgress().currentLesson).toBe(4);
+    });
   });
 
   describe('Navbar Auth State Rendering', () => {
@@ -158,7 +178,7 @@ describe('Auth.js v5 Identity & Account Merge (Phase 3 Sprint 2, F-P3S2-01, F-P3
       expect(screen.queryByTestId('profile-auth-badge')).toBeNull();
     });
 
-    it('renders Cloud Synced badge, user identity, and Sign Out button when authenticated', () => {
+    it('renders Account Linked badge, user identity, and Sign Out button when authenticated', () => {
       const mockSession = {
         user: {
           id: 'user-gh-456',
@@ -176,7 +196,7 @@ describe('Auth.js v5 Identity & Account Merge (Phase 3 Sprint 2, F-P3S2-01, F-P3
       );
 
       expect(screen.getByText('Alan Turing')).toBeTruthy();
-      expect(screen.getByTestId('profile-auth-badge').textContent).toContain('Cloud Synced');
+      expect(screen.getByTestId('profile-auth-badge').textContent).toContain('Account Linked');
       expect(screen.getByText('alan@visucode.dev')).toBeTruthy();
       expect(screen.getByTestId('profile-sync-auth')).toBeTruthy();
       expect(screen.getByRole('button', { name: /sign out/i })).toBeTruthy();

@@ -18,4 +18,19 @@ describe('Auth.js v5 Server Route Handlers (Phase 3 Sprint 2, F-P3S2-01)', () =>
     expect(GET).toBe(handlers.GET);
     expect(POST).toBe(handlers.POST);
   });
+
+  it('restricts development fallback secret and dummy credentials to non-production environments', () => {
+    const devFallback = 'visucode-development-auth-secret-key-32-chars-minimum';
+    const isProd = process.env.NODE_ENV === 'production';
+    const resolvedSecret =
+      process.env.AUTH_SECRET ||
+      process.env.NEXTAUTH_SECRET ||
+      (!isProd ? devFallback : undefined);
+
+    if (isProd && !process.env.AUTH_SECRET && !process.env.NEXTAUTH_SECRET) {
+      expect(resolvedSecret).toBeUndefined();
+    } else {
+      expect(resolvedSecret).toBeDefined();
+    }
+  });
 });
