@@ -24,13 +24,13 @@ Introducing temporary mock checkout flows, fake credit card forms, or pretending
      - `trapping-rain-water` (Two Pointers, Hard)
      - `minimum-window-substring` (Sliding Window, Hard)
      - `longest-common-subsequence` (Dynamic Programming, Medium)
-   - Dual-write consistency is maintained between the problem JSON files on disk (`apps/web/content/problems/*.json`) and `PROBLEM_INDEX` in [`apps/web/lib/services/problem.service.ts`](file:///apps/web/lib/services/problem.service.ts).
+   - Dual-write consistency is maintained between the problem JSON files on disk (`apps/web/content/problems/*.json`) and `PROBLEM_INDEX` in [`apps/web/lib/services/problem.service.ts`](../../apps/web/lib/services/problem.service.ts).
    - Remaining problems remain `accessLevel: 'free'`.
 
 2. **Honest Preview Gating (`F-P3S3-02`)**:
    - Visiting a premium problem **does not result in a 404**.
    - The problem overview, metadata, examples, constraints, hints, and Complexity Panel remain fully readable on the left panel for educational value.
-   - The interactive workspace (Official Dry Run, Live Dry Run, Your Code) is protected by [`apps/web/app/components/premium/PremiumGate.tsx`](file:///apps/web/app/components/premium/PremiumGate.tsx).
+   - The interactive workspace (Official Dry Run, Live Dry Run, Your Code) is protected by [`apps/web/app/components/premium/PremiumGate.tsx`](../../apps/web/app/components/premium/PremiumGate.tsx).
    - The gate explicitly states:
      > **Client-Side Architecture Preview (Phase 3 Sprint 3)**:
      > True secure server entitlements, user database roles, and payment verification will be introduced in **Phase 4** with the PostgreSQL backend. There is no fake checkout or simulated payment processing.

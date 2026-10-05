@@ -23,15 +23,15 @@ Option A was selected to preserve architectural simplicity, avoid throwaway code
 1. **Auth.js v5 (NextAuth v5) on Next.js 16 ([`F-P3S2-01`](../phase-3-quality-flags.md))**:
    - The application standardizes strictly on Auth.js v5 (`next-auth@^5.0.0-beta.32`).
    - NextAuth v4 is deprecated for React 19 and Next.js 16 App Router and is strictly disallowed.
-   - Central configuration resides in [`apps/web/auth.ts`](file:///apps/web/auth.ts), exporting `{ handlers, auth, signIn, signOut }`.
-   - API route handler resides in [`apps/web/app/api/auth/[...nextauth]/route.ts`](file:///apps/web/app/api/auth/[...nextauth]/route.ts) re-exporting `GET` and `POST`.
+   - Central configuration resides in [`apps/web/auth.ts`](../../apps/web/auth.ts), exporting `{ handlers, auth, signIn, signOut }`.
+   - API route handler resides in [`apps/web/app/api/auth/[...nextauth]/route.ts`](../../apps/web/app/api/auth/[...nextauth]/route.ts) re-exporting `GET` and `POST`.
 
 2. **JWT Session Strategy & OAuth Providers ([`F-P3S2-03`](../phase-3-quality-flags.md))**:
    - Sessions use stateless JWT tokens encrypted with `AUTH_SECRET`.
    - **Production Security Guard**: In production (`NODE_ENV === 'production'`), `AUTH_SECRET` or `NEXTAUTH_SECRET` is strictly required via environment. Fallbacks are disallowed in production to prevent signing tokens with a known public string. OAuth providers are only registered when their respective credentials exist in the environment.
    - Configured with **GitHub** and **Google** OAuth 2.0 providers.
    - Secrets are strictly managed through environment variables (`AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET`).
-   - `.env.local` is git-ignored, and [`/.env.example`](file:///.env.example) is committed as the reference template.
+   - `.env.local` is git-ignored, and [`/.env.example`](../../.env.example) is committed as the reference template.
 
 3. **Lossless Anonymous Account Merge Engine ([`F-P3S2-02`](../phase-3-quality-flags.md))**:
    - When an anonymous user logs in, their anonymous progress (`completedProblems`, `completedLessons`) is merged onto their authenticated account.
@@ -44,7 +44,7 @@ Option A was selected to preserve architectural simplicity, avoid throwaway code
    - Operations are strictly idempotent; repeated login triggers or multi-tab sessions never duplicate entries.
 
 4. **Service-Layer Encapsulation**:
-   - All identity transitions and progress storage are handled through [`apps/web/lib/services/progress.service.ts`](file:///apps/web/lib/services/progress.service.ts).
+   - All identity transitions and progress storage are handled through [`apps/web/lib/services/progress.service.ts`](../../apps/web/lib/services/progress.service.ts).
    - `setActiveUserId(authUserId)` and `clearActiveUserId()` dynamically switch active storage keys while maintaining cache stability for `useSyncExternalStore`.
    - UI components consume `useUserProgress()` and `useSession()`, never accessing `localStorage` directly.
 

@@ -184,6 +184,14 @@ export default async function PatternDetailPage({
                   >
                     {p.difficulty}
                   </span>
+                  {p.accessLevel === 'premium' && (
+                    <span
+                      className={styles.premiumBadge}
+                      data-testid="pattern-problem-premium-badge"
+                    >
+                      ★ Premium
+                    </span>
+                  )}
                   <ProblemCompletionBadge slug={p.slug} />
                 </div>
                 <span className={styles.problemArrow}>→</span>

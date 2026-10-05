@@ -43,7 +43,7 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
         <h1>💡 Problems</h1>
         <p>
           {problems.length} problem{problems.length !== 1 ? 's' : ''}{' '}
-          {params.pattern || params.difficulty || params.category
+          {params.pattern || params.difficulty || params.category || params.company || params.accessLevel
             ? '(filtered)'
             : ''}
         </p>
@@ -56,7 +56,11 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
           <span className={styles.filterLabel}>Difficulty</span>
           <div className={styles.filterPills}>
             <Link
-              href="/problems"
+              href={`/problems?${new URLSearchParams(
+                Object.fromEntries(
+                  Object.entries(params).filter(([k]) => k !== 'difficulty')
+                )
+              ).toString()}`}
               className={`${styles.pill} ${!params.difficulty ? styles.pillActive : ''}`}
             >
               All
