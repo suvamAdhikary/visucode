@@ -480,5 +480,5 @@
       "description": "Finding the shortest text snippet in a document that contains all search query terms — directly uses min window logic."
     }
   ],
-  "accessLevel": "free"
+  "accessLevel": "premium"
 }

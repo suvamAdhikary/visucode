@@ -10,6 +10,7 @@ interface ProblemsPageProps {
     difficulty?: Difficulty;
     category?: Category;
     company?: string;
+    accessLevel?: 'free' | 'premium';
   }>;
 }
 
@@ -26,6 +27,7 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
     difficulty: params.difficulty,
     category: params.category,
     company: params.company,
+    accessLevel: params.accessLevel,
   });
 
   const allProblems = listProblems();
@@ -41,7 +43,7 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
         <h1>💡 Problems</h1>
         <p>
           {problems.length} problem{problems.length !== 1 ? 's' : ''}{' '}
-          {params.pattern || params.difficulty || params.category
+          {params.pattern || params.difficulty || params.category || params.company || params.accessLevel
             ? '(filtered)'
             : ''}
         </p>
@@ -54,7 +56,11 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
           <span className={styles.filterLabel}>Difficulty</span>
           <div className={styles.filterPills}>
             <Link
-              href="/problems"
+              href={`/problems?${new URLSearchParams(
+                Object.fromEntries(
+                  Object.entries(params).filter(([k]) => k !== 'difficulty')
+                )
+              ).toString()}`}
               className={`${styles.pill} ${!params.difficulty ? styles.pillActive : ''}`}
             >
               All
@@ -137,6 +143,45 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
             ))}
           </div>
         </div>
+
+        {/* Access Level */}
+        <div className={styles.filterGroup}>
+          <span className={styles.filterLabel}>Access</span>
+          <div className={styles.filterPills}>
+            <Link
+              href={`/problems?${new URLSearchParams(
+                Object.fromEntries(
+                  Object.entries(params).filter(([k]) => k !== 'accessLevel')
+                )
+              ).toString()}`}
+              className={`${styles.pill} ${!params.accessLevel ? styles.pillActive : ''}`}
+            >
+              All
+            </Link>
+            <Link
+              href={`/problems?${new URLSearchParams({
+                ...params,
+                accessLevel: 'free',
+              }).toString()}`}
+              className={`${styles.pill} ${
+                params.accessLevel === 'free' ? styles.pillActive : ''
+              }`}
+            >
+              Free
+            </Link>
+            <Link
+              href={`/problems?${new URLSearchParams({
+                ...params,
+                accessLevel: 'premium',
+              }).toString()}`}
+              className={`${styles.pill} ${
+                params.accessLevel === 'premium' ? styles.pillActive : ''
+              }`}
+            >
+              ★ Premium
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Problem List */}
@@ -159,6 +204,15 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
                 >
                   {problem.difficulty}
                 </span>
+                {problem.accessLevel === 'premium' ? (
+                  <span className={styles.premiumBadge} data-testid="problem-premium-badge">
+                    ★ Premium
+                  </span>
+                ) : (
+                  <span className={styles.freeBadge} data-testid="problem-free-badge">
+                    Free
+                  </span>
+                )}
                 {problem.patterns.map((p) => (
                   <span key={p} className="badge badge-pattern">
                     {p.replace(/-/g, ' ')}

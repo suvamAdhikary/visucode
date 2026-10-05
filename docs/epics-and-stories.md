@@ -75,7 +75,7 @@ Classroom loop: write JS, write an input, step through **that** execution. Autho
 - [ ] **Story**: User-code good/bad analysis (what’s solid vs what’s wrong vs the official approach). After Live Dry Run + tests. No LLM until a dedicated ADR.
 
 ## Epic 3: Phase 3 - User System & Progress Tracking
-**Status**: IN PROGRESS (Sprint 1 & Sprint 2 DONE)
+**Status**: COMPLETE (Sprints 1, 2, 3 DONE)
 
 Start after Live Dry Run Sprint 1 is merge-ready. Auth.js still waits until this epic’s own Sprint 1 is ready. Quality tracker: [`docs/phase-3-quality-flags.md`](./phase-3-quality-flags.md). Do not add problem JSON here — extra catalog volume is Phase 4. Flag IDs stay `F-P3S*`.
 
@@ -94,11 +94,11 @@ Reuse existing types (`UserProgress`, `UserPreferences`) and `visucode_uid`. UI 
 - [x] **Story**: First login merges anonymous `completedProblems` / `completedLessons` onto the account (union by default). Prove with a test.
 - [x] **Story**: Persistence choice written in the auth PR — **A:** JWT + keep progress local until Phase 4, or **B:** thin Prisma `User` table only (problems stay JSON). Do not add GraphQL for problems here. *(Selected Option A, documented in ADR-004).*
 
-### Sprint 3: Premium UI (TODO, skippable)
-*Only if some JSON is actually marked `premium`. Today every problem is `free`. Real entitlement is Phase 4.*
-- [ ] **Story**: Mark a small explicit set of problems `accessLevel: 'premium'`.
-- [ ] **Story**: Free / signed-out users see a gate (not a 404). Copy states the paywall is preview until Phase 4.
-- [ ] **Story**: If all content stays free until the backend, skip this sprint (`WONTFIX` in the flags file).
+### Sprint 3: Premium UI (DONE)
+*Shipped as an honest client-side architecture preview ahead of Phase 4 backend migration.*
+- [x] **Story**: Mark a small explicit set of problems `accessLevel: 'premium'` (`trapping-rain-water`, `minimum-window-substring`, `longest-common-subsequence`).
+- [x] **Story**: Free / signed-out users see a gate (not a 404). Dry run / runner hidden or teaser.
+- [x] **Story**: Copy states the paywall is preview until Phase 4. Zero fake checkout. *(Documented in ADR-005).*
 
 ## Epic 4: Phase 4 - Backend Migration
 **Status**: TODO
