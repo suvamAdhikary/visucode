@@ -911,5 +911,5 @@
       "description": "Computing line-by-line diffs between committed file versions using the Myers diff algorithm based on Longest Common Subsequence."
     }
   ],
-  "accessLevel": "free"
+  "accessLevel": "premium"
 }

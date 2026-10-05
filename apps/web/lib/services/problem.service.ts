@@ -91,7 +91,7 @@ const PROBLEM_INDEX: Array<{
     category: 'array',
     patterns: ['two-pointers'],
     companies: ['Amazon', 'Google', 'Goldman Sachs', 'Microsoft'],
-    accessLevel: 'free',
+    accessLevel: 'premium',
   },
   {
     slug: 'longest-substring-without-repeating',
@@ -109,7 +109,7 @@ const PROBLEM_INDEX: Array<{
     category: 'string',
     patterns: ['sliding-window'],
     companies: ['Meta', 'Amazon', 'Google', 'Airbnb'],
-    accessLevel: 'free',
+    accessLevel: 'premium',
   },
   {
     slug: 'longest-repeating-character-replacement',
@@ -271,7 +271,7 @@ const PROBLEM_INDEX: Array<{
     category: 'dynamic-programming',
     patterns: ['dynamic-programming'],
     companies: ['Amazon', 'Google', 'Microsoft', 'Meta'],
-    accessLevel: 'free',
+    accessLevel: 'premium',
   },
   {
     slug: 'subsets',
@@ -323,6 +323,7 @@ export function listProblems(filters?: {
   category?: Category;
   difficulty?: Difficulty;
   company?: string;
+  accessLevel?: 'free' | 'premium';
 }): typeof PROBLEM_INDEX {
   let results = [...PROBLEM_INDEX];
 
@@ -334,6 +335,9 @@ export function listProblems(filters?: {
   }
   if (filters?.difficulty) {
     results = results.filter((p) => p.difficulty === filters.difficulty);
+  }
+  if (filters?.accessLevel) {
+    results = results.filter((p) => p.accessLevel === filters.accessLevel);
   }
   if (filters?.company) {
     results = results.filter((p) =>
