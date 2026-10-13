@@ -2,11 +2,20 @@
 
 **Learn DSA Visually — Interactive algorithm visualizations with step-by-step dry runs**
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-visucode.vercel.app-6366f1?style=for-the-badge)](https://visucode.vercel.app)
+[![CI](https://github.com/suvamAdhikary/visucode/actions/workflows/ci.yml/badge.svg)](https://github.com/suvamAdhikary/visucode/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript)](https://typescriptlang.org)
 [![Nx](https://img.shields.io/badge/Nx-Monorepo-143055?style=flat-square&logo=nx)](https://nx.dev)
-[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat-square&logo=vercel)](https://visucode.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+
+🚀 **[Live Demo: visucode.vercel.app](https://visucode.vercel.app)** 🚀
+
+---
+
+## 📸 Preview
+
+<!-- TODO: Add screenshot or GIF demonstrating the interactive dry run viewer -->
+![VisuCode Preview](docs/screenshots/preview.png)
 
 ---
 
@@ -210,6 +219,8 @@ Live Dry Run is next. Then `feature/phase-3-sprint-N` for user-system. Phase 2 P
 ---
 
 ## 🗺️ Roadmap
+
+For a detailed roadmap with architectural decisions and success metrics, see **[ROADMAP.md](ROADMAP.md)**.
 
 ### Phase 1 — MVP ✅
 
