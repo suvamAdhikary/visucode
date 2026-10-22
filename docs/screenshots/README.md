@@ -4,7 +4,7 @@ This directory contains visual assets for the README and documentation.
 
 ## preview.png
 
-A screenshot or GIF demonstrating the interactive dry run viewer in action.
+High-resolution demonstration screenshot of the VisuCode interactive dry run viewer in action (Binary Search), featuring the synchronized code viewer, animated pointer visualizer, live variable state pills, step controller, and asymptotic Big-O Complexity Panel.
 
 **To add a screenshot:**
 

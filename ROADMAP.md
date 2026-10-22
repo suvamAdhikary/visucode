@@ -1,6 +1,6 @@
 # 🗺️ VisuCode Roadmap
 
-**Last Updated: October 13, 2026**
+**Last Updated: October 2026**
 
 This roadmap outlines the development journey of VisuCode from MVP to a production-ready DSA learning platform. Each phase builds incrementally, validating assumptions before adding complexity.
 
@@ -25,7 +25,7 @@ This roadmap outlines the development journey of VisuCode from MVP to a producti
 - ✅ Vercel deployment with automatic deploys from `main` branch
 - ✅ Initial problem set across multiple patterns
 
-**Key Decision**: Monolith-first architecture — no premature microservices, GraphQL, or backend. JSON files as data source to ship fast and validate demand.
+**Key Decision**: Monolith-first architecture ([ADR-001](docs/ADR/001-monolith-first.md)) — no premature microservices, GraphQL, or backend. JSON files as data source to ship fast and validate demand.
 
 ---
 
@@ -57,153 +57,143 @@ This roadmap outlines the development journey of VisuCode from MVP to a producti
 
 ---
 
-## 🚧 In Progress
+### Live Dry Run Engine — User-Generated Visualizations (Completed)
 
-### Phase 2.5 — Portfolio & CI Infrastructure (Current Sprint)
+**Goal**: Enable users to dry run and visualize their own custom JavaScript code
 
-**Goal**: Make VisuCode production-ready as a portfolio showcase
+**Plan**: [`docs/phase-live-dry-run-quality-flags.md`](docs/phase-live-dry-run-quality-flags.md) · **ADR**: [`docs/ADR/002-live-dry-run-tracer.md`](docs/ADR/002-live-dry-run-tracer.md)
 
-- 🚧 GitHub Actions CI pipeline:
-  - Lint job (ESLint across all projects)
-  - Test job (Jest with coverage reporting)
-  - Build job (Next.js production build)
-  - CI status badge in README
-- 🚧 Enhanced README:
-  - CI badge, license badge
-  - Live demo link prominently placed
-  - Screenshot/GIF placeholder for visual preview
-- 🚧 ROADMAP.md documenting Done/In Progress/Next/Later with key decisions
+- ✅ **Sprint 1 — JavaScript Tracer Foundation**:
+  - Input preflight validation (syntax validation, infinite loop protection, timeout detection)
+  - Dedicated Web Worker tracer with execution caps and early abort
+  - Playground stepper UI for stepping through user execution
+  - Diagnostics popup for runtime exceptions and syntax errors
+- ✅ **Sprint 2 — On-the-Fly Visualization**:
+  - 1D array state inference from runtime snapshots
+  - 2D array / matrix visualization
+  - Object structure rendering
+- ✅ **Sprint 3 — Data Structure Heuristics & Problem Integration**:
+  - Linked list detection (objects with `.next` pointer chains)
+  - Binary tree detection (nodes with `.left` / `.right`)
+  - Problem page "Dry Run My Code" live tab
+- ✅ **Sprint 4 — Complexity Analysis**:
+  - Official Complexity Panel with asymptotic Big-O runtime and auxiliary space analysis
+  - Granular "Why this complexity" breakdowns
+  - Big-O growth curve chart visualizing scalability classifications
 
-**Key Decision**: CI before scaling — ensure code quality gates are in place before expanding team or adding contributors.
+**Key Decision**: Tracer runs strictly inside a Web Worker to prevent UI lockup. Pre-authored JSON dry runs remain as official solution tapes, while user code execution provides interactive experimentation.
+
+---
+
+### Phase 3 — User System, Identity & Premium Preview (Completed)
+
+**Goal**: Frictionless anonymous learning, seamless identity upgrades, and honest premium tiering
+
+**Plan**: [`docs/phase-3-quality-flags.md`](docs/phase-3-quality-flags.md) · **ADRs**: [`docs/ADR/003-client-side-anonymous-progress.md`](docs/ADR/003-client-side-anonymous-progress.md), [`docs/ADR/004-authjs-v5-identity-and-merge.md`](docs/ADR/004-authjs-v5-identity-and-merge.md), [`docs/ADR/005-premium-ui-preview.md`](docs/ADR/005-premium-ui-preview.md)
+
+- ✅ **Sprint 1 — Anonymous-First Progress**:
+  - `progress.service` client-side state engine with localStorage persistence
+  - Reactive updates using `useSyncExternalStore`
+  - Profile page with completion statistics (problems solved, tracks followed)
+  - Instant value without requiring upfront authentication
+- ✅ **Sprint 2 — Auth.js v5 Integration & Lossless Account Merge**:
+  - NextAuth v5 (Auth.js beta) configured with GitHub and Google OAuth providers
+  - JWT session strategy with production secret enforcement (`AUTH_SECRET`)
+  - Lossless anonymous account merge engine: combines anonymous progress with authenticated accounts on login via set union (`F-P3S2-02`)
+- ✅ **Sprint 3 — Premium UI Architecture Preview & Honest Gating**:
+  - Explicit problem tiering marking advanced problems (`trapping-rain-water`, `minimum-window-substring`, `longest-common-subsequence`) as `accessLevel: 'premium'`
+  - Honest preview gate (`PremiumGate.tsx`): left column (descriptions, hints, complexity explainer) remains fully open; interactive workspace is protected by an honest preview gate
+  - Zero deceptive patterns: no fake checkouts, no simulated billing flows; clear disclosure that real database entitlements launch in Phase 4 (`F-P3S3-02`)
+  - Problem catalog Access filter (`All`, `Free`, `★ Premium`) and pattern page premium badges
+
+**Key Decision**: Anonymous-first UX removes all initial barriers. Auth.js v5 handles OAuth and lossless migration. Paywalls remain completely honest ahead of Phase 4 database billing.
+
+---
+
+### CI/CD & Portfolio Showcase (Completed)
+
+**Goal**: Establish automated quality pipelines and production portfolio readiness
+
+- ✅ GitHub Actions CI workflow running on all pushes and PRs:
+  - Linting (ESLint across workspace)
+  - Testing with Jest and coverage reporting
+  - Production Next.js build verification on Node.js 20
+- ✅ Documentation preview showcase with high-resolution screenshot (`docs/screenshots/preview.png`)
+- ✅ MIT Open Source License (`LICENSE`)
+- ✅ Synchronized architecture documentation, ADRs, and roadmaps
 
 ---
 
 ## 📅 Next
 
-### Live Dry Run — User-Generated Visualizations
+### Phase 4 — Backend Infrastructure, Database & Production Entitlements
 
-**Goal**: Let users visualize their own code, not just pre-authored dry runs
+**Goal**: Scalable data layer, persistent user database, and server-verified billing
 
-**Plan**: [`docs/phase-live-dry-run-quality-flags.md`](docs/phase-live-dry-run-quality-flags.md)  
-**ADR**: [`docs/ADR/002-live-dry-run-tracer.md`](docs/ADR/002-live-dry-run-tracer.md)
+- [ ] **PostgreSQL Database & Prisma ORM**:
+  - Persistent user accounts and cross-device cloud progress synchronization
+  - Problem metadata and solutions stored in relational models
+- [ ] **GraphQL API (Apollo Server / Yoga)**:
+  - Service abstraction layer swap (`problem.service.ts`, `progress.service.ts`) with zero UI component changes
+- [ ] **Redis Layer**:
+  - Query caching and submission rate limiting
+- [ ] **Stripe Subscription Billing**:
+  - Real server-verified entitlement checks replacing client-side preview gating
+  - Webhook handlers for subscription lifecycles (activation, cancellation, grace periods)
 
-#### Sprint 1: JavaScript Tracer Foundation
-- Input preflight validation (syntax check, timeout detection)
-- Worker-based tracer with capabilities detection and early abort
-- Playground stepper UI for step-through execution
-- Diagnostics popup for buggy code (infinite loops, runtime errors)
-
-#### Sprint 2: On-the-Fly Visualization
-- 1D array inference from snapshots (`[1, 2, 3]`)
-- 2D array/matrix visualization (`[[1, 2], [3, 4]]`)
-- Object structure rendering (nested objects, arrays)
-
-#### Sprint 3: Data Structure Heuristics
-- Linked list detection (objects with `.next` pointers)
-- Binary tree detection (objects with `.left`/`.right`)
-- Problem page "Dry run my code" button
-
-#### Sprint 4: Complexity Analysis (parallel with Sprints 2-3)
-- Official time/space complexity panel
-- "Why this complexity" explanations
-- Small Big-O visualization (graph showing growth rates)
-
-**Key Decision**: Tracer runs in Web Worker to prevent UI blocking. Authored JSON dry runs remain as official solution tapes — user code visualizations are supplementary for learning.
-
-**Later Enhancement** (`F-LDR-X-01`): Good/bad code analysis comparing user solutions with optimal patterns.
-
----
-
-### Phase 3 — User System & Progress Tracking
-
-**Goal**: Persistent progress and identity without forcing sign-up
-
-**Plan**: [`docs/phase-3-quality-flags.md`](docs/phase-3-quality-flags.md)  
-**ADR**: [`docs/ADR/003-client-side-anonymous-progress.md`](docs/ADR/003-client-side-anonymous-progress.md), [`docs/ADR/004-authjs-v5-identity-and-merge.md`](docs/ADR/004-authjs-v5-identity-and-merge.md)
-
-#### Sprint 1: Anonymous Progress
-- `progress.service` with localStorage persistence
-- Profile page showing completion stats (problems solved, patterns practiced)
-- No authentication required — instant value
-
-#### Sprint 2: Auth.js Integration
-- GitHub OAuth provider
-- Google OAuth provider
-- Merge anonymous progress on first sign-in
-- Session management with JWT
-
-#### Sprint 3: Premium UI Scaffolding
-- "Premium" badge on selected problems (JSON-driven)
-- Gated content UI (modal/paywall screen)
-- No actual payment processing yet — deferred to Phase 4
-
-**Key Decision**: Anonymous-first approach removes friction. Auth.js v5 chosen for OAuth provider flexibility and session management.
+**Key Decision**: The service abstraction layer established in Phase 1 pays off — transitioning from local JSON and localStorage to GraphQL and PostgreSQL requires updating service files with zero UI regressions.
 
 ---
 
 ## 🔮 Later
 
-### Phase 4 — Backend & GraphQL
-
-**Goal**: Scalable data layer and premium content enforcement
-
-- [ ] GraphQL API with Apollo Server
-- [ ] PostgreSQL database with Prisma ORM
-- [ ] Redis for caching and rate limiting
-- [ ] Service layer abstraction maintained → zero UI changes needed
-- [ ] Stripe integration for premium subscriptions
-- [ ] Real entitlement checks (not just UI-level gates)
-
-**Key Decision**: Service abstraction from Phase 1 pays off — swapping JSON for GraphQL = change one file, no component refactoring.
-
----
-
 ### Phase 5 — Scale & Performance
 
-**Goal**: Support 1000+ element visualizations and real-time features
+**Goal**: Support 1,000+ element visualizations and collaborative learning features
 
-- [ ] Rust → WASM Canvas visualizer
-  - Handles large datasets (10K+ array elements, massive graphs)
+- [ ] **Rust → WASM Canvas Visualizer**:
+  - High-performance rendering for 10K+ array elements and massive graph topologies
   - GPU-accelerated rendering via WebGL
-- [ ] Real-time multiplayer dry runs (collaborative learning)
-- [ ] WebSocket server for live sessions
-- [ ] Admin analytics dashboard (user metrics, problem difficulty calibration)
-
-**Key Decision**: Canvas/WebGL only when DOM animations hit limits. Premature optimization avoided until we hit actual performance bottlenecks.
+- [ ] **Real-Time Multiplayer Dry Runs**:
+  - Synchronized step-through execution with peers
+  - WebSocket coordination server for pair programming and classroom study
+- [ ] **Admin Analytics & Problem Telemetry**:
+  - Difficulty calibration from anonymous step completion rates
+  - Common bug pattern detection from tracer diagnostics
 
 ---
 
 ## 🎯 Success Metrics
 
-We track qualitative validation over vanity metrics:
+We track qualitative validation and engineering integrity over vanity metrics:
 
-- **Phase 1-2**: Direct user feedback (5 interviews minimum per phase)
-- **Live Dry Run**: Time-to-first-visualization < 10 seconds
-- **Phase 3**: Anonymous-to-authenticated conversion rate
-- **Phase 4**: Premium subscription retention after first month
-- **Phase 5**: Visualizer performance at 10K elements < 100ms render time
+- **Phases 1–3**: Zero-config instant local dev, 100% passing automated test suite (680+ tests), 0 TypeScript compiler errors
+- **Live Dry Run**: Time-to-first-visualization < 5 seconds; 100% Web Worker thread isolation
+- **User System**: 100% lossless progress merge during anonymous-to-OAuth transition
+- **Phase 4**: Sub-50ms GraphQL response times, 99.9% webhook delivery for billing events
+- **Phase 5**: Canvas visualizer rendering at 60 FPS for 10,000 elements
 
 ---
 
 ## 🔑 Key Architectural Decisions
 
-### 1. Monolith-First ([ADR-001](docs/ADR/001-monolith-first.md))
-Start with Next.js monolith, split into microservices only when specific scaling constraints emerge (e.g., tracer needs isolated compute).
+1. **Monolith-First ([ADR-001](docs/ADR/001-monolith-first.md))**  
+   Start with Next.js App Router monolith; extract microservices only when specific compute bottlenecks (e.g. distributed code execution) arise.
 
-### 2. Local JSON → GraphQL Migration Path
-Service abstraction layer (`problem.service.ts`, `lesson.service.ts`) means data source is swappable without touching React components.
+2. **Web Worker Code Sandboxing ([ADR-002](docs/ADR/002-live-dry-run-tracer.md))**  
+   User-submitted code is instrumented and executed in dedicated Web Workers with preflight timeouts and step caps, never blocking the main UI thread.
 
-### 3. Server Components by Default
-Next.js App Router — server components for static content (landing, problem descriptions), client components only for interactivity (visualizers).
+3. **Anonymous-First Progress Persistence ([ADR-003](docs/ADR/003-client-side-anonymous-progress.md))**  
+   Learners get full utility immediately using local storage without forced sign-ups.
 
-### 4. Worker-Based Execution
-All user code runs in Web Workers to prevent main thread blocking and enable sandboxing.
+4. **Auth.js v5 Identity & Lossless Merge ([ADR-004](docs/ADR/004-authjs-v5-identity-and-merge.md))**  
+   Stateless JWT session authentication with automated set-union merging of local progress upon OAuth login.
 
-### 5. Anonymous-First UX
-Let users try full features without signup. Authentication is opt-in for persistence and premium content.
+5. **Honest Premium UI Architecture Preview ([ADR-005](docs/ADR/005-premium-ui-preview.md))**  
+   Transparent client-side gating preview without deceptive mock checkouts, paving a clear migration path to Phase 4 PostgreSQL entitlements.
 
 ---
 
-## 📬 Feedback
+## 📬 Feedback & Discussions
 
-Have suggestions or want to prioritize a feature? Open a [GitHub Discussion](https://github.com/suvamAdhikary/visucode/discussions) or reach out via [email](mailto:contact@visucode.dev).
+Have suggestions or questions? Open a [GitHub Discussion](https://github.com/suvamAdhikary/visucode/discussions) or reach out to the project maintainer.

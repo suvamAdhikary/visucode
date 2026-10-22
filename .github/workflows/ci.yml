@@ -74,5 +74,6 @@ jobs:
       - name: Build application
         run: npx nx run-many --target=build --all
         env:
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-for-ci-build' }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || secrets.NEXTAUTH_SECRET || 'test-secret-for-ci-build-long-key-32-chars-min' }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || secrets.AUTH_SECRET || 'test-secret-for-ci-build-long-key-32-chars-min' }}
           NEXTAUTH_URL: http://localhost:3000
