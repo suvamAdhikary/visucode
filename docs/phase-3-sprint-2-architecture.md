@@ -55,15 +55,15 @@ sequenceDiagram
 
 | File Path | Layer | Responsibility |
 | --- | --- | --- |
-| [`apps/web/auth.ts`](file:///d:/mh/projects/visucode/apps/web/auth.ts) | Server Auth | Configures NextAuth v5, OAuth providers (GitHub, Google), JWT callbacks, and secret resolution. Enforces production secret guards. |
-| [`apps/web/app/api/auth/[...nextauth]/route.ts`](file:///d:/mh/projects/visucode/apps/web/app/api/auth/[...nextauth]/route.ts) | API Route | Re-exports NextAuth route handlers (`GET`, `POST`). |
-| [`apps/web/app/components/auth/AuthProvider.tsx`](file:///d:/mh/projects/visucode/apps/web/app/components/auth/AuthProvider.tsx) | Client Root | Wraps React tree with `SessionProvider` and `AuthMergeSync`. |
-| [`apps/web/app/components/auth/AuthMergeSync.tsx`](file:///d:/mh/projects/visucode/apps/web/app/components/auth/AuthMergeSync.tsx) | Client Engine | Watches session status transitions and calls `mergeAnonymousProgress` or `clearActiveUserId`. |
-| [`apps/web/lib/hooks/useSafeSession.ts`](file:///d:/mh/projects/visucode/apps/web/lib/hooks/useSafeSession.ts) | Client Hook | Resilient session accessor avoiding unhandled provider exceptions in isolated tests and Storybook. |
-| [`apps/web/lib/services/progress.service.ts`](file:///d:/mh/projects/visucode/apps/web/lib/services/progress.service.ts) | Data Layer | Encapsulates storage, active user context, set union merge, cache invalidation, and reactivity. |
-| [`apps/web/app/components/layout/Navbar.tsx`](file:///d:/mh/projects/visucode/apps/web/app/components/layout/Navbar.tsx) | Header UI | Renders user avatar, username, and Sign In / Sign Out actions. |
-| [`apps/web/app/profile/ProfileClient.tsx`](file:///d:/mh/projects/visucode/apps/web/app/profile/ProfileClient.tsx) | Profile UI | Displays session identity, provider badge, Account ID, and sync notice. |
-| [`/.env.example`](file:///d:/mh/projects/visucode/.env.example) | DevOps | Committed template for local developer authentication setup. |
+| [`apps/web/auth.ts`](../apps/web/auth.ts) | Server Auth | Configures NextAuth v5, OAuth providers (GitHub, Google), JWT callbacks, and secret resolution. Enforces production secret guards. |
+| [`apps/web/app/api/auth/[...nextauth]/route.ts`](../apps/web/app/api/auth/[...nextauth]/route.ts) | API Route | Re-exports NextAuth route handlers (`GET`, `POST`). |
+| [`apps/web/app/components/auth/AuthProvider.tsx`](../apps/web/app/components/auth/AuthProvider.tsx) | Client Root | Wraps React tree with `SessionProvider` and `AuthMergeSync`. |
+| [`apps/web/app/components/auth/AuthMergeSync.tsx`](../apps/web/app/components/auth/AuthMergeSync.tsx) | Client Engine | Watches session status transitions and calls `mergeAnonymousProgress` or `clearActiveUserId`. |
+| [`apps/web/lib/hooks/useSafeSession.ts`](../apps/web/lib/hooks/useSafeSession.ts) | Client Hook | Resilient session accessor avoiding unhandled provider exceptions in isolated tests and Storybook. |
+| [`apps/web/lib/services/progress.service.ts`](../apps/web/lib/services/progress.service.ts) | Data Layer | Encapsulates storage, active user context, set union merge, cache invalidation, and reactivity. |
+| [`apps/web/app/components/layout/Navbar.tsx`](../apps/web/app/components/layout/Navbar.tsx) | Header UI | Renders user avatar, username, and Sign In / Sign Out actions. |
+| [`apps/web/app/profile/ProfileClient.tsx`](../apps/web/app/profile/ProfileClient.tsx) | Profile UI | Displays session identity, provider badge, Account ID, and sync notice. |
+| [`/.env.example`](../.env.example) | DevOps | Committed template for local developer authentication setup. |
 
 ---
 

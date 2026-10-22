@@ -36,7 +36,7 @@ If any item fails: **do not merge.**
 
 | Item | Verdict |
 | --- | --- |
-| **Phase 3** | **Sprint 2 Complete.** Auth.js v5 identity, JWT session strategy, lossless anonymous account merge, and profile/header UI verified. |
+| **Phase 3** | **Sprint 3 Complete.** Premium UI architecture preview, honest client gating, catalog access filtering, and dual-write JSON verified. |
 | **Live Dry Run** | Done (Sprints 1–4 merged into `main`). [`docs/phase-live-dry-run-quality-flags.md`](./phase-live-dry-run-quality-flags.md). |
 | **Phase 2** | Done (Sprints 1–5). Trackers under `docs/phase-2-*-quality-flags.md`. |
 
@@ -120,16 +120,14 @@ Only if product needs a visible free/premium split **before** Phase 4.
 
 ### Stories
 
-- [ ] Mark a small, explicit set of JSON problems `accessLevel: 'premium'` (today every problem is `free`).
-- [ ] Signed-out / free users see a gate, not a 404. Dry run / runner hidden or teaser.
-- [ ] Copy states this is **client-side until Phase 4**. Do not claim a secure paywall.
-
-If there is no premium content to mark: **skip this sprint.** Set `F-P3S3-01` `WONTFIX`.
+- [x] Mark a small, explicit set of JSON problems `accessLevel: 'premium'` (`trapping-rain-water`, `minimum-window-substring`, `longest-common-subsequence`).
+- [x] Signed-out / free users see a gate, not a 404. Dry run / runner hidden or teaser.
+- [x] Copy states this is **client-side until Phase 4**. Do not claim a secure paywall. No fake checkout.
 
 | ID | Flag | Status | Notes |
 | --- | --- | --- | --- |
-| F-P3S3-01 | Premium sprint | `OPEN` | Skip if all content stays free until BE |
-| F-P3S3-02 | Gate is labeled as preview | `OPEN` | No fake checkout |
+| F-P3S3-01 | Premium sprint | `FIXED` | 3 problems marked `premium` across JSON and `PROBLEM_INDEX`. Dual-write verified in `specs/premium-gate.spec.tsx`. |
+| F-P3S3-02 | Gate is labeled as preview | `FIXED` | Gated via `PremiumGate.tsx`. Clear disclosure that gating is client-side preview until Phase 4 backend; zero fake checkout. |
 
 ---
 
