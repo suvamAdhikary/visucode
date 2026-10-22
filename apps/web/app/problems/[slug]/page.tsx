@@ -4,6 +4,7 @@ import { getProblem } from '../../../lib/services';
 import { ProblemTabs } from './ProblemTabs';
 import { ComplexityPanel } from '../../components/complexity/ComplexityPanel';
 import { ProblemCompletionToggle } from './ProblemCompletionToggle';
+import { PremiumGate } from '../../components/premium/PremiumGate';
 import styles from './page.module.css';
 
 interface ProblemPageProps {
@@ -69,6 +70,11 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
               <span className={`badge badge-${difficultyClass}`}>
                 {problem.difficulty}
               </span>
+              {problem.accessLevel === 'premium' && (
+                <span className={styles.premiumBadge} data-testid="problem-header-premium-badge">
+                  ★ Premium
+                </span>
+              )}
               {problem.patterns.map((p) => (
                 <Link
                   key={p}
@@ -176,9 +182,11 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
           )}
         </div>
 
-        {/* Right: Problem Tabs (Client Component) */}
+        {/* Right: Problem Tabs (Client Component, protected by PremiumGate preview) */}
         <div className={styles.visualizerPanel}>
-          <ProblemTabs problem={problem} />
+          <PremiumGate problem={problem}>
+            <ProblemTabs problem={problem} />
+          </PremiumGate>
         </div>
       </div>
     </div>

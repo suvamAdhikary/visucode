@@ -301,6 +301,20 @@
   border: 1px solid rgba(248, 113, 113, 0.2);
 }
 
+.premiumBadge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.2rem 0.625rem;
+  border-radius: 12px;
+  letter-spacing: 0.03em;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .comingSoon {
   font-size: 0.75rem;
   color: var(--color-text-muted);

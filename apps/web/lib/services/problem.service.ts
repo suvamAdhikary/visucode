@@ -91,7 +91,7 @@ const PROBLEM_INDEX: Array<{
     category: 'array',
     patterns: ['two-pointers'],
     companies: ['Amazon', 'Google', 'Goldman Sachs', 'Microsoft'],
-    accessLevel: 'free',
+    accessLevel: 'premium',
   },
   {
     slug: 'longest-substring-without-repeating',
@@ -109,7 +109,7 @@ const PROBLEM_INDEX: Array<{
     category: 'string',
     patterns: ['sliding-window'],
     companies: ['Meta', 'Amazon', 'Google', 'Airbnb'],
-    accessLevel: 'free',
+    accessLevel: 'premium',
   },
   {
     slug: 'longest-repeating-character-replacement',
@@ -271,7 +271,7 @@ const PROBLEM_INDEX: Array<{
     category: 'dynamic-programming',
     patterns: ['dynamic-programming'],
     companies: ['Amazon', 'Google', 'Microsoft', 'Meta'],
-    accessLevel: 'free',
+    accessLevel: 'premium',
   },
   {
     slug: 'subsets',
@@ -323,6 +323,7 @@ export function listProblems(filters?: {
   category?: Category;
   difficulty?: Difficulty;
   company?: string;
+  accessLevel?: 'free' | 'premium';
 }): typeof PROBLEM_INDEX {
   let results = [...PROBLEM_INDEX];
 
@@ -334,6 +335,9 @@ export function listProblems(filters?: {
   }
   if (filters?.difficulty) {
     results = results.filter((p) => p.difficulty === filters.difficulty);
+  }
+  if (filters?.accessLevel) {
+    results = results.filter((p) => p.accessLevel === filters.accessLevel);
   }
   if (filters?.company) {
     results = results.filter((p) =>
@@ -373,24 +377,44 @@ export function getProblemsByPattern(): Record<string, typeof PROBLEM_INDEX> {
   return grouped;
 }
 
+export interface ProblemSummary {
+  slug: string;
+  title: string;
+  difficulty: Difficulty;
+  accessLevel: 'free' | 'premium';
+  exists: boolean;
+}
+
 /**
  * Get basic problem info for a list of slugs (used by pattern detail pages)
  * Returns exists:false for slugs not yet in the index (shown as "Coming Soon")
  */
 export function getProblemSummaries(
   slugs: string[]
-): Array<{ slug: string; title: string; difficulty: Difficulty; exists: boolean }> {
+): ProblemSummary[] {
   return slugs.map((slug) => {
     const found = PROBLEM_INDEX.find((p) => p.slug === slug);
     if (found) {
-      return { slug: found.slug, title: found.title, difficulty: found.difficulty, exists: true };
+      return {
+        slug: found.slug,
+        title: found.title,
+        difficulty: found.difficulty,
+        accessLevel: found.accessLevel ?? 'free',
+        exists: true,
+      };
     }
     // Format slug as readable title for coming-soon problems
     const title = slug
       .split('-')
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
-    return { slug, title, difficulty: 'Medium' as Difficulty, exists: false };
+    return {
+      slug,
+      title,
+      difficulty: 'Medium' as Difficulty,
+      accessLevel: 'free',
+      exists: false,
+    };
   });
 }
 
@@ -402,7 +426,7 @@ export function getProblemSummaries(
 export function getProblemSummariesForPattern(
   patternSlug: PatternSlug,
   extraSlugs: string[] = []
-): Array<{ slug: string; title: string; difficulty: Difficulty; exists: boolean }> {
+): ProblemSummary[] {
   const fromIndex = PROBLEM_INDEX.filter((p) =>
     p.patterns.includes(patternSlug)
   ).map((p) => p.slug);
