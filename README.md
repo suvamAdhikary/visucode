@@ -2,11 +2,19 @@
 
 **Learn DSA Visually — Interactive algorithm visualizations with step-by-step dry runs**
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-visucode.vercel.app-6366f1?style=for-the-badge)](https://visucode.vercel.app)
+[![CI](https://github.com/suvamAdhikary/visucode/actions/workflows/ci.yml/badge.svg)](https://github.com/suvamAdhikary/visucode/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript)](https://typescriptlang.org)
 [![Nx](https://img.shields.io/badge/Nx-Monorepo-143055?style=flat-square&logo=nx)](https://nx.dev)
-[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat-square&logo=vercel)](https://visucode.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+
+🚀 **[Live Demo: visucode.vercel.app](https://visucode.vercel.app)** 🚀
+
+---
+
+## 📸 Preview
+
+![VisuCode Preview](docs/screenshots/preview.png)
 
 ---
 
@@ -199,19 +207,19 @@ Deployed on **Vercel** with automatic deploys on push to `main`.
 ### Branch Strategy
 
 ```
-feature/live-dry-run-sprint-N → main (production)
+feature/<feature-name> → main (production)
 ```
 
-Live Dry Run is next. Then `feature/phase-3-sprint-N` for user-system. Phase 2 PRs targeted `main`. `develop` still contains superseded Sprint 1 (`#8`) — **do not fast-forward `main` from `develop`.** Reset `develop` to `main` before using it as an integration branch.
-
 - Push to `main` → auto-deploy to [visucode.vercel.app](https://visucode.vercel.app)
-- PRs generate preview URLs
+- Pull requests run automated GitHub Actions CI checks (lint, test with coverage, build) and generate preview deployments
 
 ---
 
 ## 🗺️ Roadmap
 
-### Phase 1 — MVP ✅
+For a detailed roadmap with architectural decisions and success metrics, see **[ROADMAP.md](ROADMAP.md)**.
+
+### Phase 1 — MVP Foundation ✅
 
 - [x] Nx monorepo + shared types + logger
 - [x] Landing page with design system
@@ -221,46 +229,48 @@ Live Dry Run is next. Then `feature/phase-3-sprint-N` for user-system. Phase 2 P
 - [x] Zustand stores (visualizer + preferences)
 - [x] Vercel deployment
 
-### Phase 2 — Content & Patterns ✅
+### Phase 2 — Content & Rich Visualizers ✅
 
-- [x] Pattern detail pages
-- [x] Core problems across two-pointers, sliding window, binary search, lists/trees, hashing, stack, intervals, graph/BFS, heap, trie, DP, backtracking
-- [x] Monaco + client test runner
-- [x] Visualizers: array, linked list, tree, hash map, stack/queue, interval, graph, trie, heap, DP table, backtracking
+- [x] Pattern detail pages with algorithmic strategy breakdowns
+- [x] Core problems across 12+ patterns
+- [x] Monaco editor + client test runner
+- [x] 10 specialized visualizers: array, linked list, tree, hash map, stack/queue, interval, graph, trie, heap, DP table, backtracking
 
-### Next — Live Dry Run
+### Live Dry Run Engine ✅
 
 Plan: [`docs/phase-live-dry-run-quality-flags.md`](docs/phase-live-dry-run-quality-flags.md) · ADR: [`docs/ADR/002-live-dry-run-tracer.md`](docs/ADR/002-live-dry-run-tracer.md)
 
-- [ ] Sprint 1: input preflight, JS tracer (Worker + caps + early abort), playground stepper, diagnostics popup on buggy code
-- [ ] Sprint 2: on-the-go 1D / 2D / object visuals from snapshots
-- [ ] Sprint 3: list/tree heuristics and problem page “Dry run my code”
-- [ ] Sprint 4: official time/space panel with why-text and a small Big-O visual (can parallel Sprints 2–3)
-- Authored JSON dry runs stay as the official solution tape
-- Later: user-code good/bad analysis (`F-LDR-X-01`)
+- [x] Web Worker JavaScript tracer foundation with preflight checks and timeout detection
+- [x] On-the-fly 1D / 2D array and object visual state inference from runtime snapshots
+- [x] Data structure heuristics (linked list, binary tree) & problem page "Dry run my code" tab
+- [x] Official Complexity Panel with asymptotic Big-O runtime, space analysis, and growth curves
 
-### Phase 3 — User System
+### Phase 3 — User System, Identity & Premium Preview ✅
 
-After Live Dry Run Sprint 1. Plan: [`docs/phase-3-quality-flags.md`](docs/phase-3-quality-flags.md)
+Plan: [`docs/phase-3-quality-flags.md`](docs/phase-3-quality-flags.md) · ADRs: [`docs/ADR/003-client-side-anonymous-progress.md`](docs/ADR/003-client-side-anonymous-progress.md), [`docs/ADR/004-authjs-v5-identity-and-merge.md`](docs/ADR/004-authjs-v5-identity-and-merge.md), [`docs/ADR/005-premium-ui-preview.md`](docs/ADR/005-premium-ui-preview.md)
 
-- [ ] Sprint 1: anonymous progress (`progress.service` + localStorage) and profile stats
-- [ ] Sprint 2: Auth.js (GitHub / Google) and merge anonymous progress
-- [ ] Sprint 3: premium UI only if JSON is marked premium (skip otherwise; real entitlement is Phase 4)
+- [x] Sprint 1: Anonymous progress engine (`progress.service`, localStorage, `useSyncExternalStore`) & profile stats
+- [x] Sprint 2: Auth.js v5 (GitHub & Google OAuth) with lossless anonymous progress merge
+- [x] Sprint 3: Premium UI architecture preview, honest client-side preview gating (`PremiumGate.tsx`), catalog access filtering, and pattern badges
 
-### Phase 4 — Backend
+### Next: Phase 4 — Backend Infrastructure & Production Entitlements
 
-- [ ] GraphQL API (swap service layer, zero UI changes)
-- [ ] PostgreSQL + Prisma
-- [ ] Redis caching
+- [ ] PostgreSQL database with Prisma ORM
+- [ ] GraphQL API with Apollo Server (swap service layer with zero UI changes)
+- [ ] Redis caching & rate limiting
+- [ ] Stripe subscriptions & server-verified entitlement checks
+- [ ] Cross-device cloud user progress synchronization
 
 ### Phase 5 — Scale
 
-- [ ] Rust → WASM canvas visualizer (1000+ elements)
-- [ ] Real-time multiplayer dry runs
-- [ ] Analytics dashboard
+- [ ] Rust → WASM canvas visualizer (10,000+ elements)
+- [ ] Real-time multiplayer collaborative dry runs
+- [ ] Admin analytics dashboard
 
 ---
 
 ## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 MIT © [Suvam Adhikary](https://github.com/suvamAdhikary)
