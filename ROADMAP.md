@@ -163,15 +163,20 @@ This roadmap outlines the development journey of VisuCode from MVP to a producti
 
 ---
 
-## 🎯 Success Metrics
+## 🎯 Engineering Standards & Target Metrics
 
-We track qualitative validation and engineering integrity over vanity metrics:
+We prioritize verified engineering rigor and honest evaluation over unproven metrics:
 
-- **Phases 1–3**: Zero-config instant local dev, 100% passing automated test suite (680+ tests), 0 TypeScript compiler errors
-- **Live Dry Run**: Time-to-first-visualization < 5 seconds; 100% Web Worker thread isolation
-- **User System**: 100% lossless progress merge during anonymous-to-OAuth transition
-- **Phase 4**: Sub-50ms GraphQL response times, 99.9% webhook delivery for billing events
-- **Phase 5**: Canvas visualizer rendering at 60 FPS for 10,000 elements
+### Proven Engineering Standards (Phases 1–3)
+- **CI Quality Gate**: Automated test suite passing in GitHub Actions on every push and PR
+- **Strict Typing**: Zero TypeScript compiler errors across all monorepo packages (`tsc --noEmit`)
+- **Thread Safety**: 100% Web Worker sandboxing preventing user code from blocking the UI thread
+- **Lossless State Transitions**: Verified set-union logic preserving anonymous progress upon OAuth sign-in
+- **Honest Gating**: Zero deceptive mock payment flows or fake checkouts ahead of Phase 4 database entitlements
+
+### Target Metrics (Future Phases)
+- **Phase 4 Target**: Low-latency GraphQL queries and resilient webhook delivery for billing events
+- **Phase 5 Target**: 60 FPS hardware-accelerated Canvas rendering for large data sets (10,000+ elements)
 
 ---
 
@@ -194,6 +199,6 @@ We track qualitative validation and engineering integrity over vanity metrics:
 
 ---
 
-## 📬 Feedback & Discussions
+## 📬 Feedback & Contributing
 
-Have suggestions or questions? Open a [GitHub Discussion](https://github.com/suvamAdhikary/visucode/discussions) or reach out to the project maintainer.
+Have suggestions or questions? Open a [GitHub Issue](https://github.com/suvamAdhikary/visucode/issues) or reach out to the project maintainer.
